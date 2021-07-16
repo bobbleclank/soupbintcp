@@ -1,0 +1,2 @@
+#define libsoup_VERSION_MAJOR @libsoup_VERSION_MAJOR@
+#define libsoup_VERSION_MINOR @libsoup_VERSION_MINOR@
