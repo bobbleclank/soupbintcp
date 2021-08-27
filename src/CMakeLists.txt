@@ -1,5 +1,6 @@
 add_library(soup
   client/client.cpp
+  logical_packets.cpp
   packing.cpp
   rw_packets.cpp
   server/server.cpp)
