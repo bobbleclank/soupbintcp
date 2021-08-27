@@ -15,4 +15,5 @@ configure_file(libsoup_config.h.in libsoup_config.h)
 include_directories(PUBLIC "${CMAKE_BINARY_DIR}")
 
 add_subdirectory(src)
+add_subdirectory(test)
 add_subdirectory(example)
