@@ -345,7 +345,7 @@ TEST(packing, unpack_session) {
   }
 }
 
-TEST(packing, sequence_number) {
+TEST(packing, pack_sequence_number) {
   {
     std::uint64_t i = 0;
     char b[20];
@@ -388,7 +388,9 @@ TEST(packing, sequence_number) {
     pack_sequence_number(i, b);
     ASSERT_EQ(std::memcmp(b, "18446744073709551615", 20), 0);
   }
+}
 
+TEST(packing, unpack_sequence_number) {
   {
     char b[20 + 1] = "                   0";
     std::uint64_t i = 42;
