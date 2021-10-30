@@ -1,4 +1,4 @@
-add_library(soup
+add_library(bcsoup
   client/client.cpp
   file_store.cpp
   logical_packets.cpp
@@ -9,4 +9,4 @@ add_library(soup
   socket_acceptor.cpp
   types.cpp
   validate.cpp)
-target_include_directories(soup PUBLIC "${CMAKE_SOURCE_DIR}/include")
+target_include_directories(bcsoup PUBLIC "${CMAKE_SOURCE_DIR}/include")

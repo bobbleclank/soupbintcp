@@ -1,4 +1,4 @@
-#include "libsoup_config.h"
+#include "bc_soupbintcp_config.h"
 #include "option_error.h"
 #include "soup/server/server.h"
 
@@ -15,8 +15,8 @@ void display_usage() {
 }
 
 void display_version() {
-  std::cout << "version " << libsoup_VERSION_MAJOR << '.'
-            << libsoup_VERSION_MINOR << '\n';
+  std::cout << "version " << bc_soupbintcp_VERSION_MAJOR << '.'
+            << bc_soupbintcp_VERSION_MINOR << '\n';
 }
 
 int main(int argc, char** argv) {
