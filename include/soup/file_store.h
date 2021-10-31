@@ -1,5 +1,5 @@
-#ifndef INCLUDE_FILE_STORE_H
-#define INCLUDE_FILE_STORE_H
+#ifndef INCLUDE_SOUP_FILE_STORE_H
+#define INCLUDE_SOUP_FILE_STORE_H
 
 #include "soup/rw_packets.h"
 
