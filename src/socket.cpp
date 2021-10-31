@@ -1,9 +1,9 @@
-#include "soup/socket.h"
+#include "bc/soup/socket.h"
 
 #include <cerrno>
 #include <utility>
 
-namespace soup {
+namespace bc::soup {
 
 Socket::Socket(asio::any_io_executor io_executor) : socket_(io_executor) {}
 
@@ -201,4 +201,4 @@ void Socket::packet_sent(asio::error_code ec, std::size_t n) {
     write_packet();
 }
 
-} // namespace soup
+} // namespace bc::soup

@@ -1,9 +1,9 @@
-#include "soup/client/client.h"
+#include "bc/soup/client/client.h"
 
-namespace soup::client {
+namespace bc::soup::client {
 
 void Client::start() {}
 
 void Client::stop() {}
 
-} // namespace soup::client
+} // namespace bc::soup::client

@@ -1,15 +1,15 @@
-#ifndef INCLUDE_SOUP_SOCKET_H
-#define INCLUDE_SOUP_SOCKET_H
+#ifndef INCLUDE_BC_SOUP_SOCKET_H
+#define INCLUDE_BC_SOUP_SOCKET_H
 
-#include "soup/rw_packets.h"
-#include "soup/types.h"
+#include "bc/soup/rw_packets.h"
+#include "bc/soup/types.h"
 
 #include <asio.hpp>
 
 #include <cstddef>
 #include <list>
 
-namespace soup {
+namespace bc::soup {
 
 class Socket {
 public:
@@ -85,6 +85,6 @@ private:
   void packet_sent(asio::error_code, std::size_t);
 };
 
-} // namespace soup
+} // namespace bc::soup
 
 #endif

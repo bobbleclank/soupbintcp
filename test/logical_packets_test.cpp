@@ -1,11 +1,11 @@
-#include "soup/logical_packets.h"
+#include "bc/soup/logical_packets.h"
 
 #include <cstring>
 #include <string>
 
 #include <gtest/gtest.h>
 
-using namespace soup;
+using namespace bc::soup;
 
 TEST(logical_packets, packet_type) {
   ASSERT_EQ(Debug_packet::packet_type, '+');

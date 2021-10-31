@@ -1,8 +1,8 @@
-#include "soup/logical_packets.h"
+#include "bc/soup/logical_packets.h"
 
-#include "soup/packing.h"
+#include "bc/soup/packing.h"
 
-namespace soup {
+namespace bc::soup {
 
 Login_accepted_packet::Login_accepted_packet(
     std::string_view session_, std::uint64_t next_sequence_number_)
@@ -65,4 +65,4 @@ void write(const Login_request_packet& packet, void* data) {
   pack_sequence_number(packet.requested_sequence_number, ptr);
 }
 
-} // namespace soup
+} // namespace bc::soup

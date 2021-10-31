@@ -1,7 +1,7 @@
-#ifndef INCLUDE_SOUP_TYPES_H
-#define INCLUDE_SOUP_TYPES_H
+#ifndef INCLUDE_BC_SOUP_TYPES_H
+#define INCLUDE_BC_SOUP_TYPES_H
 
-namespace soup {
+namespace bc::soup {
 
 enum class Packet_error { bad_length };
 
@@ -11,6 +11,6 @@ enum class Write_error { success, buffer_full };
 
 const char* to_string(Write_error);
 
-} // namespace soup
+} // namespace bc::soup
 
 #endif

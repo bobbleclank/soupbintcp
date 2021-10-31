@@ -1,4 +1,4 @@
-#include "soup/rw_packets.h"
+#include "bc/soup/rw_packets.h"
 
 #include <cstdint>
 #include <cstring>
@@ -8,7 +8,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace soup;
+using namespace bc::soup;
 
 namespace {
 

@@ -1,11 +1,11 @@
-#ifndef INCLUDE_SOUP_SOCKET_ACCEPTOR_H
-#define INCLUDE_SOUP_SOCKET_ACCEPTOR_H
+#ifndef INCLUDE_BC_SOUP_SOCKET_ACCEPTOR_H
+#define INCLUDE_BC_SOUP_SOCKET_ACCEPTOR_H
 
 #include <asio.hpp>
 
 #include <optional>
 
-namespace soup {
+namespace bc::soup {
 
 class Socket_acceptor {
 public:
@@ -57,6 +57,6 @@ private:
   std::optional<asio::ip::tcp::socket> socket_;
 };
 
-} // namespace soup
+} // namespace bc::soup
 
 #endif

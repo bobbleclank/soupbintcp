@@ -1,4 +1,4 @@
-#include "soup/packing.h"
+#include "bc/soup/packing.h"
 
 #include <cstdint>
 #include <limits>
@@ -6,8 +6,8 @@
 
 #include <gtest/gtest.h>
 
-using namespace soup;
-using namespace soup::internal;
+using namespace bc::soup;
+using namespace bc::soup::internal;
 
 using namespace std::string_literals;
 

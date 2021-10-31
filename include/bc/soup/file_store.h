@@ -1,7 +1,7 @@
-#ifndef INCLUDE_SOUP_FILE_STORE_H
-#define INCLUDE_SOUP_FILE_STORE_H
+#ifndef INCLUDE_BC_SOUP_FILE_STORE_H
+#define INCLUDE_BC_SOUP_FILE_STORE_H
 
-#include "soup/rw_packets.h"
+#include "bc/soup/rw_packets.h"
 
 #include <cstddef>
 #include <string>
@@ -11,7 +11,7 @@
 
 #include <sys/types.h>
 
-namespace soup {
+namespace bc::soup {
 
 class Message {
 public:
@@ -63,6 +63,6 @@ private:
   [[nodiscard]] std::error_code get(Message&);
 };
 
-} // namespace soup
+} // namespace bc::soup
 
 #endif

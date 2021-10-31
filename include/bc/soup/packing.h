@@ -1,7 +1,7 @@
-#ifndef INCLUDE_SOUP_PACKING_H
-#define INCLUDE_SOUP_PACKING_H
+#ifndef INCLUDE_BC_SOUP_PACKING_H
+#define INCLUDE_BC_SOUP_PACKING_H
 
-#include "soup/constants.h"
+#include "bc/soup/constants.h"
 
 #include <cctype>
 #include <cstddef>
@@ -13,7 +13,7 @@
 
 #include <arpa/inet.h>
 
-namespace soup {
+namespace bc::soup {
 
 template <typename Integral,
           std::enable_if_t<std::is_integral_v<Integral>, bool> = true>
@@ -131,6 +131,6 @@ inline void unpack_sequence_number(std::uint64_t& i, const void* data) {
   internal::unpack_numeric<std::uint64_t, sequence_number_length>(i, data);
 }
 
-} // namespace soup
+} // namespace bc::soup
 
 #endif

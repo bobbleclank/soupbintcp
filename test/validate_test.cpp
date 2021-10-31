@@ -1,10 +1,10 @@
-#include "soup/validate.h"
+#include "bc/soup/validate.h"
 
 #include <string>
 
 #include <gtest/gtest.h>
 
-using namespace soup;
+using namespace bc::soup;
 
 TEST(validate, is_valid_username) {
   ASSERT_TRUE(is_valid_username(""));

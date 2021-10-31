@@ -1,4 +1,4 @@
-#include "soup/file_store.h"
+#include "bc/soup/file_store.h"
 
 #include <cstring>
 #include <utility>
@@ -8,7 +8,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace soup;
+using namespace bc::soup;
 
 namespace {
 

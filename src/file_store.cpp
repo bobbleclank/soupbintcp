@@ -1,4 +1,4 @@
-#include "soup/file_store.h"
+#include "bc/soup/file_store.h"
 
 #include <cerrno>
 #include <utility>
@@ -7,7 +7,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-namespace soup {
+namespace bc::soup {
 namespace {
 
 int open(const char* path, int oflag) {
@@ -193,4 +193,4 @@ std::error_code File_store::get(Message& message) {
   return {};
 }
 
-} // namespace soup
+} // namespace bc::soup

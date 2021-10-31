@@ -1,6 +1,6 @@
-#include "soup/packing.h"
+#include "bc/soup/packing.h"
 
-namespace soup {
+namespace bc::soup {
 namespace internal {
 
 void pack_alphanumeric(std::string_view str, void* data, std::size_t length) {
@@ -53,4 +53,4 @@ void unpack_session(std::string& str, const void* data) {
   }
 }
 
-} // namespace soup
+} // namespace bc::soup

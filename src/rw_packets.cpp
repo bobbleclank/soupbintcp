@@ -1,11 +1,11 @@
-#include "soup/rw_packets.h"
+#include "bc/soup/rw_packets.h"
 
-#include "soup/packing.h"
+#include "bc/soup/packing.h"
 
 #include <cstring>
 #include <utility>
 
-namespace soup {
+namespace bc::soup {
 
 Buffer::Buffer(std::size_t size)
     : data_(std::make_unique<std::byte[]>(size)), size_(size) {}
@@ -84,4 +84,4 @@ Write_packet::resize_payload(std::uint16_t payload_size) {
   return Resize_result::resized;
 }
 
-} // namespace soup
+} // namespace bc::soup

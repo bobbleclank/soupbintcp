@@ -1,6 +1,6 @@
-#include "soup/types.h"
+#include "bc/soup/types.h"
 
-namespace soup {
+namespace bc::soup {
 
 const char* to_string(Packet_error error) {
   switch (error) {
@@ -20,4 +20,4 @@ const char* to_string(Write_error error) {
   return "?";
 }
 
-} // namespace soup
+} // namespace bc::soup

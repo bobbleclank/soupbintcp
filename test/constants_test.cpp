@@ -1,8 +1,8 @@
-#include "soup/constants.h"
+#include "bc/soup/constants.h"
 
 #include <gtest/gtest.h>
 
-using namespace soup;
+using namespace bc::soup;
 
 TEST(constants, header_lengths) {
   ASSERT_EQ(packet_size_length, 2);

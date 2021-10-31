@@ -1,14 +1,14 @@
-#ifndef INCLUDE_SOUP_RW_PACKETS_H
-#define INCLUDE_SOUP_RW_PACKETS_H
+#ifndef INCLUDE_BC_SOUP_RW_PACKETS_H
+#define INCLUDE_BC_SOUP_RW_PACKETS_H
 
-#include "soup/constants.h"
+#include "bc/soup/constants.h"
 
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 
-namespace soup {
+namespace bc::soup {
 
 class Buffer {
 public:
@@ -119,6 +119,6 @@ private:
   Buffer packet_;
 };
 
-} // namespace soup
+} // namespace bc::soup
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef INCLUDE_EXP_EXPECTED_H
-#define INCLUDE_EXP_EXPECTED_H
+#ifndef INCLUDE_BC_EXP_EXPECTED_H
+#define INCLUDE_BC_EXP_EXPECTED_H
 
 #include <exception>
 #include <memory>
@@ -7,7 +7,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace exp {
+namespace bc::exp {
 
 struct unexpect_t {
   explicit unexpect_t() = default;
@@ -205,6 +205,6 @@ bool operator!=(const unexpected<E2>& e, const expected<T1, E1>& x) {
   return x.has_value() ? true : x.error() != e.value();
 }
 
-} // namespace exp
+} // namespace bc::exp
 
 #endif

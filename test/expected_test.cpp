@@ -1,4 +1,4 @@
-#include "exp/expected.h"
+#include "bc/exp/expected.h"
 
 #include <string>
 #include <tuple>
@@ -7,7 +7,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace exp;
+using namespace bc::exp;
 
 TEST(bad_expected_access, constructor) {
   bad_expected_access<int> e(1);

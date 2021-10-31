@@ -1,14 +1,14 @@
-#ifndef INCLUDE_SOUP_PACKETS_H
-#define INCLUDE_SOUP_PACKETS_H
+#ifndef INCLUDE_BC_SOUP_PACKETS_H
+#define INCLUDE_BC_SOUP_PACKETS_H
 
-#include "soup/constants.h"
+#include "bc/soup/constants.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <string>
 #include <string_view>
 
-namespace soup {
+namespace bc::soup {
 
 struct Debug_packet {
   static constexpr char packet_type = '+';
@@ -100,6 +100,6 @@ struct Logout_request_packet {
   static constexpr std::size_t payload_size = 0;
 };
 
-} // namespace soup
+} // namespace bc::soup
 
 #endif

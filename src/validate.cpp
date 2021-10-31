@@ -1,10 +1,10 @@
-#include "soup/validate.h"
+#include "bc/soup/validate.h"
 
-#include "soup/constants.h"
+#include "bc/soup/constants.h"
 
 #include <cctype>
 
-namespace soup {
+namespace bc::soup {
 namespace {
 
 bool is_valid_string(std::string_view str) {
@@ -35,4 +35,4 @@ bool is_valid_session(std::string_view session) {
   return is_valid_string(session);
 }
 
-} // namespace soup
+} // namespace bc::soup

@@ -1,8 +1,8 @@
-#include "soup/socket_acceptor.h"
+#include "bc/soup/socket_acceptor.h"
 
 #include <utility>
 
-namespace soup {
+namespace bc::soup {
 
 Socket_acceptor::Socket_acceptor(asio::any_io_executor io_executor)
     : acceptor_(io_executor) {}
@@ -80,4 +80,4 @@ asio::ip::tcp::acceptor::executor_type Socket_acceptor::get_executor() {
   return acceptor_.get_executor();
 }
 
-} // namespace soup
+} // namespace bc::soup
