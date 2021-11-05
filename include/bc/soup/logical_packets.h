@@ -1,5 +1,5 @@
-#ifndef INCLUDE_BC_SOUP_PACKETS_H
-#define INCLUDE_BC_SOUP_PACKETS_H
+#ifndef INCLUDE_BC_SOUP_LOGICAL_PACKETS_H
+#define INCLUDE_BC_SOUP_LOGICAL_PACKETS_H
 
 #include "bc/soup/constants.h"
 
