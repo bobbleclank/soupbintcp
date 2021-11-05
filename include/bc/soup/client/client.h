@@ -5,8 +5,12 @@ namespace bc::soup::client {
 
 class Client {
 public:
+  Client();
+
   void start();
   void stop();
+
+private:
 };
 
 } // namespace bc::soup::client

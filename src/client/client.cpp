@@ -2,6 +2,8 @@
 
 namespace bc::soup::client {
 
+Client::Client() {}
+
 void Client::start() {}
 
 void Client::stop() {}

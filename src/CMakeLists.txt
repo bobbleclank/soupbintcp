@@ -1,5 +1,7 @@
 add_library(bcsoup
   client/client.cpp
+  client/connection.cpp
+  client/tcp_connection.cpp
   file_store.cpp
   logical_packets.cpp
   packing.cpp
