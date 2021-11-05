@@ -2,6 +2,8 @@
 
 namespace bc::soup::server {
 
+Server::Server() {}
+
 void Server::start() {}
 
 void Server::stop() {}

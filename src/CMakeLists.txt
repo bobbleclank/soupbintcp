@@ -6,7 +6,10 @@ add_library(bcsoup
   logical_packets.cpp
   packing.cpp
   rw_packets.cpp
+  server/acceptor.cpp
+  server/port.cpp
   server/server.cpp
+  server/tcp_connection.cpp
   socket.cpp
   socket_acceptor.cpp
   types.cpp

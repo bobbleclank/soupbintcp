@@ -5,8 +5,12 @@ namespace bc::soup::server {
 
 class Server {
 public:
+  Server();
+
   void start();
   void stop();
+
+private:
 };
 
 } // namespace bc::soup::server
