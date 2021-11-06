@@ -3,6 +3,7 @@ add_executable(test_${PROJECT_NAME}
   expected_test.cpp
   file_store_test.cpp
   logical_packets_test.cpp
+  message_test.cpp
   packing_test.cpp
   rw_packets_test.cpp
   validate_test.cpp)
