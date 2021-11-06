@@ -1,5 +1,6 @@
 #include "bc/soup/rw_packets.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <utility>
