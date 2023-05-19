@@ -5,14 +5,14 @@
 
 namespace bc::soup {
 
-Socket::Socket(asio::any_io_executor io_executor) : socket_(io_executor) {}
+Socket::Socket(boost::asio::any_io_executor io_executor) : socket_(io_executor) {}
 
-Socket::Socket(asio::any_io_executor io_executor, Handler& handler)
+Socket::Socket(boost::asio::any_io_executor io_executor, Handler& handler)
     : handler_(&handler), socket_(io_executor) {}
 
-Socket::Socket(asio::ip::tcp::socket&& socket) : socket_(std::move(socket)) {}
+Socket::Socket(boost::asio::ip::tcp::socket&& socket) : socket_(std::move(socket)) {}
 
-Socket::Socket(asio::ip::tcp::socket&& socket, Handler& handler)
+Socket::Socket(boost::asio::ip::tcp::socket&& socket, Handler& handler)
     : handler_(&handler), socket_(std::move(socket)) {}
 
 void Socket::set_handler(Handler& handler) { handler_ = &handler; }
@@ -21,36 +21,36 @@ void Socket::set_write_packets_limit(std::size_t write_packets_limit) {
   write_packets_limit_ = write_packets_limit;
 }
 
-asio::error_code Socket::open() {
-  asio::error_code ec;
-  socket_.open(asio::ip::tcp::v4(), ec);
+boost::system::error_code Socket::open() {
+  boost::system::error_code ec;
+  socket_.open(boost::asio::ip::tcp::v4(), ec);
   return ec;
 }
 
-void Socket::shutdown(asio::error_code* error) {
-  asio::error_code ec;
-  socket_.shutdown(asio::ip::tcp::socket::shutdown_both, ec);
+void Socket::shutdown(boost::system::error_code* error) {
+  boost::system::error_code ec;
+  socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
   if (error)
     *error = ec;
 }
 
-void Socket::close(asio::error_code* error) {
-  asio::error_code ec;
+void Socket::close(boost::system::error_code* error) {
+  boost::system::error_code ec;
   socket_.close(ec);
   if (error)
     *error = ec;
 }
 
-asio::error_code Socket::set_no_delay() {
-  asio::ip::tcp::no_delay option(true);
-  asio::error_code ec;
+boost::system::error_code Socket::set_no_delay() {
+  boost::asio::ip::tcp::no_delay option(true);
+  boost::system::error_code ec;
   socket_.set_option(option, ec);
   return ec;
 }
 
-void Socket::async_connect(const asio::ip::tcp::endpoint& endpoint) {
-  socket_.async_connect(endpoint, [this](asio::error_code ec) {
-    if (ec == asio::error::operation_aborted) {
+void Socket::async_connect(const boost::asio::ip::tcp::endpoint& endpoint) {
+  socket_.async_connect(endpoint, [this](boost::system::error_code ec) {
+    if (ec == boost::asio::error::operation_aborted) {
       return;
     }
     if (ec) {
@@ -78,39 +78,39 @@ Write_error Socket::async_write(Write_packet&& packet) {
   return Write_error::success;
 }
 
-asio::ip::tcp::endpoint Socket::local_endpoint(asio::error_code* error) const {
-  asio::error_code ec;
+boost::asio::ip::tcp::endpoint Socket::local_endpoint(boost::system::error_code* error) const {
+  boost::system::error_code ec;
   auto endpoint = socket_.local_endpoint(ec);
   if (error)
     *error = ec;
   return endpoint;
 }
 
-asio::ip::tcp::endpoint Socket::remote_endpoint(asio::error_code* error) const {
-  asio::error_code ec;
+boost::asio::ip::tcp::endpoint Socket::remote_endpoint(boost::system::error_code* error) const {
+  boost::system::error_code ec;
   auto endpoint = socket_.remote_endpoint(ec);
   if (error)
     *error = ec;
   return endpoint;
 }
 
-asio::ip::tcp::socket::executor_type Socket::get_executor() {
+boost::asio::ip::tcp::socket::executor_type Socket::get_executor() {
   return socket_.get_executor();
 }
 
 void Socket::read_header() {
   auto& packet = read_packet_;
-  auto buffer = asio::buffer(packet.header_data(), packet.header_size());
-  asio::async_read(socket_, buffer, [this](asio::error_code ec, std::size_t n) {
+  auto buffer = boost::asio::buffer(packet.header_data(), packet.header_size());
+  boost::asio::async_read(socket_, buffer, [this](boost::system::error_code ec, std::size_t n) {
     header_received(ec, n);
   });
 }
 
-void Socket::header_received(asio::error_code ec, std::size_t n) {
-  if (ec == asio::error::operation_aborted) {
+void Socket::header_received(boost::system::error_code ec, std::size_t n) {
+  if (ec == boost::asio::error::operation_aborted) {
     return;
   }
-  if (ec == asio::error::eof) {
+  if (ec == boost::asio::error::eof) {
     handler_->end_of_file();
     return;
   }
@@ -119,7 +119,7 @@ void Socket::header_received(asio::error_code ec, std::size_t n) {
     return;
   }
   if (n != read_packet_.header_size()) { // Needed? Error code should be set.
-    asio::error_code ec(ECANCELED, asio::system_category());
+    boost::system::error_code ec(ECANCELED, boost::system::system_category());
     handler_->read_failure(ec);
     return;
   }
@@ -142,17 +142,17 @@ void Socket::header_received(asio::error_code ec, std::size_t n) {
 
 void Socket::read_payload() {
   auto& packet = read_packet_;
-  auto buffer = asio::buffer(packet.payload_data(), packet.payload_size());
-  asio::async_read(socket_, buffer, [this](asio::error_code ec, std::size_t n) {
+  auto buffer = boost::asio::buffer(packet.payload_data(), packet.payload_size());
+  boost::asio::async_read(socket_, buffer, [this](boost::system::error_code ec, std::size_t n) {
     payload_received(ec, n);
   });
 }
 
-void Socket::payload_received(asio::error_code ec, std::size_t n) {
-  if (ec == asio::error::operation_aborted) {
+void Socket::payload_received(boost::system::error_code ec, std::size_t n) {
+  if (ec == boost::asio::error::operation_aborted) {
     return;
   }
-  if (ec == asio::error::eof) {
+  if (ec == boost::asio::error::eof) {
     handler_->end_of_file();
     return;
   }
@@ -161,7 +161,7 @@ void Socket::payload_received(asio::error_code ec, std::size_t n) {
     return;
   }
   if (n != read_packet_.payload_size()) { // Needed? Error code should be set.
-    asio::error_code ec(ECANCELED, asio::system_category());
+    boost::system::error_code ec(ECANCELED, boost::system::system_category());
     handler_->read_failure(ec);
     return;
   }
@@ -171,14 +171,14 @@ void Socket::payload_received(asio::error_code ec, std::size_t n) {
 
 void Socket::write_packet() {
   auto& packet = write_packets_.front();
-  auto buffer = asio::buffer(packet.data(), packet.size());
-  asio::async_write(
+  auto buffer = boost::asio::buffer(packet.data(), packet.size());
+  boost::asio::async_write(
       socket_, buffer,
-      [this](asio::error_code ec, std::size_t n) { packet_sent(ec, n); });
+      [this](boost::system::error_code ec, std::size_t n) { packet_sent(ec, n); });
 }
 
-void Socket::packet_sent(asio::error_code ec, std::size_t n) {
-  if (ec == asio::error::operation_aborted) {
+void Socket::packet_sent(boost::system::error_code ec, std::size_t n) {
+  if (ec == boost::asio::error::operation_aborted) {
     return;
   }
   if (ec) {
@@ -187,7 +187,7 @@ void Socket::packet_sent(asio::error_code ec, std::size_t n) {
   }
   auto& packet = write_packets_.front();
   if (n != packet.size()) { // Needed? Error code should be set.
-    asio::error_code ec(ECANCELED, asio::system_category());
+    boost::system::error_code ec(ECANCELED, boost::system::system_category());
     handler_->write_failure(ec);
     return;
   }

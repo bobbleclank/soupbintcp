@@ -16,15 +16,15 @@ public:
   Tcp_connection(Tcp_connection&&) = delete;
   Tcp_connection& operator=(Tcp_connection&&) = delete;
 
-  void connect_failure(asio::error_code) override;
+  void connect_failure(boost::system::error_code) override;
   void connect_success() override;
 
-  void read_failure(asio::error_code) override;
+  void read_failure(boost::system::error_code) override;
   void read_failure(Packet_error) override;
   void read_completed(const Read_packet&) override;
   void end_of_file() override;
 
-  void write_failure(asio::error_code) override;
+  void write_failure(boost::system::error_code) override;
   void write_completed(const Write_packet&) override;
   void write_buffer_empty() override;
 

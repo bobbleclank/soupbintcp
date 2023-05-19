@@ -1,7 +1,7 @@
 #ifndef INCLUDE_BC_SOUP_SOCKET_ACCEPTOR_H
 #define INCLUDE_BC_SOUP_SOCKET_ACCEPTOR_H
 
-#include <asio.hpp>
+#include <boost/asio.hpp>
 
 #include <optional>
 
@@ -11,8 +11,8 @@ class Socket_acceptor {
 public:
   class Handler {
   public:
-    virtual void accept_failure(asio::error_code) = 0;
-    virtual void accept_success(asio::ip::tcp::socket&&) = 0;
+    virtual void accept_failure(boost::system::error_code) = 0;
+    virtual void accept_success(boost::asio::ip::tcp::socket&&) = 0;
 
   protected:
     Handler() = default;
@@ -25,8 +25,8 @@ public:
     Handler& operator=(Handler&&) = default;
   };
 
-  explicit Socket_acceptor(asio::any_io_executor);
-  Socket_acceptor(asio::any_io_executor, Handler&);
+  explicit Socket_acceptor(boost::asio::any_io_executor);
+  Socket_acceptor(boost::asio::any_io_executor, Handler&);
   ~Socket_acceptor() = default;
 
   Socket_acceptor(const Socket_acceptor&) = delete;
@@ -37,24 +37,24 @@ public:
 
   void set_handler(Handler&);
 
-  [[nodiscard]] asio::error_code open();
-  [[nodiscard]] asio::error_code bind(const asio::ip::tcp::endpoint&);
-  [[nodiscard]] asio::error_code listen();
-  void close(asio::error_code* = nullptr);
+  [[nodiscard]] boost::system::error_code open();
+  [[nodiscard]] boost::system::error_code bind(const boost::asio::ip::tcp::endpoint&);
+  [[nodiscard]] boost::system::error_code listen();
+  void close(boost::system::error_code* = nullptr);
 
-  [[nodiscard]] asio::error_code set_reuse_address();
-  [[nodiscard]] asio::error_code set_no_delay();
+  [[nodiscard]] boost::system::error_code set_reuse_address();
+  [[nodiscard]] boost::system::error_code set_no_delay();
 
   void async_accept();
 
-  asio::ip::tcp::endpoint local_endpoint(asio::error_code* = nullptr) const;
+  boost::asio::ip::tcp::endpoint local_endpoint(boost::system::error_code* = nullptr) const;
 
-  asio::ip::tcp::acceptor::executor_type get_executor();
+  boost::asio::ip::tcp::acceptor::executor_type get_executor();
 
 private:
   Handler* handler_ = nullptr;
-  asio::ip::tcp::acceptor acceptor_;
-  std::optional<asio::ip::tcp::socket> socket_;
+  boost::asio::ip::tcp::acceptor acceptor_;
+  std::optional<boost::asio::ip::tcp::socket> socket_;
 };
 
 } // namespace bc::soup
