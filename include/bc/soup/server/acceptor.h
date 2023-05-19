@@ -9,8 +9,8 @@ class Acceptor final : public Socket_acceptor::Handler {
 public:
   Acceptor();
 
-  void accept_failure(asio::error_code) override;
-  void accept_success(asio::ip::tcp::socket&&) override;
+  void accept_failure(boost::system::error_code) override;
+  void accept_success(boost::asio::ip::tcp::socket&&) override;
 
 private:
 };
