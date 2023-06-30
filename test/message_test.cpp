@@ -33,10 +33,10 @@ void assert_non_empty(const Write_packet& p, char packet_type,
                       std::uint16_t payload_size) {
   ASSERT_EQ(p.payload_capacity(), payload_capacity);
   ASSERT_NE(p.data(), nullptr);
-  ASSERT_EQ(p.packet_size(), 1 + payload_size);
+  ASSERT_EQ(p.packet_size(), 1u + payload_size);
   ASSERT_EQ(p.packet_type(), packet_type);
   ASSERT_EQ(p.payload_size(), payload_size);
-  ASSERT_EQ(p.size(), 3 + payload_size);
+  ASSERT_EQ(p.size(), 3u + payload_size);
 }
 
 void assert_non_empty(const Write_packet& p, char packet_type,

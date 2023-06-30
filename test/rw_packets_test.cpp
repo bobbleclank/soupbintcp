@@ -120,7 +120,7 @@ void write_header(Read_packet& p, std::uint16_t packet_size, char packet_type) {
 
 void write_payload(Read_packet& p, char packet_type, std::uint16_t payload_size,
                    const void* payload_data) {
-  write_header(p, 1 + payload_size, packet_type);
+  write_header(p, 1u + payload_size, packet_type);
   (void)p.resize_payload();
   std::memcpy(p.payload_data(), payload_data, p.payload_size());
 }
@@ -137,7 +137,7 @@ void assert_empty(const Read_packet& p) { assert_empty(p, 0, '\0'); }
 
 void assert_non_empty(const Read_packet& p, char packet_type,
                       std::uint16_t payload_size) {
-  ASSERT_EQ(p.packet_size(), 1 + payload_size);
+  ASSERT_EQ(p.packet_size(), 1u + payload_size);
   ASSERT_EQ(p.packet_type(), packet_type);
   ASSERT_NE(p.payload_data(), nullptr);
   ASSERT_EQ(p.payload_size(), payload_size);
@@ -275,10 +275,10 @@ void assert_non_empty(const Write_packet& p, char packet_type,
                       std::uint16_t payload_size) {
   ASSERT_EQ(p.payload_capacity(), payload_capacity);
   ASSERT_NE(p.data(), nullptr);
-  ASSERT_EQ(p.packet_size(), 1 + payload_size);
+  ASSERT_EQ(p.packet_size(), 1u + payload_size);
   ASSERT_EQ(p.packet_type(), packet_type);
   ASSERT_EQ(p.payload_size(), payload_size);
-  ASSERT_EQ(p.size(), 3 + payload_size);
+  ASSERT_EQ(p.size(), 3u + payload_size);
 }
 
 void assert_non_empty(const Write_packet& p, char packet_type,
