@@ -128,8 +128,8 @@ TYPED_TEST(Message, resize_payload) {
 
     typename TypeParam::Resize_result result = m.resize_payload(1);
     ASSERT_EQ(result, TypeParam::Resize_result::no_capacity);
-    ASSERT_EQ(m.payload_capacity(), 0);
-    ASSERT_EQ(m.payload_size(), 0);
+    ASSERT_EQ(m.payload_capacity(), 0u);
+    ASSERT_EQ(m.payload_size(), 0u);
 
     result = m.resize_payload(0);
     ASSERT_EQ(result, TypeParam::Resize_result::resized);
@@ -140,13 +140,13 @@ TYPED_TEST(Message, resize_payload) {
 
     typename TypeParam::Resize_result result = m.resize_payload(2);
     ASSERT_EQ(result, TypeParam::Resize_result::no_capacity);
-    ASSERT_EQ(m.payload_capacity(), 1);
-    ASSERT_EQ(m.payload_size(), 1);
+    ASSERT_EQ(m.payload_capacity(), 1u);
+    ASSERT_EQ(m.payload_size(), 1u);
 
     result = m.resize_payload(1);
     ASSERT_EQ(result, TypeParam::Resize_result::resized);
-    ASSERT_EQ(m.payload_capacity(), 1);
-    ASSERT_EQ(m.payload_size(), 1);
+    ASSERT_EQ(m.payload_capacity(), 1u);
+    ASSERT_EQ(m.payload_size(), 1u);
 
     result = m.resize_payload(0);
     ASSERT_EQ(result, TypeParam::Resize_result::resized);
@@ -157,14 +157,14 @@ TYPED_TEST(Message, resize_payload) {
 
     typename TypeParam::Resize_result result = m.resize_payload(5);
     ASSERT_EQ(result, TypeParam::Resize_result::resized);
-    ASSERT_EQ(m.payload_capacity(), 11);
-    ASSERT_EQ(m.payload_size(), 5);
+    ASSERT_EQ(m.payload_capacity(), 11u);
+    ASSERT_EQ(m.payload_size(), 5u);
     ASSERT_EQ(std::memcmp(m.payload_data(), "hello", 5), 0);
 
     result = m.resize_payload(0);
     ASSERT_EQ(result, TypeParam::Resize_result::resized);
-    ASSERT_EQ(m.payload_capacity(), 11);
-    ASSERT_EQ(m.payload_size(), 0);
+    ASSERT_EQ(m.payload_capacity(), 11u);
+    ASSERT_EQ(m.payload_size(), 0u);
 
     result = m.resize_payload(11);
     ASSERT_EQ(result, TypeParam::Resize_result::resized);

@@ -15,7 +15,7 @@ namespace {
 
 void assert_empty(const Buffer& b) {
   ASSERT_EQ(b.data(), nullptr);
-  ASSERT_EQ(b.size(), 0);
+  ASSERT_EQ(b.size(), 0u);
 }
 
 void assert_non_empty(const Buffer& b, std::size_t size) {
@@ -130,7 +130,7 @@ void assert_empty(const Read_packet& p, std::uint16_t packet_size,
   ASSERT_EQ(p.packet_size(), packet_size);
   ASSERT_EQ(p.packet_type(), packet_type);
   ASSERT_EQ(p.payload_data(), nullptr);
-  ASSERT_EQ(p.payload_size(), 0);
+  ASSERT_EQ(p.payload_size(), 0u);
 }
 
 void assert_empty(const Read_packet& p) { assert_empty(p, 0, '\0'); }
@@ -155,7 +155,7 @@ TEST(Read_packet, default_constructor) {
   Read_packet p;
   ASSERT_NE(p.header_data(), nullptr);
   constexpr auto header_size = p.header_size();
-  ASSERT_EQ(header_size, 3);
+  ASSERT_EQ(header_size, 3u);
   assert_empty(p);
 }
 

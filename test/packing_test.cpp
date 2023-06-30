@@ -37,7 +37,7 @@ TEST(packing, integral) {
     ASSERT_EQ(*reinterpret_cast<std::int16_t*>(b), 0X1500);
     std::uint16_t j = 0;
     unpack(j, b);
-    ASSERT_EQ(j, 21);
+    ASSERT_EQ(j, 21u);
   }
   {
     std::int32_t i = 42;
@@ -55,7 +55,7 @@ TEST(packing, integral) {
     ASSERT_EQ(*reinterpret_cast<std::int32_t*>(b), 0X2A000000);
     std::uint32_t j = 0;
     unpack(j, b);
-    ASSERT_EQ(j, 42);
+    ASSERT_EQ(j, 42u);
   }
 }
 
@@ -395,25 +395,25 @@ TEST(packing, unpack_sequence_number) {
     char b[20 + 1] = "                   0";
     std::uint64_t i = 42;
     unpack_sequence_number(i, b);
-    ASSERT_EQ(i, 0);
+    ASSERT_EQ(i, 0u);
   }
   {
     char b[20 + 1] = "                   1";
     std::uint64_t i = 42;
     unpack_sequence_number(i, b);
-    ASSERT_EQ(i, 1);
+    ASSERT_EQ(i, 1u);
   }
   {
     char b[20 + 1] = "               12345";
     std::uint64_t i = 42;
     unpack_sequence_number(i, b);
-    ASSERT_EQ(i, 12345);
+    ASSERT_EQ(i, 12345u);
   }
   {
     char b[20 + 1] = "          1234567890";
     std::uint64_t i = 42;
     unpack_sequence_number(i, b);
-    ASSERT_EQ(i, 1234567890);
+    ASSERT_EQ(i, 1234567890u);
   }
   {
     char b[20 + 1] = " 9999999999999999999";
@@ -431,24 +431,24 @@ TEST(packing, unpack_sequence_number) {
     char b[20 + 1] = "                    "; // No digits.
     std::uint64_t i = 42;
     unpack_sequence_number(i, b);
-    ASSERT_EQ(i, 0);
+    ASSERT_EQ(i, 0u);
   }
   {
     char b[20 + 1] = "          123 567890"; // Non-digit.
     std::uint64_t i = 42;
     unpack_sequence_number(i, b);
-    ASSERT_EQ(i, 123);
+    ASSERT_EQ(i, 123u);
   }
   {
     char b[20 + 1] = "18446744073709551616"; // Overflow.
     std::uint64_t i = 42;
     unpack_sequence_number(i, b);
-    ASSERT_EQ(i, 0);
+    ASSERT_EQ(i, 0u);
   }
   {
     char b[20 + 1] = "18446744073709551617"; // Overflow.
     std::uint64_t i = 42;
     unpack_sequence_number(i, b);
-    ASSERT_EQ(i, 1);
+    ASSERT_EQ(i, 1u);
   }
 }

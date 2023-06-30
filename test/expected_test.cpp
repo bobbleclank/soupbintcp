@@ -35,7 +35,7 @@ TEST(expected, default_constructor) {
   expected<std::string, int> e;
   ASSERT_TRUE(static_cast<bool>(e));
   ASSERT_TRUE(e.has_value());
-  ASSERT_EQ(e->size(), 0);
+  ASSERT_EQ(e->size(), 0u);
   ASSERT_EQ(*e, std::string());
   ASSERT_NO_THROW(e.value());
   ASSERT_EQ(e.value(), std::string());
@@ -45,7 +45,7 @@ TEST(expected, in_place_constructor) {
   expected<std::string, int> e(std::in_place, "hello world", 5);
   ASSERT_TRUE(static_cast<bool>(e));
   ASSERT_TRUE(e.has_value());
-  ASSERT_EQ(e->size(), 5);
+  ASSERT_EQ(e->size(), 5u);
   ASSERT_EQ(*e, std::string("hello"));
   ASSERT_NO_THROW(e.value());
   ASSERT_EQ(e.value(), std::string("hello"));
