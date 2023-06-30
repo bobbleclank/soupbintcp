@@ -14,7 +14,7 @@ endif()
 
 configure_file(${PROJECT_NAME}_config.h.in ${PROJECT_NAME}_config.h)
 
-include_directories(PUBLIC "${CMAKE_BINARY_DIR}")
+include_directories(PUBLIC "${PROJECT_BINARY_DIR}")
 
 add_subdirectory(src)
 add_subdirectory(test)
