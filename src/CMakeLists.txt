@@ -1,4 +1,4 @@
-add_library(bcsoup
+add_library(bcsouptcp
   client/client.cpp
   client/connection.cpp
   client/tcp_connection.cpp
@@ -14,4 +14,4 @@ add_library(bcsoup
   socket_acceptor.cpp
   types.cpp
   validate.cpp)
-target_include_directories(bcsoup PUBLIC "${CMAKE_SOURCE_DIR}/include")
+target_include_directories(bcsouptcp PUBLIC "${CMAKE_SOURCE_DIR}/include")

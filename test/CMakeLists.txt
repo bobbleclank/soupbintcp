@@ -7,4 +7,4 @@ add_executable(test_${PROJECT_NAME}
   packing_test.cpp
   rw_packets_test.cpp
   validate_test.cpp)
-target_link_libraries(test_${PROJECT_NAME} PUBLIC bcsoup gtest_main gtest)
+target_link_libraries(test_${PROJECT_NAME} PUBLIC bcsouptcp gtest_main gtest)
