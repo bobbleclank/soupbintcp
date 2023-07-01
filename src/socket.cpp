@@ -199,12 +199,12 @@ void Socket::packet_sent(asio::error_code ec, std::size_t n) {
   }
   handler_->write_completed(packet);
   write_packets_.pop_front();
-  if (write_buffer_was_full_ && write_packets_.empty()) {
+  if (!write_packets_.empty())
+    write_packet();
+  else if (write_buffer_was_full_) {
     write_buffer_was_full_ = false;
     handler_->write_buffer_empty();
   }
-  if (!write_packets_.empty())
-    write_packet();
 }
 
 } // namespace bc::soup
