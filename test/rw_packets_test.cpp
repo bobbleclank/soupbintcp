@@ -133,7 +133,9 @@ void assert_empty(const Read_packet& p, std::uint16_t packet_size,
   ASSERT_EQ(p.payload_size(), 0u);
 }
 
-void assert_empty(const Read_packet& p) { assert_empty(p, 0, '\0'); }
+void assert_empty(const Read_packet& p) {
+  assert_empty(p, 0, '\0');
+}
 
 void assert_non_empty(const Read_packet& p, char packet_type,
                       std::uint16_t payload_size) {

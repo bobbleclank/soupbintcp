@@ -27,10 +27,12 @@ long to_long(const char* arg, int opt) {
   return i;
 }
 
-Endpoint::Endpoint(int port_) : port(port_) {}
+Endpoint::Endpoint(int port_) : port(port_) {
+}
 
 Endpoint::Endpoint(std::string_view address_, int port_)
-    : address(address_), port(port_) {}
+    : address(address_), port(port_) {
+}
 
 Endpoint to_endpoint(const char* arg, int opt) {
   auto* ptr = std::strchr(arg, ':');

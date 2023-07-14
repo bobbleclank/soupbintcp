@@ -2,10 +2,13 @@
 
 namespace bc::soup::client {
 
-Client::Client() {}
+Client::Client() {
+}
 
-void Client::start() {}
+void Client::start() {
+}
 
-void Client::stop() {}
+void Client::stop() {
+}
 
 } // namespace bc::soup::client

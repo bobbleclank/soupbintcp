@@ -2,6 +2,7 @@
 
 namespace bc::soup::client {
 
-Connection::Connection() {}
+Connection::Connection() {
+}
 
 } // namespace bc::soup::client

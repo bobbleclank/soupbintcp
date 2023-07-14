@@ -5,13 +5,17 @@
 namespace bc::soup {
 
 Socket_acceptor::Socket_acceptor(asio::any_io_executor io_executor)
-    : acceptor_(io_executor) {}
+    : acceptor_(io_executor) {
+}
 
 Socket_acceptor::Socket_acceptor(asio::any_io_executor io_executor,
                                  Handler& handler)
-    : handler_(&handler), acceptor_(io_executor) {}
+    : handler_(&handler), acceptor_(io_executor) {
+}
 
-void Socket_acceptor::set_handler(Handler& handler) { handler_ = &handler; }
+void Socket_acceptor::set_handler(Handler& handler) {
+  handler_ = &handler;
+}
 
 asio::error_code Socket_acceptor::open() {
   asio::error_code ec;

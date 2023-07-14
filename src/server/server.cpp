@@ -2,10 +2,13 @@
 
 namespace bc::soup::server {
 
-Server::Server() {}
+Server::Server() {
+}
 
-void Server::start() {}
+void Server::start() {
+}
 
-void Server::stop() {}
+void Server::stop() {
+}
 
 } // namespace bc::soup::server

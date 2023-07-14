@@ -4,7 +4,8 @@
 #include <iostream>
 
 Io_context_runner::Io_context_runner(asio::io_context& io_context)
-    : io_context_(io_context) {}
+    : io_context_(io_context) {
+}
 
 Io_context_runner::~Io_context_runner() {
   if (thread_.joinable())

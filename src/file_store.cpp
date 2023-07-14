@@ -60,9 +60,12 @@ ssize_t write(int fd, const void* buf, size_t nbyte) {
 
 } // namespace
 
-File_store::File_store(std::string_view filename) : filename_(filename) {}
+File_store::File_store(std::string_view filename) : filename_(filename) {
+}
 
-File_store::~File_store() { (void)close(); }
+File_store::~File_store() {
+  (void)close();
+}
 
 File_store::File_store(File_store&& other) noexcept
     : filename_(std::move(other.filename_)), fd_(other.fd_),

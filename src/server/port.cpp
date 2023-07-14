@@ -2,6 +2,7 @@
 
 namespace bc::soup::server {
 
-Port::Port() {}
+Port::Port() {
+}
 
 } // namespace bc::soup::server

@@ -2,10 +2,13 @@
 
 namespace bc::soup::server {
 
-Acceptor::Acceptor() {}
+Acceptor::Acceptor() {
+}
 
-void Acceptor::accept_failure(asio::error_code) {}
+void Acceptor::accept_failure(asio::error_code) {
+}
 
-void Acceptor::accept_success(asio::ip::tcp::socket&&) {}
+void Acceptor::accept_success(asio::ip::tcp::socket&&) {
+}
 
 } // namespace bc::soup::server

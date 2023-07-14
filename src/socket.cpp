@@ -5,17 +5,23 @@
 
 namespace bc::soup {
 
-Socket::Socket(asio::any_io_executor io_executor) : socket_(io_executor) {}
+Socket::Socket(asio::any_io_executor io_executor) : socket_(io_executor) {
+}
 
 Socket::Socket(asio::any_io_executor io_executor, Handler& handler)
-    : handler_(&handler), socket_(io_executor) {}
+    : handler_(&handler), socket_(io_executor) {
+}
 
-Socket::Socket(asio::ip::tcp::socket&& socket) : socket_(std::move(socket)) {}
+Socket::Socket(asio::ip::tcp::socket&& socket) : socket_(std::move(socket)) {
+}
 
 Socket::Socket(asio::ip::tcp::socket&& socket, Handler& handler)
-    : handler_(&handler), socket_(std::move(socket)) {}
+    : handler_(&handler), socket_(std::move(socket)) {
+}
 
-void Socket::set_handler(Handler& handler) { handler_ = &handler; }
+void Socket::set_handler(Handler& handler) {
+  handler_ = &handler;
+}
 
 void Socket::set_write_packets_limit(std::size_t write_packets_limit) {
   write_packets_limit_ = write_packets_limit;

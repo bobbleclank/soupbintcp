@@ -6,7 +6,8 @@ namespace bc::soup {
 
 Login_accepted_packet::Login_accepted_packet(
     std::string_view session_, std::uint64_t next_sequence_number_)
-    : session(session_), next_sequence_number(next_sequence_number_) {}
+    : session(session_), next_sequence_number(next_sequence_number_) {
+}
 
 void read(Login_accepted_packet& packet, const void* data) {
   auto* ptr = static_cast<const std::byte*>(data);
@@ -22,8 +23,8 @@ void write(const Login_accepted_packet& packet, void* data) {
   pack_sequence_number(packet.next_sequence_number, ptr);
 }
 
-Login_rejected_packet::Login_rejected_packet(Reason reason_)
-    : reason(reason_) {}
+Login_rejected_packet::Login_rejected_packet(Reason reason_) : reason(reason_) {
+}
 
 void read(Login_rejected_packet& packet, const void* data) {
   auto* ptr = static_cast<const std::byte*>(data);
@@ -41,7 +42,8 @@ Login_request_packet::Login_request_packet(
     std::uint64_t requested_sequence_number_)
     : username(username_), password(password_),
       requested_session(requested_session_),
-      requested_sequence_number(requested_sequence_number_) {}
+      requested_sequence_number(requested_sequence_number_) {
+}
 
 void read(Login_request_packet& packet, const void* data) {
   auto* ptr = static_cast<const std::byte*>(data);
