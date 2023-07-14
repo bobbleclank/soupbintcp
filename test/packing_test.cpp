@@ -61,11 +61,23 @@ TEST(packing, integral) {
 
 namespace {
 
-enum class E1 : char { a = 'a', b = 'b', c = 'c' };
+enum class E1 : char {
+  a = 'a',
+  b = 'b',
+  c = 'c'
+};
 
-enum class E2 : std::uint16_t { a = 21, b = 42, c = 84 };
+enum class E2 : std::uint16_t {
+  a = 21,
+  b = 42,
+  c = 84
+};
 
-enum class E3 : std::uint32_t { a = 21, b = 42, c = 84 };
+enum class E3 : std::uint32_t {
+  a = 21,
+  b = 42,
+  c = 84
+};
 
 } // namespace
 

@@ -39,7 +39,11 @@ private:
 
 class Read_packet {
 public:
-  enum class Resize_result { resized, empty_payload, bad_packet };
+  enum class Resize_result {
+    resized,
+    empty_payload,
+    bad_packet
+  };
 
   Read_packet();
   ~Read_packet() = default;
@@ -75,7 +79,10 @@ private:
 
 class Write_packet {
 public:
-  enum class Resize_result { resized, no_capacity };
+  enum class Resize_result {
+    resized,
+    no_capacity
+  };
 
   Write_packet() = default;
   explicit Write_packet(char);
