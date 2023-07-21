@@ -13,13 +13,16 @@ using namespace bc::soup;
 
 namespace {
 
-template <typename Message> struct Packet_type;
+template <typename Message>
+struct Packet_type;
 
-template <> struct Packet_type<client::Message> {
+template <>
+struct Packet_type<client::Message> {
   static constexpr char value = 'U';
 };
 
-template <> struct Packet_type<server::Message> {
+template <>
+struct Packet_type<server::Message> {
   static constexpr char value = 'S';
 };
 
@@ -46,7 +49,8 @@ void assert_non_empty(const Write_packet& p, char packet_type,
   ASSERT_EQ(std::memcmp(p.payload_data(), payload_data, payload_size), 0);
 }
 
-template <typename Message> void assert_empty(Message& m) {
+template <typename Message>
+void assert_empty(Message& m) {
   ASSERT_EQ(m.payload_capacity(), static_cast<std::size_t>(-3));
   Write_packet p = m.release_packet();
   assert_empty(p, Packet_type<Message>::value);
@@ -74,7 +78,8 @@ void assert_non_empty(Message& m, std::uint16_t payload_capacity,
 
 } // namespace
 
-template <typename T> class Message : public ::testing::Test {};
+template <typename T>
+class Message : public ::testing::Test {};
 
 using Types = ::testing::Types<client::Message, server::Message>;
 TYPED_TEST_SUITE(Message, Types, );

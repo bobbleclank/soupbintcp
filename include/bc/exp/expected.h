@@ -15,7 +15,8 @@ struct unexpect_t {
 
 inline constexpr unexpect_t unexpect{};
 
-template <class E> class bad_expected_access : public std::exception {
+template <class E>
+class bad_expected_access : public std::exception {
 public:
   explicit bad_expected_access(E val) : val_(std::move(val)) {}
 
@@ -32,7 +33,8 @@ private:
   E val_;
 };
 
-template <class E> class unexpected {
+template <class E>
+class unexpected {
 public:
   static_assert(!std::is_same_v<E, void>);
   static_assert(!std::is_reference_v<E>);
@@ -71,7 +73,8 @@ bool operator!=(const unexpected<E1>& x, const unexpected<E2>& y) {
   return x.value() != y.value();
 }
 
-template <class T, class E> class expected {
+template <class T, class E>
+class expected {
 public:
   static_assert(!std::is_same_v<T, void>);
   static_assert(!std::is_same_v<T, std::remove_cv_t<unexpected<E>>>);
