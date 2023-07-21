@@ -68,7 +68,8 @@ File_store::~File_store() {
 }
 
 File_store::File_store(File_store&& other) noexcept
-    : filename_(std::move(other.filename_)), fd_(other.fd_),
+    : filename_(std::move(other.filename_)),
+      fd_(other.fd_),
       offsets_(std::move(other.offsets_)) {
   other.fd_ = -1;
 }

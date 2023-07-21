@@ -40,7 +40,8 @@ Login_request_packet::Login_request_packet(
     std::string_view username_, std::string_view password_,
     std::string_view requested_session_,
     std::uint64_t requested_sequence_number_)
-    : username(username_), password(password_),
+    : username(username_),
+      password(password_),
       requested_session(requested_session_),
       requested_sequence_number(requested_sequence_number_) {
 }
