@@ -2,7 +2,7 @@
 
 namespace bc::soup::server {
 
-Server::Server() {
+Server::Server(asio::any_io_executor) {
 }
 
 void Server::start() {

@@ -2,7 +2,7 @@
 
 namespace bc::soup::client {
 
-Client::Client() {
+Client::Client(asio::any_io_executor) {
 }
 
 void Client::start() {
