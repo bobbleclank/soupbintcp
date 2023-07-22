@@ -16,3 +16,7 @@ TEST(constants, field_lengths) {
   ASSERT_EQ(session_length, 10u);
   ASSERT_EQ(sequence_number_length, 20u);
 }
+
+TEST(constants, timeouts) {
+  ASSERT_EQ(heartbeat_period.count(), 1);
+}

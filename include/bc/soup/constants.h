@@ -1,6 +1,7 @@
 #ifndef INCLUDE_BC_SOUP_CONSTANTS_H
 #define INCLUDE_BC_SOUP_CONSTANTS_H
 
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 
@@ -15,6 +16,8 @@ constexpr std::size_t username_length = 6;
 constexpr std::size_t password_length = 10;
 constexpr std::size_t session_length = 10;
 constexpr std::size_t sequence_number_length = 20;
+
+constexpr std::chrono::seconds heartbeat_period(1);
 
 } // namespace bc::soup
 

@@ -3,6 +3,7 @@ add_library(bcsouptcp
   client/connection.cpp
   client/tcp_connection.cpp
   file_store.cpp
+  heartbeat_timer.cpp
   logical_packets.cpp
   packing.cpp
   rw_packets.cpp
