@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 void display_usage() {
-  std::cout << "usage: soup_server [options]\n"
+  std::cout << "usage: bc_souptcp_server [options]\n"
                "options:\n"
                "  -h  help\n"
                "  -v  version\n";
