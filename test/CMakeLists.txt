@@ -1,5 +1,6 @@
 add_executable(test_${PROJECT_NAME}
   constants_test.cpp
+  error_test.cpp
   expected_test.cpp
   file_store_test.cpp
   logical_packets_test.cpp

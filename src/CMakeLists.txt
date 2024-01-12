@@ -2,6 +2,7 @@ add_library(bcsouptcp
   client/client.cpp
   client/connection.cpp
   client/tcp_connection.cpp
+  error.cpp
   file_store.cpp
   heartbeat_timer.cpp
   logical_packets.cpp
