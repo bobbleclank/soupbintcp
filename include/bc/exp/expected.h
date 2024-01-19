@@ -168,22 +168,26 @@ bool operator!=(const expected<T1, E1>& x, const expected<T2, E2>& y) {
              : (!x.has_value() ? x.error() != y.error() : *x != *y);
 }
 
-template <class T1, class E1, class T2>
+template <class T1, class E1, class T2,
+          std::enable_if_t<!std::is_void_v<T2>>* = nullptr>
 bool operator==(const expected<T1, E1>& x, const T2& v) {
   return x.has_value() ? *x == v : false;
 }
 
-template <class T1, class E1, class T2>
+template <class T1, class E1, class T2,
+          std::enable_if_t<!std::is_void_v<T2>>* = nullptr>
 bool operator==(const T2& v, const expected<T1, E1>& x) {
   return x.has_value() ? *x == v : false;
 }
 
-template <class T1, class E1, class T2>
+template <class T1, class E1, class T2,
+          std::enable_if_t<!std::is_void_v<T2>>* = nullptr>
 bool operator!=(const expected<T1, E1>& x, const T2& v) {
   return x.has_value() ? *x != v : true;
 }
 
-template <class T1, class E1, class T2>
+template <class T1, class E1, class T2,
+          std::enable_if_t<!std::is_void_v<T2>>* = nullptr>
 bool operator!=(const T2& v, const expected<T1, E1>& x) {
   return x.has_value() ? *x != v : true;
 }
