@@ -37,6 +37,23 @@ TEST(unexpected, in_place_constructor) {
   ASSERT_EQ(e.value(), std::tuple(1, 2));
 }
 
+TEST(unexpected, deduction_guide) {
+  // Via (Err&&) with copy
+  {
+    std::vector<int> val(3, 1);
+    unexpected e(val);
+    ASSERT_EQ(e.value(), (std::vector{1, 1, 1}));
+    ASSERT_EQ(val, (std::vector{1, 1, 1}));
+  }
+  // Via (Err&&) with move
+  {
+    std::vector<int> val(3, 1);
+    unexpected e(std::move(val));
+    ASSERT_EQ(e.value(), (std::vector{1, 1, 1}));
+    ASSERT_EQ(val, std::vector<int>()); // Moved from vector.
+  }
+}
+
 TEST(unexpected, equality_operators) {
   unexpected<int> e_one(std::in_place, 1);
   unexpected<int> e1(std::in_place, 1);
