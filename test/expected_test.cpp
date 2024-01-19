@@ -9,6 +9,78 @@
 
 using namespace bc::exp;
 
+namespace {
+
+struct Arg {
+  explicit Arg(int x_) { x = x_; }
+
+  Arg(const Arg&) = default;
+
+  Arg(Arg&& other) {
+    x = other.x;
+    other.x = -1;
+  }
+
+  Arg& operator=(const Arg&) = delete;
+  Arg& operator=(Arg&&) = delete;
+
+  int x;
+};
+
+struct Obj_implicit {
+  explicit Obj_implicit(int x_) { x = x_; }
+
+  Obj_implicit(const Arg& arg_) {
+    Arg arg = arg_;
+    x = arg.x;
+  }
+
+  Obj_implicit(Arg&& arg_) {
+    Arg arg = std::move(arg_);
+    x = arg.x;
+  }
+
+  Obj_implicit(const Obj_implicit&) = default;
+
+  Obj_implicit(Obj_implicit&& other) {
+    x = other.x;
+    other.x = -1;
+  }
+
+  Obj_implicit& operator=(const Obj_implicit&) = delete;
+  Obj_implicit& operator=(Obj_implicit&&) = delete;
+
+  int x;
+};
+
+struct Obj_explicit {
+  explicit Obj_explicit(int x_) { x = x_; }
+
+  explicit Obj_explicit(const Arg& arg_) {
+    Arg arg = arg_;
+    x = arg.x;
+  }
+
+  explicit Obj_explicit(Arg&& arg_) {
+    Arg arg = std::move(arg_);
+    x = arg.x;
+  }
+
+  explicit Obj_explicit(const Obj_explicit&) = default;
+
+  explicit Obj_explicit(Obj_explicit&& other) {
+    x = other.x;
+    other.x = -1;
+  }
+
+  Obj_explicit& operator=(const Obj_explicit&) = delete;
+  Obj_explicit& operator=(Obj_explicit&&) = delete;
+
+  int x;
+};
+
+} // namespace
+
 TEST(bad_expected_access, constructor) {
   bad_expected_access<int> e(1);
   ASSERT_STREQ(e.what(), "bad expected access");
@@ -73,6 +145,69 @@ TEST(expected, default_constructor) {
   ASSERT_EQ(*e, std::string());
   ASSERT_NO_THROW(e.value());
   ASSERT_EQ(e.value(), std::string());
+}
+
+TEST(expected, value_constructor) {
+  // explicit with U = T
+  {
+    Obj_explicit val(3);
+    expected<Obj_explicit, int> e(val);
+    ASSERT_TRUE(e.has_value());
+    ASSERT_EQ(e->x, 3);
+    ASSERT_EQ(val.x, 3);
+  }
+  {
+    Obj_explicit val(3);
+    expected<Obj_explicit, int> e(std::move(val));
+    ASSERT_TRUE(e.has_value());
+    ASSERT_EQ(e->x, 3);
+    ASSERT_EQ(val.x, -1);
+  }
+  // explicit with U != T
+  {
+    Arg val(3);
+    expected<Obj_explicit, int> e(val);
+    ASSERT_TRUE(e.has_value());
+    ASSERT_EQ(e->x, 3);
+    ASSERT_EQ(val.x, 3);
+  }
+  {
+    Arg val(3);
+    expected<Obj_explicit, int> e(std::move(val));
+    ASSERT_TRUE(e.has_value());
+    ASSERT_EQ(e->x, 3);
+    ASSERT_EQ(val.x, -1);
+  }
+  // implicit with U = T
+  {
+    Obj_implicit val(3);
+    expected<Obj_implicit, int> e = val;
+    ASSERT_TRUE(e.has_value());
+    ASSERT_EQ(e->x, 3);
+    ASSERT_EQ(val.x, 3);
+  }
+  {
+    Obj_implicit val(3);
+    expected<Obj_implicit, int> e = std::move(val);
+    ASSERT_TRUE(e.has_value());
+    ASSERT_EQ(e->x, 3);
+    ASSERT_EQ(val.x, -1);
+  }
+  // implicit with U != T
+  {
+    Arg val(3);
+    expected<Obj_implicit, int> e = val;
+    ASSERT_TRUE(e.has_value());
+    ASSERT_EQ(e->x, 3);
+    ASSERT_EQ(val.x, 3);
+  }
+  {
+    Arg val(3);
+    expected<Obj_implicit, int> e = std::move(val);
+    ASSERT_TRUE(e.has_value());
+    ASSERT_EQ(e->x, 3);
+    ASSERT_EQ(val.x, -1);
+  }
 }
 
 TEST(expected, in_place_constructor) {

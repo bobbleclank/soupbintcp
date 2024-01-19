@@ -105,6 +105,26 @@ public:
   expected(const expected&) = default;
   expected(expected&&) = default;
 
+  template <
+      class U = T,
+      std::enable_if_t<
+          std::is_constructible_v<T, U&&> &&
+          !std::is_same_v<std::remove_cvref_t<U>, std::in_place_t> &&
+          !std::is_same_v<std::remove_cvref_t<U>, expected<T, E>> &&
+          !std::is_same_v<std::remove_cvref_t<U>, unexpected<E>>>* = nullptr,
+      std::enable_if_t<std::is_convertible_v<U&&, T>>* = nullptr>
+  expected(U&& v) : val_(std::in_place, std::forward<U>(v)) {}
+
+  template <
+      class U = T,
+      std::enable_if_t<
+          std::is_constructible_v<T, U&&> &&
+          !std::is_same_v<std::remove_cvref_t<U>, std::in_place_t> &&
+          !std::is_same_v<std::remove_cvref_t<U>, expected<T, E>> &&
+          !std::is_same_v<std::remove_cvref_t<U>, unexpected<E>>>* = nullptr,
+      std::enable_if_t<!std::is_convertible_v<U&&, T>>* = nullptr>
+  explicit expected(U&& v) : val_(std::in_place, std::forward<U>(v)) {}
+
   template <class... Args,
             std::enable_if_t<std::is_constructible_v<T, Args&&...>>* = nullptr>
   explicit expected(std::in_place_t, Args&&... args)
