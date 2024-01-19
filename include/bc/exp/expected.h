@@ -44,6 +44,14 @@ public:
   unexpected(const unexpected&) = default;
   unexpected(unexpected&&) = default;
 
+  template <
+      class Err = E,
+      std::enable_if_t<
+          std::is_constructible_v<E, Err&&> &&
+          !std::is_same_v<std::remove_cvref_t<Err>, std::in_place_t> &&
+          !std::is_same_v<std::remove_cvref_t<Err>, unexpected<E>>>* = nullptr>
+  explicit unexpected(Err&& val) : val_(std::forward<Err>(val)) {}
+
   template <class... Args,
             std::enable_if_t<std::is_constructible_v<E, Args&&...>>* = nullptr>
   explicit unexpected(std::in_place_t, Args&&... args)

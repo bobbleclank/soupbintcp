@@ -15,6 +15,23 @@ TEST(bad_expected_access, constructor) {
   ASSERT_EQ(e.error(), 1);
 }
 
+TEST(unexpected, value_constructor) {
+  // Err = E
+  {
+    std::vector<int> val(3, 1);
+    unexpected<std::vector<int>> e(std::move(val));
+    ASSERT_EQ(e.value(), (std::vector{1, 1, 1}));
+    ASSERT_EQ(val, std::vector<int>()); // Moved from vector.
+  }
+  // Err != E
+  {
+    std::vector<int>::size_type val = 3;
+    unexpected<std::vector<int>> e(val);
+    ASSERT_EQ(e.value(), (std::vector{0, 0, 0}));
+    ASSERT_EQ(val, 3u);
+  }
+}
+
 TEST(unexpected, in_place_constructor) {
   unexpected<std::tuple<int, int>> e(std::in_place, 1, 2);
   ASSERT_EQ(e.value(), std::tuple(1, 2));
