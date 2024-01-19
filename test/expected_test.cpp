@@ -1,4 +1,4 @@
-#include "bc/exp/expected.h"
+#include "bc/soup/expected.h"
 
 #include <string>
 #include <string_view>
@@ -7,7 +7,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace bc::exp;
+using namespace bc::soup;
 
 namespace {
 
