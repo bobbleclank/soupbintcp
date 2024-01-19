@@ -210,6 +210,76 @@ TEST(expected, value_constructor) {
   }
 }
 
+TEST(expected, copy_unexpected_constructor) {
+  // explicit with G = E
+  {
+    unexpected<Obj_explicit> val(3);
+    expected<int, Obj_explicit> e(val);
+    ASSERT_FALSE(e.has_value());
+    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(val.value().x, 3);
+  }
+  // explicit with G != E
+  {
+    unexpected<Arg> val(3);
+    expected<int, Obj_explicit> e(val);
+    ASSERT_FALSE(e.has_value());
+    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(val.value().x, 3);
+  }
+  // implicit with G = E
+  {
+    unexpected<Obj_implicit> val(3);
+    expected<int, Obj_implicit> e = val;
+    ASSERT_FALSE(e.has_value());
+    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(val.value().x, 3);
+  }
+  // implicit with G != E
+  {
+    unexpected<Arg> val(3);
+    expected<int, Obj_implicit> e = val;
+    ASSERT_FALSE(e.has_value());
+    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(val.value().x, 3);
+  }
+}
+
+TEST(expected, move_unexpected_constructor) {
+  // explicit with G = E
+  {
+    unexpected<Obj_explicit> val(3);
+    expected<int, Obj_explicit> e(std::move(val));
+    ASSERT_FALSE(e.has_value());
+    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(val.value().x, -1);
+  }
+  // explicit with G != E
+  {
+    unexpected<Arg> val(3);
+    expected<int, Obj_explicit> e(std::move(val));
+    ASSERT_FALSE(e.has_value());
+    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(val.value().x, -1);
+  }
+  // implicit with G = E
+  {
+    unexpected<Obj_implicit> val(3);
+    expected<int, Obj_implicit> e = std::move(val);
+    ASSERT_FALSE(e.has_value());
+    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(val.value().x, -1);
+  }
+  // implicit with G != E
+  {
+    unexpected<Arg> val(3);
+    expected<int, Obj_implicit> e = std::move(val);
+    ASSERT_FALSE(e.has_value());
+    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(val.value().x, -1);
+  }
+}
+
 TEST(expected, in_place_constructor) {
   expected<std::string, int> e(std::in_place, "hello world", 5);
   ASSERT_TRUE(static_cast<bool>(e));

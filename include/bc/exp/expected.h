@@ -125,6 +125,29 @@ public:
       std::enable_if_t<!std::is_convertible_v<U&&, T>>* = nullptr>
   explicit expected(U&& v) : val_(std::in_place, std::forward<U>(v)) {}
 
+  template <class G = E,
+            std::enable_if_t<std::is_constructible_v<E, const G&>>* = nullptr,
+            std::enable_if_t<std::is_convertible_v<const G&, E>>* = nullptr>
+  expected(const unexpected<G>& e) : unexpect_(std::in_place, e.value()) {}
+
+  template <class G = E,
+            std::enable_if_t<std::is_constructible_v<E, const G&>>* = nullptr,
+            std::enable_if_t<!std::is_convertible_v<const G&, E>>* = nullptr>
+  explicit expected(const unexpected<G>& e)
+      : unexpect_(std::in_place, e.value()) {}
+
+  template <class G = E,
+            std::enable_if_t<std::is_constructible_v<E, G&&>>* = nullptr,
+            std::enable_if_t<std::is_convertible_v<G&&, E>>* = nullptr>
+  expected(unexpected<G>&& e)
+      : unexpect_(std::in_place, std::move(e.value())) {}
+
+  template <class G = E,
+            std::enable_if_t<std::is_constructible_v<E, G&&>>* = nullptr,
+            std::enable_if_t<!std::is_convertible_v<G&&, E>>* = nullptr>
+  explicit expected(unexpected<G>&& e)
+      : unexpect_(std::in_place, std::move(e.value())) {}
+
   template <class... Args,
             std::enable_if_t<std::is_constructible_v<T, Args&&...>>* = nullptr>
   explicit expected(std::in_place_t, Args&&... args)
