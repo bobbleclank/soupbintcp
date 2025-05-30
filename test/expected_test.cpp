@@ -1,9 +1,9 @@
 #include "bc/exp/expected.h"
 
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <utility>
-#include <vector>
 
 #include <gtest/gtest.h>
 
@@ -201,13 +201,13 @@ TEST(unexpected, equality_operators) {
 }
 
 TEST(expected, default_constructor) {
-  expected<std::string, int> e;
+  expected<Obj, int> e;
   ASSERT_TRUE(static_cast<bool>(e));
   ASSERT_TRUE(e.has_value());
-  ASSERT_EQ(e->size(), 0u);
-  ASSERT_EQ(*e, std::string());
+  ASSERT_EQ(e->x, 20100);
+  ASSERT_EQ((*e).x, 20100);
   ASSERT_NO_THROW(e.value());
-  ASSERT_EQ(e.value(), std::string());
+  ASSERT_EQ(e.value().x, 20100);
 }
 
 TEST(expected, value_constructor) {
@@ -344,21 +344,56 @@ TEST(expected, move_unexpected_constructor) {
 }
 
 TEST(expected, in_place_constructor) {
-  expected<std::string, int> e(std::in_place, "hello world", 5);
-  ASSERT_TRUE(static_cast<bool>(e));
-  ASSERT_TRUE(e.has_value());
-  ASSERT_EQ(e->size(), 5u);
-  ASSERT_EQ(*e, std::string("hello"));
-  ASSERT_NO_THROW(e.value());
-  ASSERT_EQ(e.value(), std::string("hello"));
+  {
+    expected<std::string, int> e(std::in_place, "hello world", 5);
+    ASSERT_TRUE(static_cast<bool>(e));
+    ASSERT_TRUE(e.has_value());
+    ASSERT_EQ(std::string_view(e->data(), e->size()), "hello");
+    ASSERT_EQ(*e, "hello");
+    ASSERT_NO_THROW(e.value());
+    ASSERT_EQ(e.value(), "hello");
+  }
+  {
+    Arg val(3);
+    expected<Obj, int> e(std::in_place, val);
+    ASSERT_TRUE(e.has_value());
+    ASSERT_EQ(e->x, 3);
+    ASSERT_EQ(val.x, 3);
+  }
+  {
+    Arg val(3);
+    expected<Obj, int> e(std::in_place, std::move(val));
+    ASSERT_TRUE(e.has_value());
+    ASSERT_EQ(e->x, 3);
+    ASSERT_EQ(val.x, -1);
+  }
 }
 
 TEST(expected, unexpect_constructor) {
-  expected<int, std::tuple<int, int>> e(unexpect, 1, 2);
-  ASSERT_FALSE(static_cast<bool>(e));
-  ASSERT_FALSE(e.has_value());
-  ASSERT_EQ(e.error(), std::tuple(1, 2));
+  {
+    expected<int, std::tuple<int, int>> e(unexpect, 1, 2);
+    ASSERT_FALSE(static_cast<bool>(e));
+    ASSERT_FALSE(e.has_value());
+    ASSERT_EQ(e.error(), std::tuple(1, 2));
+  }
+  {
+    Arg val(3);
+    expected<int, Obj> e(unexpect, val);
+    ASSERT_FALSE(e.has_value());
+    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(val.x, 3);
+  }
+  {
+    Arg val(3);
+    expected<int, Obj> e(unexpect, std::move(val));
+    ASSERT_FALSE(e.has_value());
+    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(val.x, -1);
+  }
+}
 
+TEST(expected, value_bad_access) {
+  expected<int, std::tuple<int, int>> e(unexpect, 1, 2);
   using exception = bad_expected_access<std::tuple<int, int>>;
   ASSERT_THROW(e.value(), exception);
   bool did_throw = false;
@@ -373,105 +408,117 @@ TEST(expected, unexpect_constructor) {
 
 TEST(expected, copy_constructor) {
   {
-    expected<std::string, int> other(std::in_place, "hello");
-    expected<std::string, int> e(other);
+    expected<Obj, int> other(std::in_place, 3);
+    expected<Obj, int> e(other);
     ASSERT_TRUE(e.has_value());
-    ASSERT_EQ(*e, std::string("hello"));
+    ASSERT_TRUE(other.has_value());
+    ASSERT_EQ(e->x, 3);
+    ASSERT_EQ(other->x, 3);
   }
   {
-    expected<std::string, int> other(unexpect, 1);
-    expected<std::string, int> e(other);
+    expected<int, Obj> other(unexpect, 3);
+    expected<int, Obj> e(other);
     ASSERT_FALSE(e.has_value());
-    ASSERT_EQ(e.error(), 1);
+    ASSERT_FALSE(other.has_value());
+    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(other.error().x, 3);
   }
 }
 
 TEST(expected, move_constructor) {
   {
-    expected<std::string, std::vector<int>> other(std::in_place, "hello");
-    expected<std::string, std::vector<int>> e(std::move(other));
+    expected<Obj, int> other(std::in_place, 3);
+    expected<Obj, int> e(std::move(other));
     ASSERT_TRUE(e.has_value());
-    ASSERT_EQ(*e, std::string("hello"));
     ASSERT_TRUE(other.has_value());
-    ASSERT_EQ(*other, std::string()); // Moved from string.
+    ASSERT_EQ(e->x, 3);
+    ASSERT_EQ(other->x, -1);
   }
   {
-    expected<std::string, std::vector<int>> other(unexpect, 3, 1);
-    expected<std::string, std::vector<int>> e(std::move(other));
+    expected<int, Obj> other(unexpect, 3);
+    expected<int, Obj> e(std::move(other));
     ASSERT_FALSE(e.has_value());
-    ASSERT_EQ(e.error(), (std::vector{1, 1, 1}));
     ASSERT_FALSE(other.has_value());
-    ASSERT_EQ(other.error(), std::vector<int>()); // Moved from vector.
+    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(other.error().x, -1);
   }
 }
 
 TEST(expected, copy_assignment_operator) {
   {
-    expected<std::string, int> other(std::in_place, "hello");
-    expected<std::string, int> e(std::in_place, "world");
+    expected<Obj, int> other(std::in_place, 3);
+    expected<Obj, int> e(std::in_place, 30);
     e = other;
     ASSERT_TRUE(e.has_value());
-    ASSERT_EQ(*e, std::string("hello"));
+    ASSERT_TRUE(other.has_value());
+    ASSERT_EQ(e->x, 3);
+    ASSERT_EQ(other->x, 3);
   }
   {
-    expected<std::string, int> other(std::in_place, "hello");
-    expected<std::string, int> e(unexpect, 2);
+    expected<Obj, int> other(std::in_place, 3);
+    expected<Obj, int> e(unexpect, 30);
     e = other;
     ASSERT_TRUE(e.has_value());
-    ASSERT_EQ(*e, std::string("hello"));
+    ASSERT_TRUE(other.has_value());
+    ASSERT_EQ(e->x, 3);
+    ASSERT_EQ(other->x, 3);
   }
   {
-    expected<std::string, int> other(unexpect, 1);
-    expected<std::string, int> e(unexpect, 2);
+    expected<int, Obj> other(unexpect, 3);
+    expected<int, Obj> e(unexpect, 30);
     e = other;
     ASSERT_FALSE(e.has_value());
-    ASSERT_EQ(e.error(), 1);
+    ASSERT_FALSE(other.has_value());
+    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(other.error().x, 3);
   }
   {
-    expected<std::string, int> other(unexpect, 1);
-    expected<std::string, int> e(std::in_place, "world");
+    expected<int, Obj> other(unexpect, 3);
+    expected<int, Obj> e(std::in_place, 30);
     e = other;
     ASSERT_FALSE(e.has_value());
-    ASSERT_EQ(e.error(), 1);
+    ASSERT_FALSE(other.has_value());
+    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(other.error().x, 3);
   }
 }
 
 TEST(expected, move_assignment_operator) {
   {
-    expected<std::string, std::vector<int>> other(std::in_place, "hello");
-    expected<std::string, std::vector<int>> e(std::in_place, "world");
+    expected<Obj, int> other(std::in_place, 3);
+    expected<Obj, int> e(std::in_place, 30);
     e = std::move(other);
     ASSERT_TRUE(e.has_value());
-    ASSERT_EQ(*e, std::string("hello"));
     ASSERT_TRUE(other.has_value());
-    ASSERT_EQ(*other, std::string()); // Moved from string.
+    ASSERT_EQ(e->x, 3);
+    ASSERT_EQ(other->x, -2);
   }
   {
-    expected<std::string, std::vector<int>> other(std::in_place, "hello");
-    expected<std::string, std::vector<int>> e(unexpect, 3, 2);
+    expected<Obj, int> other(std::in_place, 3);
+    expected<Obj, int> e(unexpect, 30);
     e = std::move(other);
     ASSERT_TRUE(e.has_value());
-    ASSERT_EQ(*e, std::string("hello"));
     ASSERT_TRUE(other.has_value());
-    ASSERT_EQ(*other, std::string()); // Moved from string.
+    ASSERT_EQ(e->x, 3);
+    ASSERT_EQ(other->x, -1);
   }
   {
-    expected<std::string, std::vector<int>> other(unexpect, 3, 1);
-    expected<std::string, std::vector<int>> e(unexpect, 3, 2);
+    expected<int, Obj> other(unexpect, 3);
+    expected<int, Obj> e(unexpect, 30);
     e = std::move(other);
     ASSERT_FALSE(e.has_value());
-    ASSERT_EQ(e.error(), (std::vector{1, 1, 1}));
     ASSERT_FALSE(other.has_value());
-    ASSERT_EQ(other.error(), std::vector<int>()); // Moved from vector.
+    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(other.error().x, -2);
   }
   {
-    expected<std::string, std::vector<int>> other(unexpect, 3, 1);
-    expected<std::string, std::vector<int>> e(std::in_place, "world");
+    expected<int, Obj> other(unexpect, 3);
+    expected<int, Obj> e(std::in_place, 30);
     e = std::move(other);
     ASSERT_FALSE(e.has_value());
-    ASSERT_EQ(e.error(), (std::vector{1, 1, 1}));
     ASSERT_FALSE(other.has_value());
-    ASSERT_EQ(other.error(), std::vector<int>()); // Moved from vector.
+    ASSERT_EQ(e.error().x, 3);
+    ASSERT_EQ(other.error().x, -1);
   }
 }
 
@@ -534,8 +581,8 @@ TEST(expected, comparison_with_T) {
 TEST(expected, comparison_with_unexpected_E) {
   expected<int, int> e_one(std::in_place, 1);
   expected<int, int> u_one(unexpect, 1);
-  unexpected<int> v1(std::in_place, 1);
-  unexpected<int> v2(std::in_place, 2);
+  unexpected<int> v1(1);
+  unexpected<int> v2(2);
 
   ASSERT_TRUE(u_one == v1);
   ASSERT_FALSE(u_one == v2);
