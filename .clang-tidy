@@ -5,7 +5,6 @@ Checks:
   - -cppcoreguidelines-avoid-do-while
   - -cppcoreguidelines-avoid-magic-numbers
   - -cppcoreguidelines-explicit-virtual-functions
-  - -cppcoreguidelines-noexcept-move-operations
   - -cppcoreguidelines-pro-bounds-array-to-pointer-decay
   - -cppcoreguidelines-pro-bounds-pointer-arithmetic
   - -cppcoreguidelines-pro-type-member-init
