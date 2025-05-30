@@ -48,7 +48,7 @@ public:
   Socket& operator=(const Socket&) = delete;
 
   Socket(Socket&&) = default;
-  Socket& operator=(Socket&&) = default;
+  Socket& operator=(Socket&&) noexcept = default;
 
   void set_handler(Handler&);
   void set_write_packets_limit(std::size_t);
