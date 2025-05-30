@@ -139,12 +139,14 @@ public:
   template <class G = E,
             std::enable_if_t<std::is_constructible_v<E, G&&>>* = nullptr,
             std::enable_if_t<std::is_convertible_v<G&&, E>>* = nullptr>
+  // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Moved via value
   expected(unexpected<G>&& e)
       : unexpect_(std::in_place, std::move(e.value())) {}
 
   template <class G = E,
             std::enable_if_t<std::is_constructible_v<E, G&&>>* = nullptr,
             std::enable_if_t<!std::is_convertible_v<G&&, E>>* = nullptr>
+  // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Moved via value
   explicit expected(unexpected<G>&& e)
       : unexpect_(std::in_place, std::move(e.value())) {}
 
