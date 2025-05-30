@@ -27,6 +27,39 @@ struct Arg {
   int x;
 };
 
+struct Obj {
+  Obj() { x = 20100; }
+
+  explicit Obj(int x_) { x = x_; }
+
+  explicit Obj(const Arg& arg_) {
+    Arg arg = arg_;
+    x = arg.x;
+  }
+
+  explicit Obj(Arg&& arg_) {
+    Arg arg = std::move(arg_);
+    x = arg.x;
+  }
+
+  Obj(const Obj&) = default;
+
+  Obj(Obj&& other) {
+    x = other.x;
+    other.x = -1;
+  }
+
+  Obj& operator=(const Obj&) = default;
+
+  Obj& operator=(Obj&& other) {
+    x = other.x;
+    other.x = -2;
+    return *this;
+  }
+
+  int x;
+};
+
 struct Obj_implicit {
   explicit Obj_implicit(int x_) { x = x_; }
 
@@ -90,46 +123,76 @@ TEST(bad_expected_access, constructor) {
 TEST(unexpected, value_constructor) {
   // Err = E
   {
-    std::vector<int> val(3, 1);
-    unexpected<std::vector<int>> e(std::move(val));
-    ASSERT_EQ(e.value(), (std::vector{1, 1, 1}));
-    ASSERT_EQ(val, std::vector<int>()); // Moved from vector.
+    Obj val(3);
+    unexpected<Obj> e(val);
+    ASSERT_EQ(e.value().x, 3);
+    ASSERT_EQ(val.x, 3);
+  }
+  {
+    Obj val(3);
+    unexpected<Obj> e(std::move(val));
+    ASSERT_EQ(e.value().x, 3);
+    ASSERT_EQ(val.x, -1);
   }
   // Err != E
   {
-    std::vector<int>::size_type val = 3;
-    unexpected<std::vector<int>> e(val);
-    ASSERT_EQ(e.value(), (std::vector{0, 0, 0}));
-    ASSERT_EQ(val, 3u);
+    Arg val(3);
+    unexpected<Obj> e(val);
+    ASSERT_EQ(e.value().x, 3);
+    ASSERT_EQ(val.x, 3);
+  }
+  {
+    Arg val(3);
+    unexpected<Obj> e(std::move(val));
+    ASSERT_EQ(e.value().x, 3);
+    ASSERT_EQ(val.x, -1);
   }
 }
 
 TEST(unexpected, in_place_constructor) {
-  unexpected<std::tuple<int, int>> e(std::in_place, 1, 2);
-  ASSERT_EQ(e.value(), std::tuple(1, 2));
+  {
+    unexpected<std::tuple<int, int>> e(std::in_place, 1, 2);
+    ASSERT_EQ(e.value(), std::tuple(1, 2));
+  }
+  {
+    Arg val(3);
+    unexpected<Obj> e(std::in_place, val);
+    ASSERT_EQ(e.value().x, 3);
+    ASSERT_EQ(val.x, 3);
+  }
+  {
+    Arg val(3);
+    unexpected<Obj> e(std::in_place, std::move(val));
+    ASSERT_EQ(e.value().x, 3);
+    ASSERT_EQ(val.x, -1);
+  }
 }
 
 TEST(unexpected, deduction_guide) {
   // Via (Err&&) with copy
   {
-    std::vector<int> val(3, 1);
+    Obj val(3);
     unexpected e(val);
-    ASSERT_EQ(e.value(), (std::vector{1, 1, 1}));
-    ASSERT_EQ(val, (std::vector{1, 1, 1}));
+    ASSERT_TRUE(
+        (std::is_same_v<std::remove_reference_t<decltype(e.value())>, Obj>));
+    ASSERT_EQ(e.value().x, 3);
+    ASSERT_EQ(val.x, 3);
   }
   // Via (Err&&) with move
   {
-    std::vector<int> val(3, 1);
+    Obj val(3);
     unexpected e(std::move(val));
-    ASSERT_EQ(e.value(), (std::vector{1, 1, 1}));
-    ASSERT_EQ(val, std::vector<int>()); // Moved from vector.
+    ASSERT_TRUE(
+        (std::is_same_v<std::remove_reference_t<decltype(e.value())>, Obj>));
+    ASSERT_EQ(e.value().x, 3);
+    ASSERT_EQ(val.x, -1);
   }
 }
 
 TEST(unexpected, equality_operators) {
-  unexpected<int> e_one(std::in_place, 1);
-  unexpected<int> e1(std::in_place, 1);
-  unexpected<int> e2(std::in_place, 2);
+  unexpected<int> e_one(1);
+  unexpected<int> e1(1);
+  unexpected<int> e2(2);
 
   ASSERT_TRUE(e_one == e1);
   ASSERT_FALSE(e_one == e2);
