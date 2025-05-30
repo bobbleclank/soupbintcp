@@ -6,7 +6,6 @@ Checks:
   - -cppcoreguidelines-avoid-magic-numbers
   - -cppcoreguidelines-explicit-virtual-functions
   - -cppcoreguidelines-noexcept-move-operations
-  - -cppcoreguidelines-prefer-member-initializer
   - -cppcoreguidelines-pro-bounds-array-to-pointer-decay
   - -cppcoreguidelines-pro-bounds-pointer-arithmetic
   - -cppcoreguidelines-pro-type-member-init
