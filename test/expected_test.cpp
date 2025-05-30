@@ -24,6 +24,8 @@ struct Arg {
   Arg& operator=(const Arg&) = delete;
   Arg& operator=(Arg&&) = delete;
 
+  ~Arg() = default;
+
   int x;
 };
 
@@ -57,6 +59,8 @@ struct Obj {
     return *this;
   }
 
+  ~Obj() = default;
+
   int x;
 };
 
@@ -83,6 +87,8 @@ struct Obj_implicit {
   Obj_implicit& operator=(const Obj_implicit&) = delete;
   Obj_implicit& operator=(Obj_implicit&&) = delete;
 
+  ~Obj_implicit() = default;
+
   int x;
 };
 
@@ -108,6 +114,8 @@ struct Obj_explicit {
 
   Obj_explicit& operator=(const Obj_explicit&) = delete;
   Obj_explicit& operator=(Obj_explicit&&) = delete;
+
+  ~Obj_explicit() = default;
 
   int x;
 };

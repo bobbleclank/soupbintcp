@@ -11,6 +11,12 @@ public:
   explicit Io_context_runner(asio::io_context&);
   ~Io_context_runner();
 
+  Io_context_runner(const Io_context_runner&) = delete;
+  Io_context_runner(Io_context_runner&&) = delete;
+
+  Io_context_runner& operator=(const Io_context_runner&) = delete;
+  Io_context_runner& operator=(Io_context_runner&&) = delete;
+
   void set_signal_handler(const std::function<void()>&);
 
   void start();
