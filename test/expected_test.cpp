@@ -12,14 +12,11 @@ using namespace bc::soup;
 namespace {
 
 struct Arg {
-  explicit Arg(int x_) { x = x_; }
+  explicit Arg(int x_) : x(x_) {}
 
   Arg(const Arg&) = default;
 
-  Arg(Arg&& other) {
-    x = other.x;
-    other.x = -1;
-  }
+  Arg(Arg&& other) : x(other.x) { other.x = -1; }
 
   Arg& operator=(const Arg&) = delete;
   Arg& operator=(Arg&&) = delete;
@@ -30,9 +27,9 @@ struct Arg {
 };
 
 struct Obj {
-  Obj() { x = 20100; }
+  Obj() : x(20100) {}
 
-  explicit Obj(int x_) { x = x_; }
+  explicit Obj(int x_) : x(x_) {}
 
   explicit Obj(const Arg& arg_) {
     Arg arg = arg_;
@@ -46,10 +43,7 @@ struct Obj {
 
   Obj(const Obj&) = default;
 
-  Obj(Obj&& other) {
-    x = other.x;
-    other.x = -1;
-  }
+  Obj(Obj&& other) : x(other.x) { other.x = -1; }
 
   Obj& operator=(const Obj&) = default;
 
@@ -65,7 +59,7 @@ struct Obj {
 };
 
 struct Obj_implicit {
-  explicit Obj_implicit(int x_) { x = x_; }
+  explicit Obj_implicit(int x_) : x(x_) {}
 
   Obj_implicit(const Arg& arg_) {
     Arg arg = arg_;
@@ -79,10 +73,7 @@ struct Obj_implicit {
 
   Obj_implicit(const Obj_implicit&) = default;
 
-  Obj_implicit(Obj_implicit&& other) {
-    x = other.x;
-    other.x = -1;
-  }
+  Obj_implicit(Obj_implicit&& other) : x(other.x) { other.x = -1; }
 
   Obj_implicit& operator=(const Obj_implicit&) = delete;
   Obj_implicit& operator=(Obj_implicit&&) = delete;
@@ -93,7 +84,7 @@ struct Obj_implicit {
 };
 
 struct Obj_explicit {
-  explicit Obj_explicit(int x_) { x = x_; }
+  explicit Obj_explicit(int x_) : x(x_) {}
 
   explicit Obj_explicit(const Arg& arg_) {
     Arg arg = arg_;
@@ -107,10 +98,7 @@ struct Obj_explicit {
 
   explicit Obj_explicit(const Obj_explicit&) = default;
 
-  explicit Obj_explicit(Obj_explicit&& other) {
-    x = other.x;
-    other.x = -1;
-  }
+  explicit Obj_explicit(Obj_explicit&& other) : x(other.x) { other.x = -1; }
 
   Obj_explicit& operator=(const Obj_explicit&) = delete;
   Obj_explicit& operator=(Obj_explicit&&) = delete;
