@@ -33,6 +33,7 @@ public:
   std::size_t size() const { return size_; }
 
 private:
+  // NOLINTNEXTLINE(*-avoid-c-arrays): Dynamically-allocated array
   std::unique_ptr<std::byte[]> data_;
   std::size_t size_ = 0;
 };

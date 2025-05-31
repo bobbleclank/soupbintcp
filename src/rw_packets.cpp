@@ -8,6 +8,7 @@
 namespace bc::soup {
 
 Buffer::Buffer(std::size_t size)
+    // NOLINTNEXTLINE(*-avoid-c-arrays): Dynamically-allocated array
     : data_(std::make_unique<std::byte[]>(size)), size_(size) {
 }
 
