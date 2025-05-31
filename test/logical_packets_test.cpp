@@ -1,5 +1,6 @@
 #include "bc/soup/logical_packets.h"
 
+#include <array>
 #include <cstring>
 #include <string>
 
@@ -48,9 +49,9 @@ TEST(logical_packets, Login_accepted_packet) {
     ASSERT_EQ(p.session, "");
     ASSERT_EQ(p.next_sequence_number, 1u);
 
-    char b[] = "     abcde          1234567890";
-    static_assert(sizeof(b) - 1 == Login_accepted_packet::payload_size);
-    read(p, b);
+    std::string b = "     abcde          1234567890";
+    ASSERT_EQ(b.size(), Login_accepted_packet::payload_size);
+    read(p, b.data());
     ASSERT_EQ(p.session, "abcde");
     ASSERT_EQ(p.next_sequence_number, 1234567890u);
   }
@@ -59,12 +60,12 @@ TEST(logical_packets, Login_accepted_packet) {
     ASSERT_EQ(p.session, "abcde");
     ASSERT_EQ(p.next_sequence_number, 1234567890u);
 
-    char b[Login_accepted_packet::payload_size];
-    std::memset(b, '*', sizeof(b));
-    write(p, b);
-    char expected[] = "     abcde          1234567890";
-    static_assert(sizeof(expected) - 1 == sizeof(b));
-    ASSERT_EQ(std::memcmp(b, expected, sizeof(b)), 0);
+    std::array<char, Login_accepted_packet::payload_size> b = {};
+    b.fill('*');
+    write(p, b.data());
+    std::string expected = "     abcde          1234567890";
+    ASSERT_EQ(expected.size(), b.size());
+    ASSERT_EQ(std::memcmp(b.data(), expected.data(), b.size()), 0);
   }
 }
 
@@ -74,21 +75,21 @@ TEST(logical_packets, Login_rejected_packet) {
     Login_rejected_packet p;
     ASSERT_EQ(p.reason, Reason::not_authorized);
 
-    char b[] = "S";
-    static_assert(sizeof(b) - 1 == Login_rejected_packet::payload_size);
-    read(p, b);
+    std::string b = "S";
+    ASSERT_EQ(b.size(), Login_rejected_packet::payload_size);
+    read(p, b.data());
     ASSERT_EQ(p.reason, Reason::session_not_available);
   }
   {
     Login_rejected_packet p(Reason::session_not_available);
     ASSERT_EQ(p.reason, Reason::session_not_available);
 
-    char b[Login_rejected_packet::payload_size];
-    std::memset(b, '*', sizeof(b));
-    write(p, b);
-    char expected[] = "S";
-    static_assert(sizeof(expected) - 1 == sizeof(b));
-    ASSERT_EQ(std::memcmp(b, expected, sizeof(b)), 0);
+    std::array<char, Login_rejected_packet::payload_size> b = {};
+    b.fill('*');
+    write(p, b.data());
+    std::string expected = "S";
+    ASSERT_EQ(expected.size(), b.size());
+    ASSERT_EQ(std::memcmp(b.data(), expected.data(), b.size()), 0);
   }
 }
 
@@ -100,9 +101,9 @@ TEST(logical_packets, Login_request_packet) {
     ASSERT_EQ(p.requested_session, "");
     ASSERT_EQ(p.requested_sequence_number, 0u);
 
-    char b[] = "ABC   DEFGH          abcde          1234567890";
-    static_assert(sizeof(b) - 1 == Login_request_packet::payload_size);
-    read(p, b);
+    std::string b = "ABC   DEFGH          abcde          1234567890";
+    ASSERT_EQ(b.size(), Login_request_packet::payload_size);
+    read(p, b.data());
     ASSERT_EQ(p.username, "ABC");
     ASSERT_EQ(p.password, "DEFGH");
     ASSERT_EQ(p.requested_session, "abcde");
@@ -115,11 +116,11 @@ TEST(logical_packets, Login_request_packet) {
     ASSERT_EQ(p.requested_session, "abcde");
     ASSERT_EQ(p.requested_sequence_number, 1234567890u);
 
-    char b[Login_request_packet::payload_size];
-    std::memset(b, '*', sizeof(b));
-    write(p, b);
-    char expected[] = "ABC   DEFGH          abcde          1234567890";
-    static_assert(sizeof(expected) - 1 == sizeof(b));
-    ASSERT_EQ(std::memcmp(b, expected, sizeof(b)), 0);
+    std::array<char, Login_request_packet::payload_size> b = {};
+    b.fill('*');
+    write(p, b.data());
+    std::string expected = "ABC   DEFGH          abcde          1234567890";
+    ASSERT_EQ(expected.size(), b.size());
+    ASSERT_EQ(std::memcmp(b.data(), expected.data(), b.size()), 0);
   }
 }

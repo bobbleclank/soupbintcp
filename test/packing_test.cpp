@@ -1,5 +1,6 @@
 #include "bc/soup/packing.h"
 
+#include <array>
 #include <cstdint>
 #include <limits>
 #include <string>
@@ -14,47 +15,47 @@ using namespace std::string_literals;
 TEST(packing, integral) {
   {
     char i = 'a';
-    unsigned char b[sizeof(i)];
-    pack(i, b);
-    ASSERT_EQ(*reinterpret_cast<char*>(b), 0X61);
+    std::array<unsigned char, sizeof(i)> b = {};
+    pack(i, b.data());
+    ASSERT_EQ(*reinterpret_cast<char*>(b.data()), 0X61);
     char j = '\0';
-    unpack(j, b);
+    unpack(j, b.data());
     ASSERT_EQ(j, 'a');
   }
   {
     std::int16_t i = 21;
-    unsigned char b[sizeof(i)];
-    pack(i, b);
-    ASSERT_EQ(*reinterpret_cast<std::int16_t*>(b), 0X1500);
+    std::array<unsigned char, sizeof(i)> b = {};
+    pack(i, b.data());
+    ASSERT_EQ(*reinterpret_cast<std::int16_t*>(b.data()), 0X1500);
     std::int16_t j = 0;
-    unpack(j, b);
+    unpack(j, b.data());
     ASSERT_EQ(j, 21);
   }
   {
     std::uint16_t i = 21;
-    unsigned char b[sizeof(i)];
-    pack(i, b);
-    ASSERT_EQ(*reinterpret_cast<std::int16_t*>(b), 0X1500);
+    std::array<unsigned char, sizeof(i)> b = {};
+    pack(i, b.data());
+    ASSERT_EQ(*reinterpret_cast<std::int16_t*>(b.data()), 0X1500);
     std::uint16_t j = 0;
-    unpack(j, b);
+    unpack(j, b.data());
     ASSERT_EQ(j, 21u);
   }
   {
     std::int32_t i = 42;
-    unsigned char b[sizeof(i)];
-    pack(i, b);
-    ASSERT_EQ(*reinterpret_cast<std::int32_t*>(b), 0X2A000000);
+    std::array<unsigned char, sizeof(i)> b = {};
+    pack(i, b.data());
+    ASSERT_EQ(*reinterpret_cast<std::int32_t*>(b.data()), 0X2A000000);
     std::int32_t j = 0;
-    unpack(j, b);
+    unpack(j, b.data());
     ASSERT_EQ(j, 42);
   }
   {
     std::uint32_t i = 42;
-    unsigned char b[sizeof(i)];
-    pack(i, b);
-    ASSERT_EQ(*reinterpret_cast<std::int32_t*>(b), 0X2A000000);
+    std::array<unsigned char, sizeof(i)> b = {};
+    pack(i, b.data());
+    ASSERT_EQ(*reinterpret_cast<std::int32_t*>(b.data()), 0X2A000000);
     std::uint32_t j = 0;
-    unpack(j, b);
+    unpack(j, b.data());
     ASSERT_EQ(j, 42u);
   }
 }
@@ -84,275 +85,293 @@ enum class E3 : std::uint32_t {
 TEST(packing, enumeration) {
   {
     E1 i = E1::c;
-    unsigned char b[sizeof(i)];
-    pack(i, b);
-    ASSERT_EQ(*reinterpret_cast<char*>(b), 0X63);
+    std::array<unsigned char, sizeof(i)> b = {};
+    pack(i, b.data());
+    ASSERT_EQ(*reinterpret_cast<char*>(b.data()), 0X63);
     E1 j = E1::a;
-    unpack(j, b);
+    unpack(j, b.data());
     ASSERT_EQ(j, E1::c);
   }
   {
     E2 i = E2::c;
-    unsigned char b[sizeof(i)];
-    pack(i, b);
-    ASSERT_EQ(*reinterpret_cast<std::int16_t*>(b), 0X5400);
+    std::array<unsigned char, sizeof(i)> b = {};
+    pack(i, b.data());
+    ASSERT_EQ(*reinterpret_cast<std::int16_t*>(b.data()), 0X5400);
     E2 j = E2::a;
-    unpack(j, b);
+    unpack(j, b.data());
     ASSERT_EQ(j, E2::c);
   }
   {
     E3 i = E3::c;
-    unsigned char b[sizeof(i)];
-    pack(i, b);
-    ASSERT_EQ(*reinterpret_cast<std::int32_t*>(b), 0X54000000);
+    std::array<unsigned char, sizeof(i)> b = {};
+    pack(i, b.data());
+    ASSERT_EQ(*reinterpret_cast<std::int32_t*>(b.data()), 0X54000000);
     E3 j = E3::a;
-    unpack(j, b);
+    unpack(j, b.data());
     ASSERT_EQ(j, E3::c);
   }
 }
 
 TEST(packing, pack_alphanumeric) {
   {
-    const char s[] = "";
-    char b[4];
-    std::memset(b, '*', sizeof(b));
-    pack_alphanumeric(s, b, 4);
-    ASSERT_EQ(std::memcmp(b, "    ", 4), 0);
+    std::string s = "";
+    std::array<char, 4> b = {};
+    b.fill('*');
+    pack_alphanumeric(s, b.data(), b.size());
+    ASSERT_EQ(std::memcmp(b.data(), "    ", b.size()), 0);
   }
   {
-    const char s[] = "a";
-    char b[4];
-    std::memset(b, '*', sizeof(b));
-    pack_alphanumeric(s, b, 4);
-    ASSERT_EQ(std::memcmp(b, "a   ", 4), 0);
+    std::string s = "a";
+    std::array<char, 4> b = {};
+    b.fill('*');
+    pack_alphanumeric(s, b.data(), b.size());
+    ASSERT_EQ(std::memcmp(b.data(), "a   ", b.size()), 0);
   }
   {
-    const char s[] = "ab";
-    char b[4];
-    std::memset(b, '*', sizeof(b));
-    pack_alphanumeric(s, b, 4);
-    ASSERT_EQ(std::memcmp(b, "ab  ", 4), 0);
+    std::string s = "ab";
+    std::array<char, 4> b = {};
+    b.fill('*');
+    pack_alphanumeric(s, b.data(), b.size());
+    ASSERT_EQ(std::memcmp(b.data(), "ab  ", b.size()), 0);
   }
   {
-    const char s[] = "abc";
-    char b[4];
-    std::memset(b, '*', sizeof(b));
-    pack_alphanumeric(s, b, 4);
-    ASSERT_EQ(std::memcmp(b, "abc ", 4), 0);
+    std::string s = "abc";
+    std::array<char, 4> b = {};
+    b.fill('*');
+    pack_alphanumeric(s, b.data(), b.size());
+    ASSERT_EQ(std::memcmp(b.data(), "abc ", b.size()), 0);
   }
   {
-    const char s[] = "abcd";
-    char b[4];
-    std::memset(b, '*', sizeof(b));
-    pack_alphanumeric(s, b, 4);
-    ASSERT_EQ(std::memcmp(b, "abcd", 4), 0);
+    std::string s = "abcd";
+    std::array<char, 4> b = {};
+    b.fill('*');
+    pack_alphanumeric(s, b.data(), b.size());
+    ASSERT_EQ(std::memcmp(b.data(), "abcd", b.size()), 0);
   }
   {
-    const char s[] = "  ab"; // Leading invalid character.
-    char b[4];
-    std::memset(b, '*', sizeof(b));
-    pack_alphanumeric(s, b, 4);
-    ASSERT_EQ(std::memcmp(b, "    ", 4), 0);
+    std::string s = "  ab"; // Leading invalid character.
+    std::array<char, 4> b = {};
+    b.fill('*');
+    pack_alphanumeric(s, b.data(), b.size());
+    ASSERT_EQ(std::memcmp(b.data(), "    ", b.size()), 0);
   }
   {
-    const char s[] = "ab__"; // Trailing invalid character.
-    char b[4];
-    std::memset(b, '*', sizeof(b));
-    pack_alphanumeric(s, b, 4);
-    ASSERT_EQ(std::memcmp(b, "ab  ", 4), 0);
+    std::string s = "ab__"; // Trailing invalid character.
+    std::array<char, 4> b = {};
+    b.fill('*');
+    pack_alphanumeric(s, b.data(), b.size());
+    ASSERT_EQ(std::memcmp(b.data(), "ab  ", b.size()), 0);
   }
   {
-    const char s[] = "a  b"; // Embedded invalid character.
-    char b[4];
-    std::memset(b, '*', sizeof(b));
-    pack_alphanumeric(s, b, 4);
-    ASSERT_EQ(std::memcmp(b, "a   ", 4), 0);
+    std::string s = "a  b"; // Embedded invalid character.
+    std::array<char, 4> b = {};
+    b.fill('*');
+    pack_alphanumeric(s, b.data(), b.size());
+    ASSERT_EQ(std::memcmp(b.data(), "a   ", b.size()), 0);
   }
   {
-    const char s[] = "abcde"; // Too long.
-    char b[4];
-    std::memset(b, '*', sizeof(b));
-    pack_alphanumeric(s, b, 4);
-    ASSERT_EQ(std::memcmp(b, "abcd", 4), 0);
+    std::string s = "abcde"; // Too long.
+    std::array<char, 4> b = {};
+    b.fill('*');
+    pack_alphanumeric(s, b.data(), b.size());
+    ASSERT_EQ(std::memcmp(b.data(), "abcd", b.size()), 0);
   }
 }
 
 TEST(packing, unpack_alphanumeric) {
   {
-    char b[4 + 1] = "    ";
+    std::string b = "    ";
+    ASSERT_EQ(b.size(), 4);
     std::string s;
-    unpack_alphanumeric(s, b, 4);
+    unpack_alphanumeric(s, b.data(), b.size());
     ASSERT_EQ(s, ""s);
   }
   {
-    char b[4 + 1] = "a   ";
+    std::string b = "a   ";
+    ASSERT_EQ(b.size(), 4);
     std::string s;
-    unpack_alphanumeric(s, b, 4);
+    unpack_alphanumeric(s, b.data(), b.size());
     ASSERT_EQ(s, "a"s);
   }
   {
-    char b[4 + 1] = "ab  ";
+    std::string b = "ab  ";
+    ASSERT_EQ(b.size(), 4);
     std::string s;
-    unpack_alphanumeric(s, b, 4);
+    unpack_alphanumeric(s, b.data(), b.size());
     ASSERT_EQ(s, "ab"s);
   }
   {
-    char b[4 + 1] = "abc ";
+    std::string b = "abc ";
+    ASSERT_EQ(b.size(), 4);
     std::string s;
-    unpack_alphanumeric(s, b, 4);
+    unpack_alphanumeric(s, b.data(), b.size());
     ASSERT_EQ(s, "abc"s);
   }
   {
-    char b[4 + 1] = "abcd";
+    std::string b = "abcd";
+    ASSERT_EQ(b.size(), 4);
     std::string s;
-    unpack_alphanumeric(s, b, 4);
+    unpack_alphanumeric(s, b.data(), b.size());
     ASSERT_EQ(s, "abcd"s);
   }
   {
-    char b[4 + 1] = "  ab"; // Leading invalid character.
+    std::string b = "  ab"; // Leading invalid character.
+    ASSERT_EQ(b.size(), 4);
     std::string s;
-    unpack_alphanumeric(s, b, 4);
+    unpack_alphanumeric(s, b.data(), b.size());
     ASSERT_EQ(s, ""s);
   }
   {
-    char b[4 + 1] = "ab__"; // Trailing invalid character.
+    std::string b = "ab__"; // Trailing invalid character.
+    ASSERT_EQ(b.size(), 4);
     std::string s;
-    unpack_alphanumeric(s, b, 4);
+    unpack_alphanumeric(s, b.data(), b.size());
     ASSERT_EQ(s, "ab"s);
   }
   {
-    char b[4 + 1] = "a  b"; // Embedded invalid character.
+    std::string b = "a  b"; // Embedded invalid character.
+    ASSERT_EQ(b.size(), 4);
     std::string s;
-    unpack_alphanumeric(s, b, 4);
+    unpack_alphanumeric(s, b.data(), b.size());
     ASSERT_EQ(s, "a"s);
   }
   {
-    char b[4 + 1 + 1] = "abcde"; // Too long.
+    std::string b = "abcde"; // Too long.
+    ASSERT_EQ(b.size(), 4 + 1);
     std::string s;
-    unpack_alphanumeric(s, b, 4);
+    unpack_alphanumeric(s, b.data(), b.size() - 1);
     ASSERT_EQ(s, "abcd"s);
   }
 }
 
 TEST(packing, pack_session) {
   {
-    const char s[] = "";
-    char b[10];
-    std::memset(b, '*', sizeof(b));
-    pack_session(s, b);
-    ASSERT_EQ(std::memcmp(b, "          ", 10), 0);
+    std::string s = "";
+    std::array<char, 10> b = {};
+    b.fill('*');
+    pack_session(s, b.data());
+    ASSERT_EQ(std::memcmp(b.data(), "          ", b.size()), 0);
   }
   {
-    const char s[] = "a";
-    char b[10];
-    std::memset(b, '*', sizeof(b));
-    pack_session(s, b);
-    ASSERT_EQ(std::memcmp(b, "         a", 10), 0);
+    std::string s = "a";
+    std::array<char, 10> b = {};
+    b.fill('*');
+    pack_session(s, b.data());
+    ASSERT_EQ(std::memcmp(b.data(), "         a", b.size()), 0);
   }
   {
-    const char s[] = "abcde";
-    char b[10];
-    std::memset(b, '*', sizeof(b));
-    pack_session(s, b);
-    ASSERT_EQ(std::memcmp(b, "     abcde", 10), 0);
+    std::string s = "abcde";
+    std::array<char, 10> b = {};
+    b.fill('*');
+    pack_session(s, b.data());
+    ASSERT_EQ(std::memcmp(b.data(), "     abcde", b.size()), 0);
   }
   {
-    const char s[] = "abcdefghi";
-    char b[10];
-    std::memset(b, '*', sizeof(b));
-    pack_session(s, b);
-    ASSERT_EQ(std::memcmp(b, " abcdefghi", 10), 0);
+    std::string s = "abcdefghi";
+    std::array<char, 10> b = {};
+    b.fill('*');
+    pack_session(s, b.data());
+    ASSERT_EQ(std::memcmp(b.data(), " abcdefghi", b.size()), 0);
   }
   {
-    const char s[] = "abcdefghij";
-    char b[10];
-    std::memset(b, '*', sizeof(b));
-    pack_session(s, b);
-    ASSERT_EQ(std::memcmp(b, "abcdefghij", 10), 0);
+    std::string s = "abcdefghij";
+    std::array<char, 10> b = {};
+    b.fill('*');
+    pack_session(s, b.data());
+    ASSERT_EQ(std::memcmp(b.data(), "abcdefghij", b.size()), 0);
   }
   {
-    const char s[] = "     abcde"; // Leading invalid character.
-    char b[10];
-    std::memset(b, '*', sizeof(b));
-    pack_session(s, b);
-    ASSERT_EQ(std::memcmp(b, "          ", 10), 0);
+    std::string s = "     abcde"; // Leading invalid character.
+    std::array<char, 10> b = {};
+    b.fill('*');
+    pack_session(s, b.data());
+    ASSERT_EQ(std::memcmp(b.data(), "          ", b.size()), 0);
   }
   {
-    const char s[] = "abcde_____"; // Trailing invalid character.
-    char b[10];
-    std::memset(b, '*', sizeof(b));
-    pack_session(s, b);
-    ASSERT_EQ(std::memcmp(b, "     abcde", 10), 0);
+    std::string s = "abcde_____"; // Trailing invalid character.
+    std::array<char, 10> b = {};
+    b.fill('*');
+    pack_session(s, b.data());
+    ASSERT_EQ(std::memcmp(b.data(), "     abcde", b.size()), 0);
   }
   {
-    const char s[] = "abc    def"; // Embedded invalid character.
-    char b[10];
-    std::memset(b, '*', sizeof(b));
-    pack_session(s, b);
-    ASSERT_EQ(std::memcmp(b, "       abc", 10), 0);
+    std::string s = "abc    def"; // Embedded invalid character.
+    std::array<char, 10> b = {};
+    b.fill('*');
+    pack_session(s, b.data());
+    ASSERT_EQ(std::memcmp(b.data(), "       abc", b.size()), 0);
   }
   {
-    const char s[] = "abcdefghijk"; // Too long.
-    char b[10];
-    std::memset(b, '*', sizeof(b));
-    pack_session(s, b);
-    ASSERT_EQ(std::memcmp(b, "abcdefghij", 10), 0);
+    std::string s = "abcdefghijk"; // Too long.
+    std::array<char, 10> b = {};
+    b.fill('*');
+    pack_session(s, b.data());
+    ASSERT_EQ(std::memcmp(b.data(), "abcdefghij", b.size()), 0);
   }
 }
 
 TEST(packing, unpack_session) {
   {
-    char b[10 + 1] = "          ";
+    std::string b = "          ";
+    ASSERT_EQ(b.size(), 10);
     std::string s;
-    unpack_session(s, b);
+    unpack_session(s, b.data());
     ASSERT_EQ(s, ""s);
   }
   {
-    char b[10 + 1] = "         a";
+    std::string b = "         a";
+    ASSERT_EQ(b.size(), 10);
     std::string s;
-    unpack_session(s, b);
+    unpack_session(s, b.data());
     ASSERT_EQ(s, "a"s);
   }
   {
-    char b[10 + 1] = "     abcde";
+    std::string b = "     abcde";
+    ASSERT_EQ(b.size(), 10);
     std::string s;
-    unpack_session(s, b);
+    unpack_session(s, b.data());
     ASSERT_EQ(s, "abcde"s);
   }
   {
-    char b[10 + 1] = " abcdefghi";
+    std::string b = " abcdefghi";
+    ASSERT_EQ(b.size(), 10);
     std::string s;
-    unpack_session(s, b);
+    unpack_session(s, b.data());
     ASSERT_EQ(s, "abcdefghi"s);
   }
   {
-    char b[10 + 1] = "abcdefghij";
+    std::string b = "abcdefghij";
+    ASSERT_EQ(b.size(), 10);
     std::string s;
-    unpack_session(s, b);
+    unpack_session(s, b.data());
     ASSERT_EQ(s, "abcdefghij"s);
   }
   {
-    char b[10 + 1] = "  ---abcde"; // Leading invalid character.
+    std::string b = "  ---abcde"; // Leading invalid character.
+    ASSERT_EQ(b.size(), 10);
     std::string s;
-    unpack_session(s, b);
+    unpack_session(s, b.data());
     ASSERT_EQ(s, ""s);
   }
   {
-    char b[10 + 1] = "abcde_____"; // Trailing invalid character.
+    std::string b = "abcde_____"; // Trailing invalid character.
+    ASSERT_EQ(b.size(), 10);
     std::string s;
-    unpack_session(s, b);
+    unpack_session(s, b.data());
     ASSERT_EQ(s, "abcde"s);
   }
   {
-    char b[10 + 1] = "abc    def"; // Embedded invalid character.
+    std::string b = "abc    def"; // Embedded invalid character.
+    ASSERT_EQ(b.size(), 10);
     std::string s;
-    unpack_session(s, b);
+    unpack_session(s, b.data());
     ASSERT_EQ(s, "abc"s);
   }
   {
-    char b[10 + 1 + 1] = "abcdefghijk"; // Too long.
+    std::string b = "abcdefghijk"; // Too long.
+    ASSERT_EQ(b.size(), 10 + 1);
     std::string s;
-    unpack_session(s, b);
+    unpack_session(s, b.data());
     ASSERT_EQ(s, "abcdefghij"s);
   }
 }
@@ -360,107 +379,117 @@ TEST(packing, unpack_session) {
 TEST(packing, pack_sequence_number) {
   {
     std::uint64_t i = 0;
-    char b[20];
-    std::memset(b, '*', sizeof(b));
-    pack_sequence_number(i, b);
-    ASSERT_EQ(std::memcmp(b, "                   0", 20), 0);
+    std::array<char, 20> b = {};
+    b.fill('*');
+    pack_sequence_number(i, b.data());
+    ASSERT_EQ(std::memcmp(b.data(), "                   0", b.size()), 0);
   }
   {
     std::uint64_t i = 1;
-    char b[20];
-    std::memset(b, '*', sizeof(b));
-    pack_sequence_number(i, b);
-    ASSERT_EQ(std::memcmp(b, "                   1", 20), 0);
+    std::array<char, 20> b = {};
+    b.fill('*');
+    pack_sequence_number(i, b.data());
+    ASSERT_EQ(std::memcmp(b.data(), "                   1", b.size()), 0);
   }
   {
     std::uint64_t i = 12345;
-    char b[20];
-    std::memset(b, '*', sizeof(b));
-    pack_sequence_number(i, b);
-    ASSERT_EQ(std::memcmp(b, "               12345", 20), 0);
+    std::array<char, 20> b = {};
+    b.fill('*');
+    pack_sequence_number(i, b.data());
+    ASSERT_EQ(std::memcmp(b.data(), "               12345", b.size()), 0);
   }
   {
     std::uint64_t i = 1234567890;
-    char b[20];
-    std::memset(b, '*', sizeof(b));
-    pack_sequence_number(i, b);
-    ASSERT_EQ(std::memcmp(b, "          1234567890", 20), 0);
+    std::array<char, 20> b = {};
+    b.fill('*');
+    pack_sequence_number(i, b.data());
+    ASSERT_EQ(std::memcmp(b.data(), "          1234567890", b.size()), 0);
   }
   {
     std::uint64_t i = 9999999999999999999uL;
-    char b[20];
-    std::memset(b, '*', sizeof(b));
-    pack_sequence_number(i, b);
-    ASSERT_EQ(std::memcmp(b, " 9999999999999999999", 20), 0);
+    std::array<char, 20> b = {};
+    b.fill('*');
+    pack_sequence_number(i, b.data());
+    ASSERT_EQ(std::memcmp(b.data(), " 9999999999999999999", b.size()), 0);
   }
   {
     std::uint64_t i = std::numeric_limits<std::uint64_t>::max();
-    char b[20];
-    std::memset(b, '*', sizeof(b));
-    pack_sequence_number(i, b);
-    ASSERT_EQ(std::memcmp(b, "18446744073709551615", 20), 0);
+    std::array<char, 20> b = {};
+    b.fill('*');
+    pack_sequence_number(i, b.data());
+    ASSERT_EQ(std::memcmp(b.data(), "18446744073709551615", b.size()), 0);
   }
 }
 
 TEST(packing, unpack_sequence_number) {
   {
-    char b[20 + 1] = "                   0";
+    std::string b = "                   0";
+    ASSERT_EQ(b.size(), 20);
     std::uint64_t i = 42;
-    unpack_sequence_number(i, b);
+    unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 0u);
   }
   {
-    char b[20 + 1] = "                   1";
+    std::string b = "                   1";
+    ASSERT_EQ(b.size(), 20);
     std::uint64_t i = 42;
-    unpack_sequence_number(i, b);
+    unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 1u);
   }
   {
-    char b[20 + 1] = "               12345";
+    std::string b = "               12345";
+    ASSERT_EQ(b.size(), 20);
     std::uint64_t i = 42;
-    unpack_sequence_number(i, b);
+    unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 12345u);
   }
   {
-    char b[20 + 1] = "          1234567890";
+    std::string b = "          1234567890";
+    ASSERT_EQ(b.size(), 20);
     std::uint64_t i = 42;
-    unpack_sequence_number(i, b);
+    unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 1234567890u);
   }
   {
-    char b[20 + 1] = " 9999999999999999999";
+    std::string b = " 9999999999999999999";
+    ASSERT_EQ(b.size(), 20);
     std::uint64_t i = 42;
-    unpack_sequence_number(i, b);
+    unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 9999999999999999999uL);
   }
   {
-    char b[20 + 1] = "18446744073709551615";
+    std::string b = "18446744073709551615";
+    ASSERT_EQ(b.size(), 20);
     std::uint64_t i = 42;
-    unpack_sequence_number(i, b);
+    unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, std::numeric_limits<std::uint64_t>::max());
   }
   {
-    char b[20 + 1] = "                    "; // No digits.
+    std::string b = "                    "; // No digits.
+    ASSERT_EQ(b.size(), 20);
     std::uint64_t i = 42;
-    unpack_sequence_number(i, b);
+    unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 0u);
   }
   {
-    char b[20 + 1] = "          123 567890"; // Non-digit.
+    std::string b = "          123 567890"; // Non-digit.
+    ASSERT_EQ(b.size(), 20);
     std::uint64_t i = 42;
-    unpack_sequence_number(i, b);
+    unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 123u);
   }
   {
-    char b[20 + 1] = "18446744073709551616"; // Overflow.
+    std::string b = "18446744073709551616"; // Overflow.
+    ASSERT_EQ(b.size(), 20);
     std::uint64_t i = 42;
-    unpack_sequence_number(i, b);
+    unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 0u);
   }
   {
-    char b[20 + 1] = "18446744073709551617"; // Overflow.
+    std::string b = "18446744073709551617"; // Overflow.
+    ASSERT_EQ(b.size(), 20);
     std::uint64_t i = 42;
-    unpack_sequence_number(i, b);
+    unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 1u);
   }
 }

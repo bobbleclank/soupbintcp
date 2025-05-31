@@ -1,6 +1,7 @@
 #include "bc/soup/file_store.h"
 
 #include <cstring>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -12,8 +13,8 @@ using namespace bc::soup;
 
 namespace {
 
-constexpr char filename[] = "test_store";
-constexpr char filename_2[] = "test_store_2";
+const std::string filename = "test_store";
+const std::string filename_2 = "test_store_2";
 
 void assert_messages(const std::vector<Message>& v) {
   ASSERT_EQ(v.size(), 9u);
@@ -51,7 +52,7 @@ void assert_messages(const std::vector<Message>& v) {
 } // namespace
 
 TEST(File_store, add_to_empty_file) {
-  unlink(filename);
+  unlink(filename.c_str());
 
   File_store s(filename);
   auto ec = s.open();
@@ -124,7 +125,7 @@ TEST(File_store, open_non_empty_file) {
 }
 
 TEST(File_store, add_to_existing_file) {
-  unlink(filename);
+  unlink(filename.c_str());
   {
     File_store s;
     s.set_filename(filename);
@@ -203,8 +204,8 @@ TEST(File_store, add_to_existing_file) {
 }
 
 TEST(File_store, move_operations) {
-  unlink(filename);
-  unlink(filename_2);
+  unlink(filename.c_str());
+  unlink(filename_2.c_str());
 
   File_store s1(filename);
   auto ec = s1.open();
