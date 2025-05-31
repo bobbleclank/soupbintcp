@@ -23,6 +23,7 @@ Buffer& Buffer::operator=(Buffer&& other) noexcept {
   return *this;
 }
 
+// NOLINTNEXTLINE(*-pro-type-member-init): Initialize in constructor body
 Read_packet::Read_packet() {
   header_.fill(std::byte(0));
 }
