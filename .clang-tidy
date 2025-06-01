@@ -2,7 +2,6 @@ Checks:
   - cppcoreguidelines-*
   - -clang-analyzer-cplusplus.Move
   - -cppcoreguidelines-avoid-do-while
-  - -cppcoreguidelines-avoid-magic-numbers
   - -cppcoreguidelines-pro-bounds-pointer-arithmetic
   - -cppcoreguidelines-pro-type-reinterpret-cast
   - -cppcoreguidelines-pro-type-vararg
