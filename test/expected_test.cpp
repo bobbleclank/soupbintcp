@@ -27,7 +27,7 @@ struct Arg {
 };
 
 struct Obj {
-  Obj() : x(20100) {}
+  Obj() = default;
 
   explicit Obj(int x_) : x(x_) {}
 
@@ -55,7 +55,7 @@ struct Obj {
 
   ~Obj() = default;
 
-  int x;
+  int x = 20100;
 };
 
 struct Obj_implicit {
