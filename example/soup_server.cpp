@@ -68,6 +68,7 @@ void display_version() {
 }
 
 int main(int argc, char** argv) {
+  // NOLINTNEXTLINE(*-avoid-magic-numbers): Default value
   int time = 30;
 
   try {

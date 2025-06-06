@@ -55,6 +55,7 @@ struct Obj {
 
   ~Obj() = default;
 
+  // NOLINTNEXTLINE(*-avoid-magic-numbers): Default value
   int x = 20100;
 };
 

@@ -74,6 +74,7 @@ private:
   asio::ip::tcp::socket socket_;
   Read_packet read_packet_;
   std::list<Write_packet> write_packets_;
+  // NOLINTNEXTLINE(*-avoid-magic-numbers): Default value
   std::size_t write_packets_limit_ = 100;
   bool write_buffer_was_full_ = false;
 
