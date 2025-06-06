@@ -245,65 +245,66 @@ TEST(packing, unpack_alphanumeric) {
 }
 
 TEST(packing, pack_session) {
+  constexpr auto size = 10;
   {
     std::string s = "";
-    std::array<char, 10> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "          ", b.size()), 0);
   }
   {
     std::string s = "a";
-    std::array<char, 10> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "         a", b.size()), 0);
   }
   {
     std::string s = "abcde";
-    std::array<char, 10> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "     abcde", b.size()), 0);
   }
   {
     std::string s = "abcdefghi";
-    std::array<char, 10> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), " abcdefghi", b.size()), 0);
   }
   {
     std::string s = "abcdefghij";
-    std::array<char, 10> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcdefghij", b.size()), 0);
   }
   {
     std::string s = "     abcde"; // Leading invalid character.
-    std::array<char, 10> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "          ", b.size()), 0);
   }
   {
     std::string s = "abcde_____"; // Trailing invalid character.
-    std::array<char, 10> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "     abcde", b.size()), 0);
   }
   {
     std::string s = "abc    def"; // Embedded invalid character.
-    std::array<char, 10> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "       abc", b.size()), 0);
   }
   {
     std::string s = "abcdefghijk"; // Too long.
-    std::array<char, 10> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcdefghij", b.size()), 0);
@@ -377,44 +378,45 @@ TEST(packing, unpack_session) {
 }
 
 TEST(packing, pack_sequence_number) {
+  constexpr auto size = 20;
   {
     std::uint64_t i = 0;
-    std::array<char, 20> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
     pack_sequence_number(i, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "                   0", b.size()), 0);
   }
   {
     std::uint64_t i = 1;
-    std::array<char, 20> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
     pack_sequence_number(i, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "                   1", b.size()), 0);
   }
   {
     std::uint64_t i = 12345;
-    std::array<char, 20> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
     pack_sequence_number(i, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "               12345", b.size()), 0);
   }
   {
     std::uint64_t i = 1234567890;
-    std::array<char, 20> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
     pack_sequence_number(i, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "          1234567890", b.size()), 0);
   }
   {
     std::uint64_t i = 9999999999999999999uL;
-    std::array<char, 20> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
     pack_sequence_number(i, b.data());
     ASSERT_EQ(std::memcmp(b.data(), " 9999999999999999999", b.size()), 0);
   }
   {
     std::uint64_t i = std::numeric_limits<std::uint64_t>::max();
-    std::array<char, 20> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
     pack_sequence_number(i, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "18446744073709551615", b.size()), 0);
@@ -422,73 +424,75 @@ TEST(packing, pack_sequence_number) {
 }
 
 TEST(packing, unpack_sequence_number) {
+  constexpr auto size = 20;
+  constexpr auto distinct_initial_value = 42;
   {
     std::string b = "                   0";
-    ASSERT_EQ(b.size(), 20);
-    std::uint64_t i = 42;
+    ASSERT_EQ(b.size(), size);
+    std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 0u);
   }
   {
     std::string b = "                   1";
-    ASSERT_EQ(b.size(), 20);
-    std::uint64_t i = 42;
+    ASSERT_EQ(b.size(), size);
+    std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 1u);
   }
   {
     std::string b = "               12345";
-    ASSERT_EQ(b.size(), 20);
-    std::uint64_t i = 42;
+    ASSERT_EQ(b.size(), size);
+    std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 12345u);
   }
   {
     std::string b = "          1234567890";
-    ASSERT_EQ(b.size(), 20);
-    std::uint64_t i = 42;
+    ASSERT_EQ(b.size(), size);
+    std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 1234567890u);
   }
   {
     std::string b = " 9999999999999999999";
-    ASSERT_EQ(b.size(), 20);
-    std::uint64_t i = 42;
+    ASSERT_EQ(b.size(), size);
+    std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 9999999999999999999uL);
   }
   {
     std::string b = "18446744073709551615";
-    ASSERT_EQ(b.size(), 20);
-    std::uint64_t i = 42;
+    ASSERT_EQ(b.size(), size);
+    std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, std::numeric_limits<std::uint64_t>::max());
   }
   {
     std::string b = "                    "; // No digits.
-    ASSERT_EQ(b.size(), 20);
-    std::uint64_t i = 42;
+    ASSERT_EQ(b.size(), size);
+    std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 0u);
   }
   {
     std::string b = "          123 567890"; // Non-digit.
-    ASSERT_EQ(b.size(), 20);
-    std::uint64_t i = 42;
+    ASSERT_EQ(b.size(), size);
+    std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 123u);
   }
   {
     std::string b = "18446744073709551616"; // Overflow.
-    ASSERT_EQ(b.size(), 20);
-    std::uint64_t i = 42;
+    ASSERT_EQ(b.size(), size);
+    std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 0u);
   }
   {
     std::string b = "18446744073709551617"; // Overflow.
-    ASSERT_EQ(b.size(), 20);
-    std::uint64_t i = 42;
+    ASSERT_EQ(b.size(), size);
+    std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 1u);
   }

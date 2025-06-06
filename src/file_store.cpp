@@ -11,9 +11,10 @@ namespace bc::soup {
 namespace {
 
 int open(const char* path, int oflag) {
+  constexpr mode_t mode = 0666;
   int fd = -1;
   do
-    fd = ::open(path, oflag, 0666);
+    fd = ::open(path, oflag, mode);
   while (fd == -1 && errno == EINTR);
   return fd;
 }

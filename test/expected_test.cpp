@@ -343,7 +343,8 @@ TEST(expected, move_unexpected_constructor) {
 
 TEST(expected, in_place_constructor) {
   {
-    expected<std::string, int> e(std::in_place, "hello world", 5);
+    constexpr auto len = 5;
+    expected<std::string, int> e(std::in_place, "hello world", len);
     ASSERT_TRUE(static_cast<bool>(e));
     ASSERT_TRUE(e.has_value());
     ASSERT_EQ(std::string_view(e->data(), e->size()), "hello");
@@ -443,9 +444,10 @@ TEST(expected, move_constructor) {
 }
 
 TEST(expected, copy_assignment_operator) {
+  constexpr auto distinct_initial_value = 30;
   {
     expected<Obj, int> other(std::in_place, 3);
-    expected<Obj, int> e(std::in_place, 30);
+    expected<Obj, int> e(std::in_place, distinct_initial_value);
     e = other;
     ASSERT_TRUE(e.has_value());
     ASSERT_TRUE(other.has_value());
@@ -454,7 +456,7 @@ TEST(expected, copy_assignment_operator) {
   }
   {
     expected<Obj, int> other(std::in_place, 3);
-    expected<Obj, int> e(unexpect, 30);
+    expected<Obj, int> e(unexpect, distinct_initial_value);
     e = other;
     ASSERT_TRUE(e.has_value());
     ASSERT_TRUE(other.has_value());
@@ -463,7 +465,7 @@ TEST(expected, copy_assignment_operator) {
   }
   {
     expected<int, Obj> other(unexpect, 3);
-    expected<int, Obj> e(unexpect, 30);
+    expected<int, Obj> e(unexpect, distinct_initial_value);
     e = other;
     ASSERT_FALSE(e.has_value());
     ASSERT_FALSE(other.has_value());
@@ -472,7 +474,7 @@ TEST(expected, copy_assignment_operator) {
   }
   {
     expected<int, Obj> other(unexpect, 3);
-    expected<int, Obj> e(std::in_place, 30);
+    expected<int, Obj> e(std::in_place, distinct_initial_value);
     e = other;
     ASSERT_FALSE(e.has_value());
     ASSERT_FALSE(other.has_value());
@@ -482,9 +484,10 @@ TEST(expected, copy_assignment_operator) {
 }
 
 TEST(expected, move_assignment_operator) {
+  constexpr auto distinct_initial_value = 30;
   {
     expected<Obj, int> other(std::in_place, 3);
-    expected<Obj, int> e(std::in_place, 30);
+    expected<Obj, int> e(std::in_place, distinct_initial_value);
     e = std::move(other);
     ASSERT_TRUE(e.has_value());
     ASSERT_TRUE(other.has_value());
@@ -493,7 +496,7 @@ TEST(expected, move_assignment_operator) {
   }
   {
     expected<Obj, int> other(std::in_place, 3);
-    expected<Obj, int> e(unexpect, 30);
+    expected<Obj, int> e(unexpect, distinct_initial_value);
     e = std::move(other);
     ASSERT_TRUE(e.has_value());
     ASSERT_TRUE(other.has_value());
@@ -502,7 +505,7 @@ TEST(expected, move_assignment_operator) {
   }
   {
     expected<int, Obj> other(unexpect, 3);
-    expected<int, Obj> e(unexpect, 30);
+    expected<int, Obj> e(unexpect, distinct_initial_value);
     e = std::move(other);
     ASSERT_FALSE(e.has_value());
     ASSERT_FALSE(other.has_value());
@@ -511,7 +514,7 @@ TEST(expected, move_assignment_operator) {
   }
   {
     expected<int, Obj> other(unexpect, 3);
-    expected<int, Obj> e(std::in_place, 30);
+    expected<int, Obj> e(std::in_place, distinct_initial_value);
     e = std::move(other);
     ASSERT_FALSE(e.has_value());
     ASSERT_FALSE(other.has_value());

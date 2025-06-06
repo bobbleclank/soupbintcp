@@ -89,14 +89,15 @@ namespace internal {
 template <typename Integral, std::size_t length>
 void pack_numeric(Integral i, void* data) {
   static_assert(std::numeric_limits<Integral>::digits10 + 1 == length);
+  constexpr auto base = 10;
   auto* ptr = static_cast<char*>(data) + length;
   if (i == 0) {
     --ptr;
     *ptr = '0';
   }
   while (i != 0) {
-    const char c = '0' + (i % 10);
-    i /= 10;
+    const char c = '0' + (i % base);
+    i /= base;
     --ptr;
     *ptr = c;
   }
@@ -106,6 +107,7 @@ void pack_numeric(Integral i, void* data) {
 template <typename Integral, std::size_t length>
 void unpack_numeric(Integral& i, const void* data) {
   static_assert(std::numeric_limits<Integral>::digits10 + 1 == length);
+  constexpr auto base = 10;
   const auto* ptr = static_cast<const char*>(data);
   const auto* end = ptr + length;
   while (ptr != end && *ptr == ' ') {
@@ -115,7 +117,7 @@ void unpack_numeric(Integral& i, const void* data) {
   while (ptr != end) {
     if (!std::isdigit(*ptr))
       break;
-    i *= 10;
+    i *= base;
     i += *ptr - '0';
     ++ptr;
   }

@@ -32,32 +32,38 @@ TEST(error, souptcp_category) {
   ASSERT_EQ(souptcp_category().message(7), "unknown error"s);
 
   {
-    std::error_condition ec = souptcp_category().default_error_condition(1);
+    constexpr int ev = 1;
+    std::error_condition ec = souptcp_category().default_error_condition(ev);
     ASSERT_EQ(ec.value(), static_cast<int>(std::errc::invalid_argument));
     ASSERT_EQ(ec.category(), std::generic_category());
   }
   {
-    std::error_condition ec = souptcp_category().default_error_condition(2);
+    constexpr int ev = 2;
+    std::error_condition ec = souptcp_category().default_error_condition(ev);
     ASSERT_EQ(ec.value(), static_cast<int>(std::errc::invalid_argument));
     ASSERT_EQ(ec.category(), std::generic_category());
   }
   {
-    std::error_condition ec = souptcp_category().default_error_condition(3);
+    constexpr int ev = 3;
+    std::error_condition ec = souptcp_category().default_error_condition(ev);
     ASSERT_EQ(ec.value(), static_cast<int>(std::errc::invalid_argument));
     ASSERT_EQ(ec.category(), std::generic_category());
   }
   {
-    std::error_condition ec = souptcp_category().default_error_condition(4);
+    constexpr int ev = 4;
+    std::error_condition ec = souptcp_category().default_error_condition(ev);
     ASSERT_EQ(ec.value(), static_cast<int>(std::errc::invalid_argument));
     ASSERT_EQ(ec.category(), std::generic_category());
   }
   {
-    std::error_condition ec = souptcp_category().default_error_condition(5);
+    constexpr int ev = 5;
+    std::error_condition ec = souptcp_category().default_error_condition(ev);
     ASSERT_EQ(ec.value(), static_cast<int>(std::errc::invalid_argument));
     ASSERT_EQ(ec.category(), std::generic_category());
   }
   {
-    std::error_condition ec = souptcp_category().default_error_condition(6);
+    constexpr int ev = 6;
+    std::error_condition ec = souptcp_category().default_error_condition(ev);
     ASSERT_EQ(ec.value(), static_cast<int>(std::errc::invalid_argument));
     ASSERT_EQ(ec.category(), std::generic_category());
   }
@@ -169,32 +175,38 @@ TEST(error, is_error_condition_enum) {
 
 TEST(error, testing_for_an_error) {
   {
-    std::error_code ec(1, souptcp_category());
+    constexpr int ev = 1;
+    std::error_code ec(ev, souptcp_category());
     ASSERT_TRUE(ec == Error::username_too_long);
     ASSERT_TRUE(ec == std::errc::invalid_argument);
   }
   {
-    std::error_code ec(2, souptcp_category());
+    constexpr int ev = 2;
+    std::error_code ec(ev, souptcp_category());
     ASSERT_TRUE(ec == Error::invalid_username);
     ASSERT_TRUE(ec == std::errc::invalid_argument);
   }
   {
-    std::error_code ec(3, souptcp_category());
+    constexpr int ev = 3;
+    std::error_code ec(ev, souptcp_category());
     ASSERT_TRUE(ec == Error::password_too_long);
     ASSERT_TRUE(ec == std::errc::invalid_argument);
   }
   {
-    std::error_code ec(4, souptcp_category());
+    constexpr int ev = 4;
+    std::error_code ec(ev, souptcp_category());
     ASSERT_TRUE(ec == Error::invalid_password);
     ASSERT_TRUE(ec == std::errc::invalid_argument);
   }
   {
-    std::error_code ec(5, souptcp_category());
+    constexpr int ev = 5;
+    std::error_code ec(ev, souptcp_category());
     ASSERT_TRUE(ec == Error::session_too_long);
     ASSERT_TRUE(ec == std::errc::invalid_argument);
   }
   {
-    std::error_code ec(6, souptcp_category());
+    constexpr int ev = 6;
+    std::error_code ec(ev, souptcp_category());
     ASSERT_TRUE(ec == Error::invalid_session);
     ASSERT_TRUE(ec == std::errc::invalid_argument);
   }

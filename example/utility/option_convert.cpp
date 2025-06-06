@@ -15,9 +15,10 @@ int to_int(const char* arg, int opt) {
 }
 
 long to_long(const char* arg, int opt) {
+  constexpr auto base = 10;
   errno = 0;
   char* end = nullptr;
-  const long i = std::strtol(arg, &end, 10);
+  const long i = std::strtol(arg, &end, base);
   if (end == arg)
     throw Invalid_argument(opt, "no conversion");
   if (errno == ERANGE)

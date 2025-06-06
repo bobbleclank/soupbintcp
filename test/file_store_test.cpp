@@ -80,7 +80,9 @@ TEST(File_store, add_to_empty_file) {
   ASSERT_EQ(s.next_sequence_number(), 10u);
 
   std::vector<Message> v;
-  ec = s.get(1, 9, v);
+  constexpr auto first = 1;
+  constexpr auto last = 9;
+  ec = s.get(first, last, v);
   ASSERT_FALSE(ec);
   assert_messages(v);
 }
@@ -93,45 +95,59 @@ TEST(File_store, open_non_empty_file) {
 
   {
     std::vector<Message> v;
-    ec = s.get(1, 9, v);
+    constexpr auto first = 1;
+    constexpr auto last = 9;
+    ec = s.get(first, last, v);
     ASSERT_FALSE(ec);
     assert_messages(v);
   }
 
   {
     std::vector<Message> v;
-    ec = s.get(0, 9, v); // First out of range.
+    constexpr auto first = 0; // First out of range.
+    constexpr auto last = 9;
+    ec = s.get(first, last, v);
     ASSERT_TRUE(ec);
     ASSERT_TRUE(v.empty());
   }
   {
     std::vector<Message> v;
-    ec = s.get(10, 9, v); // First out of range.
+    constexpr auto first = 10; // First out of range.
+    constexpr auto last = 9;
+    ec = s.get(first, last, v);
     ASSERT_TRUE(ec);
     ASSERT_TRUE(v.empty());
   }
   {
     std::vector<Message> v;
-    ec = s.get(1, 0, v); // Last out of range.
+    constexpr auto first = 1;
+    constexpr auto last = 0; // Last out of range.
+    ec = s.get(first, last, v);
     ASSERT_TRUE(ec);
     ASSERT_TRUE(v.empty());
   }
   {
     std::vector<Message> v;
-    ec = s.get(1, 10, v); // Last out of range.
+    constexpr auto first = 1;
+    constexpr auto last = 10; // Last out of range.
+    ec = s.get(first, last, v);
     ASSERT_TRUE(ec);
     ASSERT_TRUE(v.empty());
   }
   {
     std::vector<Message> v;
-    ec = s.get(6, 4, v); // Invalid range.
+    constexpr auto first = 6;
+    constexpr auto last = 4; // Last less than first.
+    ec = s.get(first, last, v);
     ASSERT_TRUE(ec);
     ASSERT_TRUE(v.empty());
   }
 
   {
     std::vector<Message> v;
-    ec = s.get(4, 6, v);
+    constexpr auto first = 4;
+    constexpr auto last = 6;
+    ec = s.get(first, last, v);
     ASSERT_FALSE(ec);
     ASSERT_EQ(v.size(), 3u);
     ASSERT_EQ(v[0].size(), 3u);
@@ -161,7 +177,9 @@ TEST(File_store, add_to_existing_file) {
     ASSERT_EQ(s.next_sequence_number(), 4u);
 
     std::vector<Message> v;
-    ec = s.get(1, 3, v);
+    constexpr auto first = 1;
+    constexpr auto last = 3;
+    ec = s.get(first, last, v);
     ASSERT_FALSE(ec);
     ASSERT_EQ(v.size(), 3u);
 
@@ -186,7 +204,9 @@ TEST(File_store, add_to_existing_file) {
     ASSERT_EQ(s.next_sequence_number(), 7u);
 
     std::vector<Message> v;
-    ec = s.get(1, 6, v);
+    constexpr auto first = 1;
+    constexpr auto last = 6;
+    ec = s.get(first, last, v);
     ASSERT_FALSE(ec);
     ASSERT_EQ(v.size(), 6u);
 
@@ -211,7 +231,9 @@ TEST(File_store, add_to_existing_file) {
     ASSERT_EQ(s.next_sequence_number(), 10u);
 
     std::vector<Message> v;
-    ec = s.get(1, 9, v);
+    constexpr auto first = 1;
+    constexpr auto last = 9;
+    ec = s.get(first, last, v);
     ASSERT_FALSE(ec);
     assert_messages(v);
 
@@ -288,7 +310,9 @@ TEST(File_store, move_operations) {
   ASSERT_EQ(s4.next_sequence_number(), 10u);
 
   std::vector<Message> v;
-  ec = s4.get(1, 9, v);
+  constexpr auto first = 1;
+  constexpr auto last = 9;
+  ec = s4.get(first, last, v);
   ASSERT_FALSE(ec);
   assert_messages(v);
 
