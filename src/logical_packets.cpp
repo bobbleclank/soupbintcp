@@ -10,7 +10,7 @@ Login_accepted_packet::Login_accepted_packet(
 }
 
 void read(Login_accepted_packet& packet, const void* data) {
-  auto* ptr = static_cast<const std::byte*>(data);
+  const auto* ptr = static_cast<const std::byte*>(data);
   unpack_session(packet.session, ptr);
   ptr += session_length;
   unpack_sequence_number(packet.next_sequence_number, ptr);
@@ -27,7 +27,7 @@ Login_rejected_packet::Login_rejected_packet(Reason reason_) : reason(reason_) {
 }
 
 void read(Login_rejected_packet& packet, const void* data) {
-  auto* ptr = static_cast<const std::byte*>(data);
+  const auto* ptr = static_cast<const std::byte*>(data);
   unpack(packet.reason, ptr);
 }
 
@@ -47,7 +47,7 @@ Login_request_packet::Login_request_packet(
 }
 
 void read(Login_request_packet& packet, const void* data) {
-  auto* ptr = static_cast<const std::byte*>(data);
+  const auto* ptr = static_cast<const std::byte*>(data);
   unpack_username(packet.username, ptr);
   ptr += username_length;
   unpack_password(packet.password, ptr);

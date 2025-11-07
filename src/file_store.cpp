@@ -44,7 +44,7 @@ ssize_t read(int fd, void* buf, size_t nbyte) {
 }
 
 ssize_t write(int fd, const void* buf, size_t nbyte) {
-  auto* ptr = static_cast<const unsigned char*>(buf);
+  const auto* ptr = static_cast<const unsigned char*>(buf);
   ssize_t total = 0;
   while (total != static_cast<ssize_t>(nbyte)) {
     ssize_t n = -1;

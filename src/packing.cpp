@@ -16,7 +16,7 @@ void pack_alphanumeric(std::string_view str, void* data, std::size_t length) {
 
 void unpack_alphanumeric(std::string& str, const void* data,
                          std::size_t length) {
-  auto* ptr = static_cast<const char*>(data);
+  const auto* ptr = static_cast<const char*>(data);
   str.reserve(length);
   std::size_t i = 0;
   while (i != length && std::isalnum(ptr[i])) {
@@ -40,7 +40,7 @@ void pack_session(std::string_view str, void* data) {
 }
 
 void unpack_session(std::string& str, const void* data) {
-  auto* ptr = static_cast<const char*>(data);
+  const auto* ptr = static_cast<const char*>(data);
   constexpr std::size_t length = session_length;
   std::size_t i = 0;
   while (i != length && ptr[i] == ' ') {

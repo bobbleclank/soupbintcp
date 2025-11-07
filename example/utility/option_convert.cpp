@@ -35,7 +35,7 @@ Endpoint::Endpoint(std::string_view address_, int port_)
 }
 
 Endpoint to_endpoint(const char* arg, int opt) {
-  auto* ptr = std::strchr(arg, ':');
+  const auto* ptr = std::strchr(arg, ':');
   if (ptr == nullptr) {
     auto port = to_int(arg, opt);
     if (port < 0)

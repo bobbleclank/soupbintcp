@@ -106,8 +106,8 @@ void pack_numeric(Integral i, void* data) {
 template <typename Integral, std::size_t length>
 void unpack_numeric(Integral& i, const void* data) {
   static_assert(std::numeric_limits<Integral>::digits10 + 1 == length);
-  auto* ptr = static_cast<const char*>(data);
-  auto* end = ptr + length;
+  const auto* ptr = static_cast<const char*>(data);
+  const auto* end = ptr + length;
   while (ptr != end && *ptr == ' ') {
     ++ptr;
   }
