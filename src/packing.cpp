@@ -5,7 +5,7 @@ namespace internal {
 
 void pack_alphanumeric(std::string_view str, void* data, std::size_t length) {
   auto* ptr = static_cast<char*>(data);
-  std::size_t size = str.size() > length ? length : str.size();
+  const std::size_t size = str.size() > length ? length : str.size();
   std::size_t i = 0;
   while (i != size && std::isalnum(str[i])) {
     ptr[i] = str[i];
@@ -30,7 +30,7 @@ void unpack_alphanumeric(std::string& str, const void* data,
 void pack_session(std::string_view str, void* data) {
   auto* ptr = static_cast<char*>(data);
   constexpr std::size_t length = session_length;
-  std::size_t size = str.size() > length ? length : str.size();
+  const std::size_t size = str.size() > length ? length : str.size();
   std::size_t i = 0;
   while (i != size && std::isalnum(str[i])) {
     ++i;

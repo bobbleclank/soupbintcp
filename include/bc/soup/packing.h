@@ -40,7 +40,7 @@ void unpack(Integral& i, const void* data) {
 template <typename Enum, std::enable_if_t<std::is_enum_v<Enum>, bool> = true>
 void pack(Enum e, void* data) {
   using T = std::underlying_type_t<Enum>;
-  auto t = static_cast<T>(e);
+  const auto t = static_cast<T>(e);
   pack(t, data);
 }
 
@@ -95,7 +95,7 @@ void pack_numeric(Integral i, void* data) {
     *ptr = '0';
   }
   while (i != 0) {
-    char c = '0' + (i % 10);
+    const char c = '0' + (i % 10);
     i /= 10;
     --ptr;
     *ptr = c;

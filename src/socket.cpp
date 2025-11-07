@@ -48,7 +48,7 @@ void Socket::close(asio::error_code* error) {
 }
 
 asio::error_code Socket::set_no_delay() {
-  asio::ip::tcp::no_delay option(true);
+  const asio::ip::tcp::no_delay option(true);
   asio::error_code ec;
   socket_.set_option(option, ec);
   return ec;
@@ -73,7 +73,7 @@ void Socket::async_read() {
 }
 
 Write_error Socket::async_write(Write_packet&& packet) {
-  auto size = write_packets_.size();
+  const auto size = write_packets_.size();
   if (size == write_packets_limit_) {
     write_buffer_was_full_ = true;
     return Write_error::buffer_full;
@@ -86,7 +86,7 @@ Write_error Socket::async_write(Write_packet&& packet) {
 
 asio::ip::tcp::endpoint Socket::local_endpoint(asio::error_code* error) const {
   asio::error_code ec;
-  auto endpoint = socket_.local_endpoint(ec);
+  const auto endpoint = socket_.local_endpoint(ec);
   if (error)
     *error = ec;
   return endpoint;
@@ -94,7 +94,7 @@ asio::ip::tcp::endpoint Socket::local_endpoint(asio::error_code* error) const {
 
 asio::ip::tcp::endpoint Socket::remote_endpoint(asio::error_code* error) const {
   asio::error_code ec;
-  auto endpoint = socket_.remote_endpoint(ec);
+  const auto endpoint = socket_.remote_endpoint(ec);
   if (error)
     *error = ec;
   return endpoint;
@@ -106,7 +106,7 @@ asio::ip::tcp::socket::executor_type Socket::get_executor() {
 
 void Socket::read_header() {
   auto& packet = read_packet_;
-  auto buffer = asio::buffer(packet.header_data(), packet.header_size());
+  const auto buffer = asio::buffer(packet.header_data(), packet.header_size());
   asio::async_read(socket_, buffer, [this](asio::error_code ec, std::size_t n) {
     header_received(ec, n);
   });
@@ -125,18 +125,18 @@ void Socket::header_received(asio::error_code ec, std::size_t n) {
     return;
   }
   if (n != read_packet_.header_size()) { // Needed? Error code should be set.
-    asio::error_code ec(ECANCELED, asio::system_category());
+    const asio::error_code ec(ECANCELED, asio::system_category());
     handler_->read_failure(ec);
     return;
   }
   using Result = Read_packet::Resize_result;
-  auto result = read_packet_.resize_payload();
+  const auto result = read_packet_.resize_payload();
   switch (result) {
   case Result::resized:
     read_payload();
     break;
   case Result::empty_payload: {
-    Read_packet packet(std::move(read_packet_));
+    const Read_packet packet(std::move(read_packet_));
     handler_->read_completed(packet);
     break;
   }
@@ -148,7 +148,8 @@ void Socket::header_received(asio::error_code ec, std::size_t n) {
 
 void Socket::read_payload() {
   auto& packet = read_packet_;
-  auto buffer = asio::buffer(packet.payload_data(), packet.payload_size());
+  const auto buffer =
+      asio::buffer(packet.payload_data(), packet.payload_size());
   asio::async_read(socket_, buffer, [this](asio::error_code ec, std::size_t n) {
     payload_received(ec, n);
   });
@@ -167,17 +168,17 @@ void Socket::payload_received(asio::error_code ec, std::size_t n) {
     return;
   }
   if (n != read_packet_.payload_size()) { // Needed? Error code should be set.
-    asio::error_code ec(ECANCELED, asio::system_category());
+    const asio::error_code ec(ECANCELED, asio::system_category());
     handler_->read_failure(ec);
     return;
   }
-  Read_packet packet(std::move(read_packet_));
+  const Read_packet packet(std::move(read_packet_));
   handler_->read_completed(packet);
 }
 
 void Socket::write_packet() {
   auto& packet = write_packets_.front();
-  auto buffer = asio::buffer(packet.data(), packet.size());
+  const auto buffer = asio::buffer(packet.data(), packet.size());
   asio::async_write(
       socket_, buffer,
       [this](asio::error_code ec, std::size_t n) { packet_sent(ec, n); });
@@ -193,7 +194,7 @@ void Socket::packet_sent(asio::error_code ec, std::size_t n) {
   }
   auto& packet = write_packets_.front();
   if (n != packet.size()) { // Needed? Error code should be set.
-    asio::error_code ec(ECANCELED, asio::system_category());
+    const asio::error_code ec(ECANCELED, asio::system_category());
     handler_->write_failure(ec);
     return;
   }

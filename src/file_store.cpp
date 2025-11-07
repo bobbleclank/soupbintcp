@@ -90,7 +90,7 @@ void File_store::set_filename(std::string_view filename) {
 std::error_code File_store::open() {
   fd_ = soup::open(filename_.c_str(), O_RDONLY);
   if (fd_ != -1) {
-    auto ec = set_offsets();
+    const auto ec = set_offsets();
     (void)close();
     if (ec)
       return ec;
@@ -104,7 +104,7 @@ std::error_code File_store::open() {
 std::error_code File_store::close() {
   if (fd_ == -1)
     return {};
-  int status = soup::close(fd_);
+  const int status = soup::close(fd_);
   fd_ = -1;
   if (status == -1)
     return {errno, std::system_category()};
@@ -112,12 +112,12 @@ std::error_code File_store::close() {
 }
 
 std::error_code File_store::add(const void* data, std::size_t size) {
-  off_t off = lseek(fd_, 0, SEEK_END);
+  const off_t off = lseek(fd_, 0, SEEK_END);
   if (off == -1)
     return {errno, std::system_category()};
   offsets_.push_back(off);
 
-  std::uint16_t sz = htons(size);
+  const std::uint16_t sz = htons(size);
   ssize_t n = soup::write(fd_, &sz, sizeof(sz));
   if (n == -1)
     return {errno, std::system_category()};
@@ -135,13 +135,13 @@ std::error_code File_store::get(std::size_t first, std::size_t last,
   if (last < first || last > offsets_.size())
     return {EINVAL, std::system_category()};
 
-  off_t off = lseek(fd_, offsets_[first - 1], SEEK_SET);
+  const off_t off = lseek(fd_, offsets_[first - 1], SEEK_SET);
   if (off == -1)
     return {errno, std::system_category()};
 
   for (std::size_t i = first; i <= last; ++i) {
     Message message;
-    auto ec = get(message);
+    const auto ec = get(message);
     if (ec)
       return ec;
     messages.push_back(std::move(message));
@@ -150,7 +150,7 @@ std::error_code File_store::get(std::size_t first, std::size_t last,
 }
 
 std::error_code File_store::sync() {
-  int status = fsync(fd_);
+  const int status = fsync(fd_);
   if (status == -1)
     return {errno, std::system_category()};
   return {};
@@ -164,12 +164,12 @@ std::error_code File_store::set_offsets() {
   off_t off = 0;
   while (true) {
     std::uint16_t sz = 0;
-    ssize_t n = soup::read(fd_, &sz, sizeof(sz));
+    const ssize_t n = soup::read(fd_, &sz, sizeof(sz));
     if (n == -1)
       return {errno, std::system_category()};
     if (n == 0)
       break;
-    std::uint16_t size = ntohs(sz);
+    const std::uint16_t size = ntohs(sz);
 
     offsets_.push_back(off);
     off = lseek(fd_, size, SEEK_CUR);
@@ -186,7 +186,7 @@ std::error_code File_store::get(Message& message) {
     return {errno, std::system_category()};
   if (n == 0)
     return {EIO, std::system_category()};
-  std::uint16_t size = ntohs(sz);
+  const std::uint16_t size = ntohs(sz);
 
   message = Message(size);
   n = soup::read(fd_, message.data(), message.size());

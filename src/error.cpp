@@ -42,7 +42,7 @@ public:
 };
 
 const std::error_category& souptcp_category() noexcept {
-  static Error_category instance;
+  static const Error_category instance;
   return instance;
 }
 

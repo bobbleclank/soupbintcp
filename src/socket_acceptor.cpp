@@ -44,14 +44,14 @@ void Socket_acceptor::close(asio::error_code* error) {
 }
 
 asio::error_code Socket_acceptor::set_reuse_address() {
-  asio::ip::tcp::acceptor::reuse_address option(true);
+  const asio::ip::tcp::acceptor::reuse_address option(true);
   asio::error_code ec;
   acceptor_.set_option(option, ec);
   return ec;
 }
 
 asio::error_code Socket_acceptor::set_no_delay() {
-  asio::ip::tcp::no_delay option(true);
+  const asio::ip::tcp::no_delay option(true);
   asio::error_code ec;
   acceptor_.set_option(option, ec);
   return ec;
@@ -74,7 +74,7 @@ void Socket_acceptor::async_accept() {
 asio::ip::tcp::endpoint
 Socket_acceptor::local_endpoint(asio::error_code* error) const {
   asio::error_code ec;
-  auto endpoint = acceptor_.local_endpoint(ec);
+  const auto endpoint = acceptor_.local_endpoint(ec);
   if (error)
     *error = ec;
   return endpoint;

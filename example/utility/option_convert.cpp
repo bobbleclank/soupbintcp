@@ -8,7 +8,7 @@
 #include <cstring>
 
 int to_int(const char* arg, int opt) {
-  long i = to_long(arg, opt);
+  const long i = to_long(arg, opt);
   if (i < INT_MIN || i > INT_MAX)
     throw Invalid_argument(opt, "out of range");
   return static_cast<int>(i);
@@ -17,7 +17,7 @@ int to_int(const char* arg, int opt) {
 long to_long(const char* arg, int opt) {
   errno = 0;
   char* end = nullptr;
-  long i = std::strtol(arg, &end, 10);
+  const long i = std::strtol(arg, &end, 10);
   if (end == arg)
     throw Invalid_argument(opt, "no conversion");
   if (errno == ERANGE)
@@ -37,15 +37,15 @@ Endpoint::Endpoint(std::string_view address_, int port_)
 Endpoint to_endpoint(const char* arg, int opt) {
   const auto* ptr = std::strchr(arg, ':');
   if (ptr == nullptr) {
-    auto port = to_int(arg, opt);
+    const auto port = to_int(arg, opt);
     if (port < 0)
       throw Invalid_argument(opt, "negative");
     return Endpoint(port);
   }
   using size_type = std::string_view::size_type;
-  auto len = static_cast<size_type>(ptr - arg);
-  std::string_view address(arg, len);
-  auto port = to_int(ptr + 1, opt);
+  const auto len = static_cast<size_type>(ptr - arg);
+  const std::string_view address(arg, len);
+  const auto port = to_int(ptr + 1, opt);
   if (port < 0)
     throw Invalid_argument(opt, "negative");
   return Endpoint(address, port);

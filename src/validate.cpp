@@ -8,7 +8,7 @@ namespace bc::soup {
 namespace {
 
 bool is_valid_string(std::string_view str) {
-  for (auto c : str) {
+  for (const auto c : str) {
     if (!std::isalnum(c))
       return false;
   }

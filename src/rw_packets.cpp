@@ -49,7 +49,7 @@ std::uint16_t Read_packet::packet_size() const {
 
 Read_packet::Resize_result Read_packet::resize_payload() {
   payload_ = Buffer();
-  auto packet_size = this->packet_size();
+  const auto packet_size = this->packet_size();
   if (packet_size < packet_type_length)
     return Resize_result::bad_packet;
   if (packet_size == packet_type_length)
@@ -63,7 +63,7 @@ Write_packet::Write_packet(char packet_type) : Write_packet(packet_type, 0) {
 
 Write_packet::Write_packet(char packet_type, std::uint16_t payload_size)
     : packet_(packet_header_length + payload_size) {
-  std::uint16_t packet_size = packet_type_length + payload_size;
+  const std::uint16_t packet_size = packet_type_length + payload_size;
   pack(packet_size, packet_.data());
   packet_[packet_size_length] = static_cast<std::byte>(packet_type);
 }
@@ -85,7 +85,7 @@ Write_packet::Resize_result
 Write_packet::resize_payload(std::uint16_t payload_size) {
   if (payload_size > payload_capacity())
     return Resize_result::no_capacity;
-  std::uint16_t packet_size = packet_type_length + payload_size;
+  const std::uint16_t packet_size = packet_type_length + payload_size;
   pack(packet_size, packet_.data());
   return Resize_result::resized;
 }
