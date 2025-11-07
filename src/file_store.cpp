@@ -117,14 +117,18 @@ std::error_code File_store::add(const void* data, std::size_t size) {
     return {errno, std::system_category()};
   offsets_.push_back(off);
 
-  const std::uint16_t sz = htons(size);
-  ssize_t n = soup::write(fd_, &sz, sizeof(sz));
-  if (n == -1)
-    return {errno, std::system_category()};
+  {
+    const std::uint16_t sz = htons(size);
+    ssize_t n = soup::write(fd_, &sz, sizeof(sz));
+    if (n == -1)
+      return {errno, std::system_category()};
+  }
 
-  n = soup::write(fd_, data, size);
-  if (n == -1)
-    return {errno, std::system_category()};
+  {
+    ssize_t n = soup::write(fd_, data, size);
+    if (n == -1)
+      return {errno, std::system_category()};
+  }
   return {};
 }
 
@@ -181,19 +185,23 @@ std::error_code File_store::set_offsets() {
 
 std::error_code File_store::get(Message& message) {
   std::uint16_t sz = 0;
-  ssize_t n = soup::read(fd_, &sz, sizeof(sz));
-  if (n == -1)
-    return {errno, std::system_category()};
-  if (n == 0)
-    return {EIO, std::system_category()};
+  {
+    ssize_t n = soup::read(fd_, &sz, sizeof(sz));
+    if (n == -1)
+      return {errno, std::system_category()};
+    if (n == 0)
+      return {EIO, std::system_category()};
+  }
   const std::uint16_t size = ntohs(sz);
 
   message = Message(size);
-  n = soup::read(fd_, message.data(), message.size());
-  if (n == -1)
-    return {errno, std::system_category()};
-  if (n == 0)
-    return {EIO, std::system_category()};
+  {
+    ssize_t n = soup::read(fd_, message.data(), message.size());
+    if (n == -1)
+      return {errno, std::system_category()};
+    if (n == 0)
+      return {EIO, std::system_category()};
+  }
   return {};
 }
 
