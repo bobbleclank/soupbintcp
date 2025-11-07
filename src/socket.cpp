@@ -177,7 +177,7 @@ void Socket::payload_received(asio::error_code ec, std::size_t n) {
 }
 
 void Socket::write_packet() {
-  auto& packet = write_packets_.front();
+  const auto& packet = write_packets_.front();
   const auto buffer = asio::buffer(packet.data(), packet.size());
   asio::async_write(
       socket_, buffer,
@@ -192,7 +192,7 @@ void Socket::packet_sent(asio::error_code ec, std::size_t n) {
     handler_->write_failure(ec);
     return;
   }
-  auto& packet = write_packets_.front();
+  const auto& packet = write_packets_.front();
   if (n != packet.size()) { // Needed? Error code should be set.
     const asio::error_code ec(ECANCELED, asio::system_category());
     handler_->write_failure(ec);
