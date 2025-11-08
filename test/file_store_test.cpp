@@ -91,37 +91,56 @@ TEST(File_store, open_non_empty_file) {
   ASSERT_FALSE(ec);
   ASSERT_EQ(s.next_sequence_number(), 10u);
 
-  std::vector<Message> v;
-  ec = s.get(1, 9, v);
-  ASSERT_FALSE(ec);
-  assert_messages(v);
+  {
+    std::vector<Message> v;
+    ec = s.get(1, 9, v);
+    ASSERT_FALSE(ec);
+    assert_messages(v);
+  }
 
-  v.clear();
-  ec = s.get(0, 9, v); // First out of range.
-  ASSERT_TRUE(ec);
-  ASSERT_TRUE(v.empty());
-  ec = s.get(10, 9, v); // First out of range.
-  ASSERT_TRUE(ec);
-  ASSERT_TRUE(v.empty());
-  ec = s.get(1, 0, v); // Last out of range.
-  ASSERT_TRUE(ec);
-  ASSERT_TRUE(v.empty());
-  ec = s.get(1, 10, v); // Last out of range.
-  ASSERT_TRUE(ec);
-  ASSERT_TRUE(v.empty());
-  ec = s.get(6, 4, v); // Invalid range.
-  ASSERT_TRUE(ec);
-  ASSERT_TRUE(v.empty());
+  {
+    std::vector<Message> v;
+    ec = s.get(0, 9, v); // First out of range.
+    ASSERT_TRUE(ec);
+    ASSERT_TRUE(v.empty());
+  }
+  {
+    std::vector<Message> v;
+    ec = s.get(10, 9, v); // First out of range.
+    ASSERT_TRUE(ec);
+    ASSERT_TRUE(v.empty());
+  }
+  {
+    std::vector<Message> v;
+    ec = s.get(1, 0, v); // Last out of range.
+    ASSERT_TRUE(ec);
+    ASSERT_TRUE(v.empty());
+  }
+  {
+    std::vector<Message> v;
+    ec = s.get(1, 10, v); // Last out of range.
+    ASSERT_TRUE(ec);
+    ASSERT_TRUE(v.empty());
+  }
+  {
+    std::vector<Message> v;
+    ec = s.get(6, 4, v); // Invalid range.
+    ASSERT_TRUE(ec);
+    ASSERT_TRUE(v.empty());
+  }
 
-  ec = s.get(4, 6, v);
-  ASSERT_FALSE(ec);
-  ASSERT_EQ(v.size(), 3u);
-  ASSERT_EQ(v[0].size(), 3u);
-  ASSERT_EQ(std::memcmp(v[0].data(), "fox", v[0].size()), 0);
-  ASSERT_EQ(v[1].size(), 5u);
-  ASSERT_EQ(std::memcmp(v[1].data(), "jumps", v[1].size()), 0);
-  ASSERT_EQ(v[2].size(), 4u);
-  ASSERT_EQ(std::memcmp(v[2].data(), "over", v[2].size()), 0);
+  {
+    std::vector<Message> v;
+    ec = s.get(4, 6, v);
+    ASSERT_FALSE(ec);
+    ASSERT_EQ(v.size(), 3u);
+    ASSERT_EQ(v[0].size(), 3u);
+    ASSERT_EQ(std::memcmp(v[0].data(), "fox", v[0].size()), 0);
+    ASSERT_EQ(v[1].size(), 5u);
+    ASSERT_EQ(std::memcmp(v[1].data(), "jumps", v[1].size()), 0);
+    ASSERT_EQ(v[2].size(), 4u);
+    ASSERT_EQ(std::memcmp(v[2].data(), "over", v[2].size()), 0);
+  }
 }
 
 TEST(File_store, add_to_existing_file) {
