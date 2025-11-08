@@ -18,7 +18,7 @@ const std::string filename = "test_store";
 const std::string filename_2 = "test_store_2";
 
 auto add(File_store& s, std::string_view sv) {
-  return s.add(sv.data(), sv.size());
+  return s.add(sv.begin(), sv.end());
 }
 
 void assert_messages(const std::vector<Message>& v) {

@@ -47,6 +47,7 @@ public:
   [[nodiscard]] std::error_code close();
 
   [[nodiscard]] std::error_code add(const void*, std::size_t);
+  [[nodiscard]] std::error_code add(const void*, const void*);
   [[nodiscard]] std::error_code get(std::size_t, std::size_t,
                                     std::vector<Message>&);
 

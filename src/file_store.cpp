@@ -133,6 +133,13 @@ std::error_code File_store::add(const void* data, std::size_t size) {
   return {};
 }
 
+std::error_code File_store::add(const void* begin, const void* end) {
+  const auto* b = static_cast<const std::byte*>(begin);
+  const auto* e = static_cast<const std::byte*>(end);
+  const auto size = static_cast<std::size_t>(e - b);
+  return add(begin, size);
+}
+
 std::error_code File_store::get(std::size_t first, std::size_t last,
                                 std::vector<Message>& messages) {
   if (first < 1 || first > offsets_.size())
