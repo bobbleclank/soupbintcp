@@ -155,12 +155,17 @@ TEST(File_store, open_non_empty_file) {
     ec = s.get(first, last, v);
     ASSERT_FALSE(ec);
     ASSERT_EQ(v.size(), 3u);
-    ASSERT_EQ(v[0].size(), 3u);
-    ASSERT_EQ(std::memcmp(v[0].data(), "fox", v[0].size()), 0);
-    ASSERT_EQ(v[1].size(), 5u);
-    ASSERT_EQ(std::memcmp(v[1].data(), "jumps", v[1].size()), 0);
-    ASSERT_EQ(v[2].size(), 4u);
-    ASSERT_EQ(std::memcmp(v[2].data(), "over", v[2].size()), 0);
+    auto i = v.begin();
+    ASSERT_EQ(i->size(), 3u);
+    ASSERT_EQ(std::memcmp(i->data(), "fox", i->size()), 0);
+    ++i;
+    ASSERT_EQ(i->size(), 5u);
+    ASSERT_EQ(std::memcmp(i->data(), "jumps", i->size()), 0);
+    ++i;
+    ASSERT_EQ(i->size(), 4u);
+    ASSERT_EQ(std::memcmp(i->data(), "over", i->size()), 0);
+    ++i;
+    ASSERT_EQ(i, v.end());
   }
 }
 
