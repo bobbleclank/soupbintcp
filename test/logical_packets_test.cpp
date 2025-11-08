@@ -56,6 +56,7 @@ TEST(logical_packets, Login_accepted_packet) {
     ASSERT_EQ(p.next_sequence_number, 1234567890u);
   }
   {
+    // NOLINTNEXTLINE(*-avoid-magic-numbers): Test value
     Login_accepted_packet p("abcde", 1234567890);
     ASSERT_EQ(p.session, "abcde");
     ASSERT_EQ(p.next_sequence_number, 1234567890u);
@@ -110,6 +111,7 @@ TEST(logical_packets, Login_request_packet) {
     ASSERT_EQ(p.requested_sequence_number, 1234567890u);
   }
   {
+    // NOLINTNEXTLINE(*-avoid-magic-numbers): Test value
     Login_request_packet p("ABC", "DEFGH", "abcde", 1234567890);
     ASSERT_EQ(p.username, "ABC");
     ASSERT_EQ(p.password, "DEFGH");

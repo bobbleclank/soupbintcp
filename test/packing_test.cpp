@@ -23,6 +23,7 @@ TEST(packing, integral) {
     ASSERT_EQ(j, 'a');
   }
   {
+    // NOLINTNEXTLINE(*-avoid-magic-numbers): Test value
     std::int16_t i = 21;
     std::array<unsigned char, sizeof(i)> b = {};
     pack(i, b.data());
@@ -32,6 +33,7 @@ TEST(packing, integral) {
     ASSERT_EQ(j, 21);
   }
   {
+    // NOLINTNEXTLINE(*-avoid-magic-numbers): Test value
     std::uint16_t i = 21;
     std::array<unsigned char, sizeof(i)> b = {};
     pack(i, b.data());
@@ -41,6 +43,7 @@ TEST(packing, integral) {
     ASSERT_EQ(j, 21u);
   }
   {
+    // NOLINTNEXTLINE(*-avoid-magic-numbers): Test value
     std::int32_t i = 42;
     std::array<unsigned char, sizeof(i)> b = {};
     pack(i, b.data());
@@ -50,6 +53,7 @@ TEST(packing, integral) {
     ASSERT_EQ(j, 42);
   }
   {
+    // NOLINTNEXTLINE(*-avoid-magic-numbers): Test value
     std::uint32_t i = 42;
     std::array<unsigned char, sizeof(i)> b = {};
     pack(i, b.data());
@@ -394,6 +398,7 @@ TEST(packing, pack_sequence_number) {
     ASSERT_EQ(std::memcmp(b.data(), "                   1", b.size()), 0);
   }
   {
+    // NOLINTNEXTLINE(*-avoid-magic-numbers): Test value
     std::uint64_t i = 12345;
     std::array<char, size> b = {};
     b.fill('*');
@@ -401,6 +406,7 @@ TEST(packing, pack_sequence_number) {
     ASSERT_EQ(std::memcmp(b.data(), "               12345", b.size()), 0);
   }
   {
+    // NOLINTNEXTLINE(*-avoid-magic-numbers): Test value
     std::uint64_t i = 1234567890;
     std::array<char, size> b = {};
     b.fill('*');
@@ -408,6 +414,7 @@ TEST(packing, pack_sequence_number) {
     ASSERT_EQ(std::memcmp(b.data(), "          1234567890", b.size()), 0);
   }
   {
+    // NOLINTNEXTLINE(*-avoid-magic-numbers): Test value
     std::uint64_t i = 9999999999999999999uL;
     std::array<char, size> b = {};
     b.fill('*');
