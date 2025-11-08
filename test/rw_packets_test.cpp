@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <string_view>
 #include <utility>
 
 #include <arpa/inet.h>
@@ -36,8 +37,9 @@ TEST(Buffer, size_constructor) {
     assert_non_empty(b, 0);
   }
   {
-    Buffer b(5);
-    assert_non_empty(b, 5);
+    constexpr auto size = 5;
+    Buffer b(size);
+    assert_non_empty(b, size);
   }
 }
 
@@ -49,10 +51,11 @@ TEST(Buffer, move_constructor) {
     assert_empty(b2);
   }
   {
-    Buffer b1(5);
+    constexpr auto size = 5;
+    Buffer b1(size);
     Buffer b2(std::move(b1));
     assert_empty(b1);
-    assert_non_empty(b2, 5);
+    assert_non_empty(b2, size);
   }
 }
 
@@ -65,37 +68,47 @@ TEST(Buffer, move_assignment) {
     assert_empty(b2);
   }
   {
-    Buffer b1(5);
+    constexpr auto size = 5;
+    Buffer b1(size);
     Buffer b2;
     b2 = std::move(b1);
     assert_empty(b1);
-    assert_non_empty(b2, 5);
+    assert_non_empty(b2, size);
   }
   {
+    constexpr auto size = 11;
     Buffer b1;
-    Buffer b2(11);
+    Buffer b2(size);
     b2 = std::move(b1);
     assert_empty(b1);
     assert_empty(b2);
   }
   {
-    Buffer b1(5);
-    Buffer b2(11);
+    constexpr auto size1 = 5;
+    constexpr auto size2 = 11;
+    Buffer b1(size1);
+    Buffer b2(size2);
     b2 = std::move(b1);
     assert_empty(b1);
-    assert_non_empty(b2, 5);
+    assert_non_empty(b2, size1);
   }
 }
 
 TEST(Buffer, data) {
-  Buffer b(5);
-  std::memcpy(b.data(), "hello", 5);
+  std::string_view sv = "hello";
+  auto data = sv.data();
+  auto size = sv.size();
+  ASSERT_EQ(size, 5u);
+
+  Buffer b(size);
+  std::memcpy(b.data(), data, size);
   const Buffer& r = b;
-  ASSERT_EQ(std::memcmp(r.data(), "hello", 5), 0);
+  ASSERT_EQ(std::memcmp(r.data(), data, size), 0);
 }
 
 TEST(Buffer, subscript_operator) {
-  Buffer b(5);
+  constexpr auto size = 5;
+  Buffer b(size);
   b[0] = std::byte('h');
   b[1] = std::byte('e');
   b[2] = std::byte('l');
@@ -162,9 +175,10 @@ TEST(Read_packet, default_constructor) {
 }
 
 TEST(Read_packet, header) {
+  constexpr auto size = 5;
   Read_packet p;
-  write_header(p, 1 + 5, 'a');
-  assert_empty(p, 1 + 5, 'a');
+  write_header(p, 1 + size, 'a');
+  assert_empty(p, 1 + size, 'a');
 }
 
 TEST(Read_packet, move_constructor) {
@@ -175,11 +189,16 @@ TEST(Read_packet, move_constructor) {
     assert_empty(p2);
   }
   {
+    std::string_view sv = "hello";
+    auto data = sv.data();
+    auto size = sv.size();
+    ASSERT_EQ(size, 5u);
+
     Read_packet p1;
-    write_payload(p1, 'a', 5, "hello");
+    write_payload(p1, 'a', size, data);
     Read_packet p2(std::move(p1));
     assert_empty(p1);
-    assert_non_empty(p2, 'a', 5, "hello");
+    assert_non_empty(p2, 'a', size, data);
   }
 }
 
@@ -192,33 +211,55 @@ TEST(Read_packet, move_assignment) {
     assert_empty(p2);
   }
   {
+    std::string_view sv = "hello";
+    auto data = sv.data();
+    auto size = sv.size();
+    ASSERT_EQ(size, 5u);
+
     Read_packet p1;
-    write_payload(p1, 'a', 5, "hello");
+    write_payload(p1, 'a', size, data);
     Read_packet p2;
     p2 = std::move(p1);
     assert_empty(p1);
-    assert_non_empty(p2, 'a', 5, "hello");
+    assert_non_empty(p2, 'a', size, data);
   }
   {
+    std::string_view sv = "HELLO WORLD";
+    auto data = sv.data();
+    auto size = sv.size();
+    ASSERT_EQ(size, 11u);
+
     Read_packet p1;
     Read_packet p2;
-    write_payload(p2, 'b', 11, "HELLO WORLD");
+    write_payload(p2, 'b', size, data);
     p2 = std::move(p1);
     assert_empty(p1);
     assert_empty(p2);
   }
   {
+    std::string_view sv = "hello";
+    auto data = sv.data();
+    auto size = sv.size();
+    ASSERT_EQ(size, 5u);
+
+    std::string_view distinct_initial_value = "HELLO WORLD";
+
     Read_packet p1;
-    write_payload(p1, 'a', 5, "hello");
+    write_payload(p1, 'a', size, data);
     Read_packet p2;
-    write_payload(p2, 'b', 11, "HELLO WORLD");
+    write_payload(p2, 'b', distinct_initial_value.size(),
+                  distinct_initial_value.data());
     p2 = std::move(p1);
     assert_empty(p1);
-    assert_non_empty(p2, 'a', 5, "hello");
+    assert_non_empty(p2, 'a', size, data);
   }
 }
 
 TEST(Read_packet, resize_payload) {
+  std::string_view sv = "hello";
+  auto data = sv.data();
+  auto size = sv.size();
+  ASSERT_EQ(size, 5u);
   {
     Read_packet p;
     ASSERT_EQ(p.resize_payload(), Read_packet::Resize_result::bad_packet);
@@ -238,21 +279,21 @@ TEST(Read_packet, resize_payload) {
   }
   {
     Read_packet p;
-    write_payload(p, 'a', 5, "hello");
+    write_payload(p, 'a', size, data);
     write_header(p, 0 + 0, 'b');
     ASSERT_EQ(p.resize_payload(), Read_packet::Resize_result::bad_packet);
     assert_empty(p, 0, 'b');
   }
   {
     Read_packet p;
-    write_payload(p, 'a', 5, "hello");
+    write_payload(p, 'a', size, data);
     write_header(p, 1 + 0, 'b');
     ASSERT_EQ(p.resize_payload(), Read_packet::Resize_result::empty_payload);
     assert_empty(p, 1, 'b');
   }
   {
     Read_packet p;
-    write_payload(p, 'a', 5, "hello");
+    write_payload(p, 'a', size, data);
     write_header(p, 1 + 1, 'b');
     ASSERT_EQ(p.resize_payload(), Read_packet::Resize_result::resized);
     assert_non_empty(p, 'b', 1);
@@ -260,9 +301,14 @@ TEST(Read_packet, resize_payload) {
 }
 
 TEST(Read_packet, payload) {
+  std::string_view sv = "hello";
+  auto data = sv.data();
+  auto size = sv.size();
+  ASSERT_EQ(size, 5u);
+
   Read_packet p;
-  write_payload(p, 'a', 5, "hello");
-  assert_non_empty(p, 'a', 5, "hello");
+  write_payload(p, 'a', size, data);
+  assert_non_empty(p, 'a', size, data);
 }
 
 namespace {
@@ -303,13 +349,19 @@ TEST(Write_packet, empty_payload_constructor) {
 }
 
 TEST(Write_packet, allocate_payload_constructor) {
-  Write_packet p('a', 5);
-  assert_non_empty(p, 'a', 5, 5);
+  constexpr auto size = 5;
+  Write_packet p('a', size);
+  assert_non_empty(p, 'a', size, size);
 }
 
 TEST(Write_packet, write_payload_constructor) {
-  Write_packet p('a', "hello", 5);
-  assert_non_empty(p, 'a', 5, 5, "hello");
+  std::string_view sv = "hello";
+  auto data = sv.data();
+  auto size = sv.size();
+  ASSERT_EQ(size, 5u);
+
+  Write_packet p('a', data, size);
+  assert_non_empty(p, 'a', size, size, data);
 }
 
 TEST(Write_packet, move_constructor) {
@@ -320,10 +372,15 @@ TEST(Write_packet, move_constructor) {
     assert_empty(p2);
   }
   {
-    Write_packet p1('a', "hello", 5);
+    std::string_view sv = "hello";
+    auto data = sv.data();
+    auto size = sv.size();
+    ASSERT_EQ(size, 5u);
+
+    Write_packet p1('a', data, size);
     Write_packet p2(std::move(p1));
     assert_empty(p1);
-    assert_non_empty(p2, 'a', 5, 5, "hello");
+    assert_non_empty(p2, 'a', size, size, data);
   }
 }
 
@@ -336,39 +393,61 @@ TEST(Write_packet, move_assignment) {
     assert_empty(p2);
   }
   {
-    Write_packet p1('a', "hello", 5);
+    std::string_view sv = "hello";
+    auto data = sv.data();
+    auto size = sv.size();
+    ASSERT_EQ(size, 5u);
+
+    Write_packet p1('a', data, size);
     Write_packet p2;
     p2 = std::move(p1);
     assert_empty(p1);
-    assert_non_empty(p2, 'a', 5, 5, "hello");
+    assert_non_empty(p2, 'a', size, size, data);
   }
   {
+    std::string_view sv = "HELLO WORLD";
+    auto data = sv.data();
+    auto size = sv.size();
+    ASSERT_EQ(size, 11u);
+
     Write_packet p1;
-    Write_packet p2('b', "HELLO WORLD", 11);
+    Write_packet p2('b', data, size);
     p2 = std::move(p1);
     assert_empty(p1);
     assert_empty(p2);
   }
   {
-    Write_packet p1('a', "hello", 5);
-    Write_packet p2('b', "HELLO WORLD", 11);
+    std::string_view sv = "hello";
+    auto data = sv.data();
+    auto size = sv.size();
+    ASSERT_EQ(size, 5u);
+
+    std::string_view distinct_initial_value = "HELLO WORLD";
+
+    Write_packet p1('a', data, size);
+    Write_packet p2('b', distinct_initial_value.data(),
+                    distinct_initial_value.size());
     p2 = std::move(p1);
     assert_empty(p1);
-    assert_non_empty(p2, 'a', 5, 5, "hello");
+    assert_non_empty(p2, 'a', size, size, data);
   }
 }
 
 TEST(Write_packet, resize_payload) {
   {
     Write_packet p('a');
-    ASSERT_EQ(p.resize_payload(1), Write_packet::Resize_result::no_capacity);
+    constexpr auto new_size = 1;
+    ASSERT_EQ(p.resize_payload(new_size),
+              Write_packet::Resize_result::no_capacity);
     assert_non_empty(p, 'a', 0, 0);
     ASSERT_EQ(p.resize_payload(0), Write_packet::Resize_result::resized);
     assert_non_empty(p, 'a', 0, 0);
   }
   {
     Write_packet p('a', 1);
-    ASSERT_EQ(p.resize_payload(2), Write_packet::Resize_result::no_capacity);
+    constexpr auto new_size = 2;
+    ASSERT_EQ(p.resize_payload(new_size),
+              Write_packet::Resize_result::no_capacity);
     assert_non_empty(p, 'a', 1, 1);
     ASSERT_EQ(p.resize_payload(1), Write_packet::Resize_result::resized);
     assert_non_empty(p, 'a', 1, 1);
@@ -376,18 +455,29 @@ TEST(Write_packet, resize_payload) {
     assert_non_empty(p, 'a', 1, 0);
   }
   {
-    Write_packet p('a', "hello world", 11);
-    ASSERT_EQ(p.resize_payload(5), Write_packet::Resize_result::resized);
-    assert_non_empty(p, 'a', 11, 5, "hello");
+    std::string_view sv = "hello world";
+    auto data = sv.data();
+    auto size = sv.size();
+    ASSERT_EQ(size, 11u);
+
+    Write_packet p('a', data, size);
+    constexpr auto new_size = 5;
+    ASSERT_EQ(p.resize_payload(new_size), Write_packet::Resize_result::resized);
+    assert_non_empty(p, 'a', size, new_size, data);
     ASSERT_EQ(p.resize_payload(0), Write_packet::Resize_result::resized);
-    assert_non_empty(p, 'a', 11, 0);
-    ASSERT_EQ(p.resize_payload(11), Write_packet::Resize_result::resized);
-    assert_non_empty(p, 'a', 11, 11, "hello world");
+    assert_non_empty(p, 'a', size, 0);
+    ASSERT_EQ(p.resize_payload(size), Write_packet::Resize_result::resized);
+    assert_non_empty(p, 'a', size, size, data);
   }
 }
 
 TEST(Write_packet, payload) {
-  Write_packet p('a', 5);
-  std::memcpy(p.payload_data(), "hello", 5);
-  assert_non_empty(p, 'a', 5, 5, "hello");
+  std::string_view sv = "hello";
+  auto data = sv.data();
+  auto size = sv.size();
+  ASSERT_EQ(size, 5u);
+
+  Write_packet p('a', size);
+  std::memcpy(p.payload_data(), data, size);
+  assert_non_empty(p, 'a', size, size, data);
 }

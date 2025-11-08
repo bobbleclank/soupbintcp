@@ -2,6 +2,7 @@
 
 #include <cstring>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -15,6 +16,10 @@ namespace {
 
 const std::string filename = "test_store";
 const std::string filename_2 = "test_store_2";
+
+auto add(File_store& s, std::string_view sv) {
+  return s.add(sv.data(), sv.size());
+}
 
 void assert_messages(const std::vector<Message>& v) {
   ASSERT_EQ(v.size(), 9u);
@@ -59,23 +64,23 @@ TEST(File_store, add_to_empty_file) {
   ASSERT_FALSE(ec);
   ASSERT_EQ(s.next_sequence_number(), 1u);
 
-  ec = s.add("The", 3);
+  ec = add(s, "The");
   ASSERT_FALSE(ec);
-  ec = s.add("quick", 5);
+  ec = add(s, "quick");
   ASSERT_FALSE(ec);
-  ec = s.add("brown", 5);
+  ec = add(s, "brown");
   ASSERT_FALSE(ec);
-  ec = s.add("fox", 3);
+  ec = add(s, "fox");
   ASSERT_FALSE(ec);
-  ec = s.add("jumps", 5);
+  ec = add(s, "jumps");
   ASSERT_FALSE(ec);
-  ec = s.add("over", 4);
+  ec = add(s, "over");
   ASSERT_FALSE(ec);
-  ec = s.add("the", 3);
+  ec = add(s, "the");
   ASSERT_FALSE(ec);
-  ec = s.add("lazy", 4);
+  ec = add(s, "lazy");
   ASSERT_FALSE(ec);
-  ec = s.add("dog", 3);
+  ec = add(s, "dog");
   ASSERT_FALSE(ec);
   ASSERT_EQ(s.next_sequence_number(), 10u);
 
@@ -168,11 +173,11 @@ TEST(File_store, add_to_existing_file) {
     ASSERT_FALSE(ec);
     ASSERT_EQ(s.next_sequence_number(), 1u);
 
-    ec = s.add("The", 3);
+    ec = add(s, "The");
     ASSERT_FALSE(ec);
-    ec = s.add("quick", 5);
+    ec = add(s, "quick");
     ASSERT_FALSE(ec);
-    ec = s.add("brown", 5);
+    ec = add(s, "brown");
     ASSERT_FALSE(ec);
     ASSERT_EQ(s.next_sequence_number(), 4u);
 
@@ -195,11 +200,11 @@ TEST(File_store, add_to_existing_file) {
     ASSERT_FALSE(ec);
     ASSERT_EQ(s.next_sequence_number(), 4u);
 
-    ec = s.add("fox", 3);
+    ec = add(s, "fox");
     ASSERT_FALSE(ec);
-    ec = s.add("jumps", 5);
+    ec = add(s, "jumps");
     ASSERT_FALSE(ec);
-    ec = s.add("over", 4);
+    ec = add(s, "over");
     ASSERT_FALSE(ec);
     ASSERT_EQ(s.next_sequence_number(), 7u);
 
@@ -222,11 +227,11 @@ TEST(File_store, add_to_existing_file) {
     ASSERT_FALSE(ec);
     ASSERT_EQ(s.next_sequence_number(), 7u);
 
-    ec = s.add("the", 3);
+    ec = add(s, "the");
     ASSERT_FALSE(ec);
-    ec = s.add("lazy", 4);
+    ec = add(s, "lazy");
     ASSERT_FALSE(ec);
-    ec = s.add("dog", 3);
+    ec = add(s, "dog");
     ASSERT_FALSE(ec);
     ASSERT_EQ(s.next_sequence_number(), 10u);
 
@@ -253,11 +258,11 @@ TEST(File_store, move_operations) {
   ASSERT_FALSE(ec);
   ASSERT_EQ(s1.next_sequence_number(), 1u);
 
-  ec = s1.add("The", 3);
+  ec = add(s1, "The");
   ASSERT_FALSE(ec);
-  ec = s1.add("quick", 5);
+  ec = add(s1, "quick");
   ASSERT_FALSE(ec);
-  ec = s1.add("brown", 5);
+  ec = add(s1, "brown");
   ASSERT_FALSE(ec);
   ASSERT_EQ(s1.next_sequence_number(), 4u);
 
@@ -265,11 +270,11 @@ TEST(File_store, move_operations) {
   ASSERT_EQ(s1.next_sequence_number(), 1u);
   ASSERT_EQ(s2.next_sequence_number(), 4u);
 
-  ec = s2.add("fox", 3);
+  ec = add(s2, "fox");
   ASSERT_FALSE(ec);
-  ec = s2.add("jumps", 5);
+  ec = add(s2, "jumps");
   ASSERT_FALSE(ec);
-  ec = s2.add("over", 4);
+  ec = add(s2, "over");
   ASSERT_FALSE(ec);
   ASSERT_EQ(s2.next_sequence_number(), 7u);
 
@@ -283,17 +288,17 @@ TEST(File_store, move_operations) {
   ASSERT_FALSE(ec);
   ASSERT_EQ(s4.next_sequence_number(), 1u);
 
-  ec = s4.add("The", 3);
+  ec = add(s4, "The");
   ASSERT_FALSE(ec);
-  ec = s4.add("five", 4);
+  ec = add(s4, "five");
   ASSERT_FALSE(ec);
-  ec = s4.add("boxing", 6);
+  ec = add(s4, "boxing");
   ASSERT_FALSE(ec);
-  ec = s4.add("wizards", 7);
+  ec = add(s4, "wizards");
   ASSERT_FALSE(ec);
-  ec = s4.add("jump", 4);
+  ec = add(s4, "jump");
   ASSERT_FALSE(ec);
-  ec = s4.add("quickly", 7);
+  ec = add(s4, "quickly");
   ASSERT_FALSE(ec);
   ASSERT_EQ(s4.next_sequence_number(), 7u);
 
@@ -301,11 +306,11 @@ TEST(File_store, move_operations) {
   ASSERT_EQ(s3.next_sequence_number(), 1u);
   ASSERT_EQ(s4.next_sequence_number(), 7u);
 
-  ec = s4.add("the", 3);
+  ec = add(s4, "the");
   ASSERT_FALSE(ec);
-  ec = s4.add("lazy", 4);
+  ec = add(s4, "lazy");
   ASSERT_FALSE(ec);
-  ec = s4.add("dog", 3);
+  ec = add(s4, "dog");
   ASSERT_FALSE(ec);
   ASSERT_EQ(s4.next_sequence_number(), 10u);
 
