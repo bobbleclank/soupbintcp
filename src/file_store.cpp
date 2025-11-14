@@ -14,6 +14,7 @@ int open(const char* path, int oflag) {
   constexpr mode_t mode = 0666;
   int fd = -1;
   do
+    // NOLINTNEXTLINE(*-pro-type-vararg): C-style vararg function
     fd = ::open(path, oflag, mode);
   while (fd == -1 && errno == EINTR);
   return fd;
