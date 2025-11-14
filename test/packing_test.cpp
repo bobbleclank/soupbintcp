@@ -67,49 +67,49 @@ TEST(packing, integral) {
 namespace {
 
 enum class E1 : char {
-  a = 'z',
-  c = 'a'
+  zero = 'z',
+  val = 'a'
 };
 
 enum class E2 : std::uint16_t {
-  a = 0,
-  c = 4660
+  zero = 0,
+  val = 4660
 };
 
 enum class E3 : std::uint32_t {
-  a = 0,
-  c = 305419896
+  zero = 0,
+  val = 305419896
 };
 
 } // namespace
 
 TEST(packing, enumeration) {
   {
-    E1 i = E1::c;
+    E1 i = E1::val;
     std::array<unsigned char, sizeof(i)> b = {};
     pack(i, b.data());
     ASSERT_EQ(*reinterpret_cast<char*>(b.data()), 0X61);
-    E1 j = E1::a;
+    E1 j = E1::zero;
     unpack(j, b.data());
-    ASSERT_EQ(j, E1::c);
+    ASSERT_EQ(j, E1::val);
   }
   {
-    E2 i = E2::c;
+    E2 i = E2::val;
     std::array<unsigned char, sizeof(i)> b = {};
     pack(i, b.data());
     ASSERT_EQ(*reinterpret_cast<std::int16_t*>(b.data()), 0X3412);
-    E2 j = E2::a;
+    E2 j = E2::zero;
     unpack(j, b.data());
-    ASSERT_EQ(j, E2::c);
+    ASSERT_EQ(j, E2::val);
   }
   {
-    E3 i = E3::c;
+    E3 i = E3::val;
     std::array<unsigned char, sizeof(i)> b = {};
     pack(i, b.data());
     ASSERT_EQ(*reinterpret_cast<std::int32_t*>(b.data()), 0X78563412);
-    E3 j = E3::a;
+    E3 j = E3::zero;
     unpack(j, b.data());
-    ASSERT_EQ(j, E3::c);
+    ASSERT_EQ(j, E3::val);
   }
 }
 
