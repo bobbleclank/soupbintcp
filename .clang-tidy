@@ -1,6 +1,5 @@
 Checks:
   - cppcoreguidelines-*
-  - -clang-analyzer-cplusplus.Move
   - -cppcoreguidelines-avoid-do-while
   - -cppcoreguidelines-pro-bounds-pointer-arithmetic
   - -cppcoreguidelines-pro-type-reinterpret-cast
