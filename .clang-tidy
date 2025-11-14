@@ -2,4 +2,3 @@ Checks:
   - cppcoreguidelines-*
   - -cppcoreguidelines-avoid-do-while
   - -cppcoreguidelines-pro-bounds-pointer-arithmetic
-  - -cppcoreguidelines-pro-type-reinterpret-cast
