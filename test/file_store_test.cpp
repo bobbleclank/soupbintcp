@@ -272,6 +272,7 @@ TEST(File_store, move_operations) {
   ASSERT_EQ(s1.next_sequence_number(), 4u);
 
   File_store s2(std::move(s1));
+  // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move)
   ASSERT_EQ(s1.next_sequence_number(), 1u);
   ASSERT_EQ(s2.next_sequence_number(), 4u);
 
@@ -285,6 +286,7 @@ TEST(File_store, move_operations) {
 
   File_store s3;
   s3 = std::move(s2);
+  // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move)
   ASSERT_EQ(s2.next_sequence_number(), 1u);
   ASSERT_EQ(s3.next_sequence_number(), 7u);
 
@@ -308,6 +310,7 @@ TEST(File_store, move_operations) {
   ASSERT_EQ(s4.next_sequence_number(), 7u);
 
   s4 = std::move(s3);
+  // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move)
   ASSERT_EQ(s3.next_sequence_number(), 1u);
   ASSERT_EQ(s4.next_sequence_number(), 7u);
 

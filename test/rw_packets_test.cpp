@@ -14,10 +14,14 @@ using namespace bc::soup;
 
 namespace {
 
+// NOLINTBEGIN(clang-analyzer-cplusplus.Move)
+
 void assert_empty(const Buffer& b) {
   ASSERT_EQ(b.data(), nullptr);
   ASSERT_EQ(b.size(), 0u);
 }
+
+// NOLINTEND(clang-analyzer-cplusplus.Move)
 
 void assert_non_empty(const Buffer& b, std::size_t size) {
   ASSERT_NE(b.data(), nullptr);
@@ -138,6 +142,8 @@ void write_payload(Read_packet& p, char packet_type, std::uint16_t payload_size,
   std::memcpy(p.payload_data(), payload_data, p.payload_size());
 }
 
+// NOLINTBEGIN(clang-analyzer-cplusplus.Move)
+
 void assert_empty(const Read_packet& p, std::uint16_t packet_size,
                   char packet_type) {
   ASSERT_EQ(p.packet_size(), packet_size);
@@ -149,6 +155,8 @@ void assert_empty(const Read_packet& p, std::uint16_t packet_size,
 void assert_empty(const Read_packet& p) {
   assert_empty(p, 0, '\0');
 }
+
+// NOLINTEND(clang-analyzer-cplusplus.Move)
 
 void assert_non_empty(const Read_packet& p, char packet_type,
                       std::uint16_t payload_size) {
@@ -313,10 +321,14 @@ TEST(Read_packet, payload) {
 
 namespace {
 
+// NOLINTBEGIN(clang-analyzer-cplusplus.Move)
+
 void assert_empty(const Write_packet& p) {
   ASSERT_EQ(p.payload_capacity(), static_cast<std::size_t>(-3));
   ASSERT_EQ(p.data(), nullptr);
 }
+
+// NOLINTEND(clang-analyzer-cplusplus.Move)
 
 void assert_non_empty(const Write_packet& p, char packet_type,
                       std::uint16_t payload_capacity,

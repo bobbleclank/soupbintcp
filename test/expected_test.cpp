@@ -113,6 +113,8 @@ struct Obj_explicit {
 
 } // namespace
 
+// NOLINTBEGIN(clang-analyzer-cplusplus.Move)
+
 TEST(bad_expected_access, constructor) {
   bad_expected_access<int> e(1);
   ASSERT_STREQ(e.what(), "bad expected access");
@@ -606,3 +608,5 @@ TEST(expected, comparison_with_unexpected_E) {
   ASSERT_TRUE(v1 != e_one);
   ASSERT_TRUE(v2 != e_one);
 }
+
+// NOLINTEND(clang-analyzer-cplusplus.Move)
