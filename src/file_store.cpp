@@ -13,6 +13,7 @@ namespace {
 int open(const char* path, int oflag) {
   constexpr mode_t mode = 0666;
   int fd = -1;
+  // NOLINTNEXTLINE(*-avoid-do-while): Clear statement of a solution
   do
     // NOLINTNEXTLINE(*-pro-type-vararg): C-style vararg function
     fd = ::open(path, oflag, mode);
@@ -22,6 +23,7 @@ int open(const char* path, int oflag) {
 
 int close(int fd) {
   int status = -1;
+  // NOLINTNEXTLINE(*-avoid-do-while): Clear statement of a solution
   do
     status = ::close(fd);
   while (status == -1 && errno == EINTR);
@@ -33,6 +35,7 @@ ssize_t read(int fd, void* buf, size_t nbyte) {
   ssize_t total = 0;
   while (total != static_cast<ssize_t>(nbyte)) {
     ssize_t n = -1;
+    // NOLINTNEXTLINE(*-avoid-do-while): Clear statement of a solution
     do
       n = ::read(fd, ptr + total, nbyte - total);
     while (n == -1 && errno == EINTR);
@@ -50,6 +53,7 @@ ssize_t write(int fd, const void* buf, size_t nbyte) {
   ssize_t total = 0;
   while (total != static_cast<ssize_t>(nbyte)) {
     ssize_t n = -1;
+    // NOLINTNEXTLINE(*-avoid-do-while): Clear statement of a solution
     do
       n = ::write(fd, ptr + total, nbyte - total);
     while (n == -1 && errno == EINTR);
