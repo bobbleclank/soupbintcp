@@ -1,3 +1,2 @@
 Checks:
   - cppcoreguidelines-*
-  - -cppcoreguidelines-pro-bounds-pointer-arithmetic
