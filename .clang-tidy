@@ -1,4 +1,3 @@
 Checks:
   - cppcoreguidelines-*
-  - -cppcoreguidelines-avoid-do-while
   - -cppcoreguidelines-pro-bounds-pointer-arithmetic
