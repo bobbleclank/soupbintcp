@@ -2,29 +2,29 @@
 
 #include "option_error.h"
 
-#include <cerrno>
+#include <cassert>
+#include <charconv>
 #include <climits>
-#include <cstdlib>
-#include <cstring>
+#include <system_error>
 
-int to_int(const char* arg, int opt) {
+int to_int(std::string_view arg, int opt) {
   const long i = to_long(arg, opt);
   if (i < INT_MIN || i > INT_MAX)
     throw Invalid_argument(opt, "out of range");
   return static_cast<int>(i);
 }
 
-long to_long(const char* arg, int opt) {
-  constexpr auto base = 10;
-  errno = 0;
-  char* end = nullptr;
-  const long i = std::strtol(arg, &end, base);
-  if (end == arg)
-    throw Invalid_argument(opt, "no conversion");
-  if (errno == ERANGE)
-    throw Invalid_argument(opt, "out of range");
-  if (*end != '\0')
+long to_long(std::string_view arg, int opt) {
+  long i = 0;
+  const auto [ptr, ec] = std::from_chars(arg.begin(), arg.end(), i);
+  if (ec != std::errc() || ptr != arg.end()) {
+    if (ec == std::errc::invalid_argument)
+      throw Invalid_argument(opt, "no conversion");
+    if (ec == std::errc::result_out_of_range)
+      throw Invalid_argument(opt, "out of range");
+    assert(ec == std::errc() && ptr != arg.end());
     throw Invalid_argument(opt, "trailing characters");
+  }
   return i;
 }
 
@@ -35,18 +35,17 @@ Endpoint::Endpoint(std::string_view address_, int port_)
     : address(address_), port(port_) {
 }
 
-Endpoint to_endpoint(const char* arg, int opt) {
-  const auto* ptr = std::strchr(arg, ':');
-  if (ptr == nullptr) {
+Endpoint to_endpoint(std::string_view arg, int opt) {
+  const auto pos = arg.find(':');
+  if (pos == std::string_view::npos) {
     const auto port = to_int(arg, opt);
     if (port < 0)
       throw Invalid_argument(opt, "negative");
     return Endpoint(port);
   }
-  using size_type = std::string_view::size_type;
-  const auto len = static_cast<size_type>(ptr - arg);
-  const std::string_view address(arg, len);
-  const auto port = to_int(ptr + 1, opt);
+  const std::string_view address = arg.substr(0, pos);
+  arg.remove_prefix(pos + 1);
+  const auto port = to_int(arg, opt);
   if (port < 0)
     throw Invalid_argument(opt, "negative");
   return Endpoint(address, port);

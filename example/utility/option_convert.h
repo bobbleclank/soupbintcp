@@ -3,8 +3,8 @@
 
 #include <string_view>
 
-int to_int(const char*, int);
-long to_long(const char*, int);
+int to_int(std::string_view, int);
+long to_long(std::string_view, int);
 
 struct Endpoint {
   Endpoint() = default;
@@ -15,6 +15,6 @@ struct Endpoint {
   int port = 0;
 };
 
-Endpoint to_endpoint(const char*, int);
+Endpoint to_endpoint(std::string_view, int);
 
 #endif
