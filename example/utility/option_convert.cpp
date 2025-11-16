@@ -4,12 +4,13 @@
 
 #include <cassert>
 #include <charconv>
-#include <climits>
+#include <limits>
 #include <system_error>
 
 int to_int(std::string_view arg, int opt) {
   const long i = to_long(arg, opt);
-  if (i < INT_MIN || i > INT_MAX)
+  if (i < std::numeric_limits<int>::min() ||
+      i > std::numeric_limits<int>::max())
     throw Invalid_argument(opt, "out of range");
   return static_cast<int>(i);
 }
