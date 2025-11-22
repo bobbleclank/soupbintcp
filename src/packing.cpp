@@ -1,7 +1,9 @@
 #include "bc/soup/packing.h"
 
 namespace bc::soup {
-namespace internal {
+namespace {
+
+// Username and password are alphanumeric and padded on the right with spaces.
 
 void pack_alphanumeric(std::string_view str, void* data, std::size_t length) {
   auto* ptr = static_cast<char*>(data);
@@ -25,7 +27,23 @@ void unpack_alphanumeric(std::string& str, const void* data,
   }
 }
 
-} // namespace internal
+} // namespace
+
+void pack_username(std::string_view str, void* data) {
+  pack_alphanumeric(str, data, username_length);
+}
+
+void unpack_username(std::string& str, const void* data) {
+  unpack_alphanumeric(str, data, username_length);
+}
+
+void pack_password(std::string_view str, void* data) {
+  pack_alphanumeric(str, data, password_length);
+}
+
+void unpack_password(std::string& str, const void* data) {
+  unpack_alphanumeric(str, data, password_length);
+}
 
 void pack_session(std::string_view str, void* data) {
   auto* ptr = static_cast<char*>(data);

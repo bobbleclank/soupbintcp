@@ -52,30 +52,11 @@ void unpack(Enum& e, const void* data) {
   e = static_cast<Enum>(t);
 }
 
-namespace internal {
+void pack_username(std::string_view, void*);
+void unpack_username(std::string&, const void*);
 
-// Alphanumeric fields are padded on the right with spaces.
-
-void pack_alphanumeric(std::string_view, void*, std::size_t);
-void unpack_alphanumeric(std::string&, const void*, std::size_t);
-
-} // namespace internal
-
-inline void pack_username(std::string_view str, void* data) {
-  internal::pack_alphanumeric(str, data, username_length);
-}
-
-inline void unpack_username(std::string& str, const void* data) {
-  internal::unpack_alphanumeric(str, data, username_length);
-}
-
-inline void pack_password(std::string_view str, void* data) {
-  internal::pack_alphanumeric(str, data, password_length);
-}
-
-inline void unpack_password(std::string& str, const void* data) {
-  internal::unpack_alphanumeric(str, data, password_length);
-}
+void pack_password(std::string_view, void*);
+void unpack_password(std::string&, const void*);
 
 // Session is alphanumeric but padded on the left with spaces.
 
