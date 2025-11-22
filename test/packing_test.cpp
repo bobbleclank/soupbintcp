@@ -353,7 +353,7 @@ TEST(packing, unpack_session) {
     ASSERT_EQ(s, "abcdefghij"s);
   }
   {
-    std::string b = "  ---abcde"; // Leading invalid character.
+    std::string b = "_____abcde"; // Leading invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
@@ -477,11 +477,11 @@ TEST(packing, unpack_sequence_number) {
     ASSERT_EQ(i, 0u);
   }
   {
-    std::string b = "          123 567890"; // Non-digit.
+    std::string b = "12345          67890"; // Embedded invalid character.
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
-    ASSERT_EQ(i, 123u);
+    ASSERT_EQ(i, 12345u);
   }
   {
     std::string b = "18446744073709551616"; // Overflow.
