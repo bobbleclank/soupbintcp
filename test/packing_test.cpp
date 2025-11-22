@@ -8,7 +8,6 @@
 #include <gtest/gtest.h>
 
 using namespace bc::soup;
-using namespace bc::soup::internal;
 
 using namespace std::string_literals;
 
@@ -121,178 +120,178 @@ TEST(packing, enumeration) {
   }
 }
 
-TEST(packing, pack_alphanumeric) {
+TEST(packing, pack_password) {
   constexpr auto size = 10;
   {
     std::string s = "";
     std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), size);
+    pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "          ", b.size()), 0);
   }
   {
     std::string s = "a";
     std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), size);
+    pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "a         ", b.size()), 0);
   }
   {
     std::string s = "abcde";
     std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), size);
+    pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcde     ", b.size()), 0);
   }
   {
     std::string s = "abcdefghi";
     std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), size);
+    pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcdefghi ", b.size()), 0);
   }
   {
     std::string s = "abcdefghij";
     std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), size);
+    pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcdefghij", b.size()), 0);
   }
   {
     std::string s = "     abcde"; // Leading invalid character.
     std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), size);
+    pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "          ", b.size()), 0);
   }
   {
     std::string s = "_____abcde"; // Leading invalid character.
     std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), size);
+    pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "          ", b.size()), 0);
   }
   {
     std::string s = "abcde     "; // Trailing invalid character.
     std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), size);
+    pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcde     ", b.size()), 0);
   }
   {
     std::string s = "abcde_____"; // Trailing invalid character.
     std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), size);
+    pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcde     ", b.size()), 0);
   }
   {
     std::string s = "abc    def"; // Embedded invalid character.
     std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), size);
+    pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abc       ", b.size()), 0);
   }
   {
     std::string s = "abc____def"; // Embedded invalid character.
     std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), size);
+    pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abc       ", b.size()), 0);
   }
   {
     std::string s = "abcdefghijk"; // Too long.
     std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), size);
+    pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcdefghij", b.size()), 0);
   }
   {
     std::string s = "abcdefghij  "; // Too long.
     std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), size);
+    pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcdefghij", b.size()), 0);
   }
   {
     std::string s = "abcdefghij__"; // Too long.
     std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), size);
+    pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcdefghij", b.size()), 0);
   }
 }
 
-TEST(packing, unpack_alphanumeric) {
+TEST(packing, unpack_password) {
   constexpr auto size = 10;
   {
     std::string b = "          ";
     ASSERT_EQ(b.size(), size);
     std::string s;
-    unpack_alphanumeric(s, b.data(), size);
+    unpack_password(s, b.data());
     ASSERT_EQ(s, ""s);
   }
   {
     std::string b = "a         ";
     ASSERT_EQ(b.size(), size);
     std::string s;
-    unpack_alphanumeric(s, b.data(), size);
+    unpack_password(s, b.data());
     ASSERT_EQ(s, "a"s);
   }
   {
     std::string b = "abcde     ";
     ASSERT_EQ(b.size(), size);
     std::string s;
-    unpack_alphanumeric(s, b.data(), size);
+    unpack_password(s, b.data());
     ASSERT_EQ(s, "abcde"s);
   }
   {
     std::string b = "abcdefghi ";
     ASSERT_EQ(b.size(), size);
     std::string s;
-    unpack_alphanumeric(s, b.data(), size);
+    unpack_password(s, b.data());
     ASSERT_EQ(s, "abcdefghi"s);
   }
   {
     std::string b = "abcdefghij";
     ASSERT_EQ(b.size(), size);
     std::string s;
-    unpack_alphanumeric(s, b.data(), size);
+    unpack_password(s, b.data());
     ASSERT_EQ(s, "abcdefghij"s);
   }
   {
     std::string b = "     abcde"; // Leading invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
-    unpack_alphanumeric(s, b.data(), size);
+    unpack_password(s, b.data());
     ASSERT_EQ(s, ""s);
   }
   {
     std::string b = "_____abcde"; // Leading invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
-    unpack_alphanumeric(s, b.data(), size);
+    unpack_password(s, b.data());
     ASSERT_EQ(s, ""s);
   }
   {
     std::string b = "abcde_____"; // Trailing invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
-    unpack_alphanumeric(s, b.data(), size);
+    unpack_password(s, b.data());
     ASSERT_EQ(s, "abcde"s);
   }
   {
     std::string b = "abc    def"; // Embedded invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
-    unpack_alphanumeric(s, b.data(), size);
+    unpack_password(s, b.data());
     ASSERT_EQ(s, "abc"s);
   }
   {
     std::string b = "abc____def"; // Embedded invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
-    unpack_alphanumeric(s, b.data(), size);
+    unpack_password(s, b.data());
     ASSERT_EQ(s, "abc"s);
   }
 }
