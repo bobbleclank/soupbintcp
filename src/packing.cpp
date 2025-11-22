@@ -8,9 +8,10 @@ namespace {
 template <std::size_t length>
 void pack_alphanumeric_right_padded(std::string_view str, void* data) {
   auto* ptr = static_cast<char*>(data);
-  const std::size_t size = str.size() > length ? length : str.size();
+  if (str.size() > length)
+    str.remove_suffix(str.size() - length);
   std::size_t i = 0;
-  while (i != size && std::isalnum(str[i])) {
+  while (i != str.size() && std::isalnum(str[i])) {
     ptr[i] = str[i];
     ++i;
   }
@@ -53,9 +54,10 @@ namespace {
 template <std::size_t length>
 void pack_alphanumeric_left_padded(std::string_view str, void* data) {
   auto* ptr = static_cast<char*>(data);
-  const std::size_t size = str.size() > length ? length : str.size();
+  if (str.size() > length)
+    str.remove_suffix(str.size() - length);
   std::size_t i = 0;
-  while (i != size && std::isalnum(str[i])) {
+  while (i != str.size() && std::isalnum(str[i])) {
     ++i;
   }
   std::memset(ptr, ' ', length - i);
