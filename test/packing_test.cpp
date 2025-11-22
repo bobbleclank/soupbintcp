@@ -16,8 +16,8 @@ TEST(packing, integral) {
     char i = 'a';
     std::array<unsigned char, sizeof(i)> b = {};
     pack(i, b.data());
-    constexpr char k = 0X61;
-    ASSERT_EQ(std::memcmp(b.data(), &k, b.size()), 0);
+    constexpr char e = 0X61;
+    ASSERT_EQ(std::memcmp(b.data(), &e, b.size()), 0);
     char j = '\0';
     unpack(j, b.data());
     ASSERT_EQ(j, 'a');
@@ -27,8 +27,8 @@ TEST(packing, integral) {
     std::int16_t i = 4660;
     std::array<unsigned char, sizeof(i)> b = {};
     pack(i, b.data());
-    constexpr std::int16_t k = 0X3412;
-    ASSERT_EQ(std::memcmp(b.data(), &k, b.size()), 0);
+    constexpr std::int16_t e = 0X3412;
+    ASSERT_EQ(std::memcmp(b.data(), &e, b.size()), 0);
     std::int16_t j = 0;
     unpack(j, b.data());
     ASSERT_EQ(j, 4660);
@@ -38,8 +38,8 @@ TEST(packing, integral) {
     std::uint16_t i = 4660;
     std::array<unsigned char, sizeof(i)> b = {};
     pack(i, b.data());
-    constexpr std::uint16_t k = 0X3412;
-    ASSERT_EQ(std::memcmp(b.data(), &k, b.size()), 0);
+    constexpr std::uint16_t e = 0X3412;
+    ASSERT_EQ(std::memcmp(b.data(), &e, b.size()), 0);
     std::uint16_t j = 0;
     unpack(j, b.data());
     ASSERT_EQ(j, 4660u);
@@ -49,8 +49,8 @@ TEST(packing, integral) {
     std::int32_t i = 305419896;
     std::array<unsigned char, sizeof(i)> b = {};
     pack(i, b.data());
-    constexpr std::int32_t k = 0X78563412;
-    ASSERT_EQ(std::memcmp(b.data(), &k, b.size()), 0);
+    constexpr std::int32_t e = 0X78563412;
+    ASSERT_EQ(std::memcmp(b.data(), &e, b.size()), 0);
     std::int32_t j = 0;
     unpack(j, b.data());
     ASSERT_EQ(j, 305419896);
@@ -60,8 +60,8 @@ TEST(packing, integral) {
     std::uint32_t i = 305419896;
     std::array<unsigned char, sizeof(i)> b = {};
     pack(i, b.data());
-    constexpr std::uint32_t k = 0X78563412;
-    ASSERT_EQ(std::memcmp(b.data(), &k, b.size()), 0);
+    constexpr std::uint32_t e = 0X78563412;
+    ASSERT_EQ(std::memcmp(b.data(), &e, b.size()), 0);
     std::uint32_t j = 0;
     unpack(j, b.data());
     ASSERT_EQ(j, 305419896u);
@@ -92,8 +92,8 @@ TEST(packing, enumeration) {
     E1 i = E1::val;
     std::array<unsigned char, sizeof(i)> b = {};
     pack(i, b.data());
-    constexpr char k = 0X61;
-    ASSERT_EQ(std::memcmp(b.data(), &k, b.size()), 0);
+    constexpr char e = 0X61;
+    ASSERT_EQ(std::memcmp(b.data(), &e, b.size()), 0);
     E1 j = E1::zero;
     unpack(j, b.data());
     ASSERT_EQ(j, E1::val);
@@ -102,8 +102,8 @@ TEST(packing, enumeration) {
     E2 i = E2::val;
     std::array<unsigned char, sizeof(i)> b = {};
     pack(i, b.data());
-    constexpr std::uint16_t k = 0X3412;
-    ASSERT_EQ(std::memcmp(b.data(), &k, b.size()), 0);
+    constexpr std::uint16_t e = 0X3412;
+    ASSERT_EQ(std::memcmp(b.data(), &e, b.size()), 0);
     E2 j = E2::zero;
     unpack(j, b.data());
     ASSERT_EQ(j, E2::val);
@@ -112,8 +112,8 @@ TEST(packing, enumeration) {
     E3 i = E3::val;
     std::array<unsigned char, sizeof(i)> b = {};
     pack(i, b.data());
-    constexpr std::uint32_t k = 0X78563412;
-    ASSERT_EQ(std::memcmp(b.data(), &k, b.size()), 0);
+    constexpr std::uint32_t e = 0X78563412;
+    ASSERT_EQ(std::memcmp(b.data(), &e, b.size()), 0);
     E3 j = E3::zero;
     unpack(j, b.data());
     ASSERT_EQ(j, E3::val);
