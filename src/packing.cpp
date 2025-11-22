@@ -5,7 +5,8 @@ namespace {
 
 // Username and password are alphanumeric and padded on the right with spaces.
 
-void pack_alphanumeric(std::string_view str, void* data, std::size_t length) {
+template <std::size_t length>
+void pack_alphanumeric(std::string_view str, void* data) {
   auto* ptr = static_cast<char*>(data);
   const std::size_t size = str.size() > length ? length : str.size();
   std::size_t i = 0;
@@ -16,8 +17,8 @@ void pack_alphanumeric(std::string_view str, void* data, std::size_t length) {
   std::memset(ptr + i, ' ', length - i);
 }
 
-void unpack_alphanumeric(std::string& str, const void* data,
-                         std::size_t length) {
+template <std::size_t length>
+void unpack_alphanumeric(std::string& str, const void* data) {
   const auto* ptr = static_cast<const char*>(data);
   str.reserve(length);
   std::size_t i = 0;
@@ -30,19 +31,19 @@ void unpack_alphanumeric(std::string& str, const void* data,
 } // namespace
 
 void pack_username(std::string_view str, void* data) {
-  pack_alphanumeric(str, data, username_length);
+  pack_alphanumeric<username_length>(str, data);
 }
 
 void unpack_username(std::string& str, const void* data) {
-  unpack_alphanumeric(str, data, username_length);
+  unpack_alphanumeric<username_length>(str, data);
 }
 
 void pack_password(std::string_view str, void* data) {
-  pack_alphanumeric(str, data, password_length);
+  pack_alphanumeric<password_length>(str, data);
 }
 
 void unpack_password(std::string& str, const void* data) {
-  unpack_alphanumeric(str, data, password_length);
+  unpack_alphanumeric<password_length>(str, data);
 }
 
 void pack_session(std::string_view str, void* data) {
