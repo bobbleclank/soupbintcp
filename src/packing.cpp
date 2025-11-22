@@ -12,21 +12,21 @@ void pack_alphanumeric_right_padded(std::string_view str, void* data) {
     str.remove_suffix(str.size() - length);
   std::size_t i = 0;
   while (i != str.size() && std::isalnum(str[i])) {
-    ptr[i] = str[i];
     ++i;
   }
+  std::memcpy(ptr, str.data(), i);
   std::memset(ptr + i, ' ', length - i);
 }
 
 template <std::size_t length>
 void unpack_alphanumeric_right_padded(std::string& str, const void* data) {
   const auto* ptr = static_cast<const char*>(data);
-  str.reserve(length);
   std::size_t i = 0;
   while (i != length && std::isalnum(ptr[i])) {
-    str.push_back(ptr[i]);
     ++i;
   }
+  str.resize(i);
+  std::memcpy(str.data(), ptr, i);
 }
 
 } // namespace
@@ -67,15 +67,17 @@ void pack_alphanumeric_left_padded(std::string_view str, void* data) {
 template <std::size_t length>
 void unpack_alphanumeric_left_padded(std::string& str, const void* data) {
   const auto* ptr = static_cast<const char*>(data);
-  std::size_t i = 0;
-  while (i != length && ptr[i] == ' ') {
-    ++i;
+  std::size_t j = 0;
+  while (j != length && ptr[j] == ' ') {
+    ++j;
   }
-  str.reserve(length - i);
+  std::size_t i = j;
   while (i != length && std::isalnum(ptr[i])) {
-    str.push_back(ptr[i]);
     ++i;
   }
+  i -= j;
+  str.resize(i);
+  std::memcpy(str.data(), ptr + j, i);
 }
 
 } // namespace
