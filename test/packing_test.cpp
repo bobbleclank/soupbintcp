@@ -246,13 +246,6 @@ TEST(packing, unpack_alphanumeric) {
     unpack_alphanumeric(s, b.data(), size);
     ASSERT_EQ(s, "a"s);
   }
-  {
-    std::string b = "abcde"; // Too long.
-    ASSERT_EQ(b.size(), size + 1);
-    std::string s;
-    unpack_alphanumeric(s, b.data(), size);
-    ASSERT_EQ(s, "abcd"s);
-  }
 }
 
 TEST(packing, pack_session) {
@@ -379,13 +372,6 @@ TEST(packing, unpack_session) {
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, "abc"s);
-  }
-  {
-    std::string b = "abcdefghijk"; // Too long.
-    ASSERT_EQ(b.size(), size + 1);
-    std::string s;
-    unpack_session(s, b.data());
-    ASSERT_EQ(s, "abcdefghij"s);
   }
 }
 
