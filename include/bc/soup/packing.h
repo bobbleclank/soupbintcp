@@ -58,8 +58,6 @@ void unpack_username(std::string&, const void*);
 void pack_password(std::string_view, void*);
 void unpack_password(std::string&, const void*);
 
-// Session is alphanumeric but padded on the left with spaces.
-
 void pack_session(std::string_view, void*);
 void unpack_session(std::string&, const void*);
 

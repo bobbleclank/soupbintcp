@@ -46,9 +46,13 @@ void unpack_password(std::string& str, const void* data) {
   unpack_alphanumeric_right_padded<password_length>(str, data);
 }
 
-void pack_session(std::string_view str, void* data) {
+namespace {
+
+// Session is alphanumeric and padded on the left with spaces.
+
+template <std::size_t length>
+void pack_alphanumeric_left_padded(std::string_view str, void* data) {
   auto* ptr = static_cast<char*>(data);
-  constexpr std::size_t length = session_length;
   const std::size_t size = str.size() > length ? length : str.size();
   std::size_t i = 0;
   while (i != size && std::isalnum(str[i])) {
@@ -58,9 +62,9 @@ void pack_session(std::string_view str, void* data) {
   std::memcpy(ptr + (length - i), str.data(), i);
 }
 
-void unpack_session(std::string& str, const void* data) {
+template <std::size_t length>
+void unpack_alphanumeric_left_padded(std::string& str, const void* data) {
   const auto* ptr = static_cast<const char*>(data);
-  constexpr std::size_t length = session_length;
   std::size_t i = 0;
   while (i != length && ptr[i] == ' ') {
     ++i;
@@ -70,6 +74,16 @@ void unpack_session(std::string& str, const void* data) {
     str.push_back(ptr[i]);
     ++i;
   }
+}
+
+} // namespace
+
+void pack_session(std::string_view str, void* data) {
+  pack_alphanumeric_left_padded<session_length>(str, data);
+}
+
+void unpack_session(std::string& str, const void* data) {
+  unpack_alphanumeric_left_padded<session_length>(str, data);
 }
 
 } // namespace bc::soup
