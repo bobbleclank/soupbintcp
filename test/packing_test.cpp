@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <limits>
 #include <string>
+#include <string_view>
 
 #include <gtest/gtest.h>
 
@@ -123,98 +124,98 @@ TEST(packing, enumeration) {
 TEST(packing, pack_password) {
   constexpr auto size = 10;
   {
-    std::string s = "";
+    std::string_view s = "";
     std::array<char, size> b = {};
     b.fill('*');
     pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "          ", b.size()), 0);
   }
   {
-    std::string s = "a";
+    std::string_view s = "a";
     std::array<char, size> b = {};
     b.fill('*');
     pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "a         ", b.size()), 0);
   }
   {
-    std::string s = "abcde";
+    std::string_view s = "abcde";
     std::array<char, size> b = {};
     b.fill('*');
     pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcde     ", b.size()), 0);
   }
   {
-    std::string s = "abcdefghi";
+    std::string_view s = "abcdefghi";
     std::array<char, size> b = {};
     b.fill('*');
     pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcdefghi ", b.size()), 0);
   }
   {
-    std::string s = "abcdefghij";
+    std::string_view s = "abcdefghij";
     std::array<char, size> b = {};
     b.fill('*');
     pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcdefghij", b.size()), 0);
   }
   {
-    std::string s = "     abcde"; // Leading invalid character.
+    std::string_view s = "     abcde"; // Leading invalid character.
     std::array<char, size> b = {};
     b.fill('*');
     pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "          ", b.size()), 0);
   }
   {
-    std::string s = "_____abcde"; // Leading invalid character.
+    std::string_view s = "_____abcde"; // Leading invalid character.
     std::array<char, size> b = {};
     b.fill('*');
     pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "          ", b.size()), 0);
   }
   {
-    std::string s = "abcde     "; // Trailing invalid character.
+    std::string_view s = "abcde     "; // Trailing invalid character.
     std::array<char, size> b = {};
     b.fill('*');
     pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcde     ", b.size()), 0);
   }
   {
-    std::string s = "abcde_____"; // Trailing invalid character.
+    std::string_view s = "abcde_____"; // Trailing invalid character.
     std::array<char, size> b = {};
     b.fill('*');
     pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcde     ", b.size()), 0);
   }
   {
-    std::string s = "abc    def"; // Embedded invalid character.
+    std::string_view s = "abc    def"; // Embedded invalid character.
     std::array<char, size> b = {};
     b.fill('*');
     pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abc       ", b.size()), 0);
   }
   {
-    std::string s = "abc____def"; // Embedded invalid character.
+    std::string_view s = "abc____def"; // Embedded invalid character.
     std::array<char, size> b = {};
     b.fill('*');
     pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abc       ", b.size()), 0);
   }
   {
-    std::string s = "abcdefghijk"; // Too long.
+    std::string_view s = "abcdefghijk"; // Too long.
     std::array<char, size> b = {};
     b.fill('*');
     pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcdefghij", b.size()), 0);
   }
   {
-    std::string s = "abcdefghij  "; // Too long.
+    std::string_view s = "abcdefghij  "; // Too long.
     std::array<char, size> b = {};
     b.fill('*');
     pack_password(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcdefghij", b.size()), 0);
   }
   {
-    std::string s = "abcdefghij__"; // Too long.
+    std::string_view s = "abcdefghij__"; // Too long.
     std::array<char, size> b = {};
     b.fill('*');
     pack_password(s, b.data());
@@ -225,70 +226,70 @@ TEST(packing, pack_password) {
 TEST(packing, unpack_password) {
   constexpr auto size = 10;
   {
-    std::string b = "          ";
+    std::string_view b = "          ";
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_password(s, b.data());
     ASSERT_EQ(s, ""s);
   }
   {
-    std::string b = "a         ";
+    std::string_view b = "a         ";
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_password(s, b.data());
     ASSERT_EQ(s, "a"s);
   }
   {
-    std::string b = "abcde     ";
+    std::string_view b = "abcde     ";
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_password(s, b.data());
     ASSERT_EQ(s, "abcde"s);
   }
   {
-    std::string b = "abcdefghi ";
+    std::string_view b = "abcdefghi ";
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_password(s, b.data());
     ASSERT_EQ(s, "abcdefghi"s);
   }
   {
-    std::string b = "abcdefghij";
+    std::string_view b = "abcdefghij";
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_password(s, b.data());
     ASSERT_EQ(s, "abcdefghij"s);
   }
   {
-    std::string b = "     abcde"; // Leading invalid character.
+    std::string_view b = "     abcde"; // Leading invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_password(s, b.data());
     ASSERT_EQ(s, ""s);
   }
   {
-    std::string b = "_____abcde"; // Leading invalid character.
+    std::string_view b = "_____abcde"; // Leading invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_password(s, b.data());
     ASSERT_EQ(s, ""s);
   }
   {
-    std::string b = "abcde_____"; // Trailing invalid character.
+    std::string_view b = "abcde_____"; // Trailing invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_password(s, b.data());
     ASSERT_EQ(s, "abcde"s);
   }
   {
-    std::string b = "abc    def"; // Embedded invalid character.
+    std::string_view b = "abc    def"; // Embedded invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_password(s, b.data());
     ASSERT_EQ(s, "abc"s);
   }
   {
-    std::string b = "abc____def"; // Embedded invalid character.
+    std::string_view b = "abc____def"; // Embedded invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_password(s, b.data());
@@ -299,98 +300,98 @@ TEST(packing, unpack_password) {
 TEST(packing, pack_session) {
   constexpr auto size = 10;
   {
-    std::string s = "";
+    std::string_view s = "";
     std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "          ", b.size()), 0);
   }
   {
-    std::string s = "a";
+    std::string_view s = "a";
     std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "         a", b.size()), 0);
   }
   {
-    std::string s = "abcde";
+    std::string_view s = "abcde";
     std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "     abcde", b.size()), 0);
   }
   {
-    std::string s = "abcdefghi";
+    std::string_view s = "abcdefghi";
     std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), " abcdefghi", b.size()), 0);
   }
   {
-    std::string s = "abcdefghij";
+    std::string_view s = "abcdefghij";
     std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcdefghij", b.size()), 0);
   }
   {
-    std::string s = "     abcde"; // Leading invalid character.
+    std::string_view s = "     abcde"; // Leading invalid character.
     std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "          ", b.size()), 0);
   }
   {
-    std::string s = "_____abcde"; // Leading invalid character.
+    std::string_view s = "_____abcde"; // Leading invalid character.
     std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "          ", b.size()), 0);
   }
   {
-    std::string s = "abcde     "; // Trailing invalid character.
+    std::string_view s = "abcde     "; // Trailing invalid character.
     std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "     abcde", b.size()), 0);
   }
   {
-    std::string s = "abcde_____"; // Trailing invalid character.
+    std::string_view s = "abcde_____"; // Trailing invalid character.
     std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "     abcde", b.size()), 0);
   }
   {
-    std::string s = "abc    def"; // Embedded invalid character.
+    std::string_view s = "abc    def"; // Embedded invalid character.
     std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "       abc", b.size()), 0);
   }
   {
-    std::string s = "abc____def"; // Embedded invalid character.
+    std::string_view s = "abc____def"; // Embedded invalid character.
     std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "       abc", b.size()), 0);
   }
   {
-    std::string s = "abcdefghijk"; // Too long.
+    std::string_view s = "abcdefghijk"; // Too long.
     std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcdefghij", b.size()), 0);
   }
   {
-    std::string s = "abcdefghij  "; // Too long.
+    std::string_view s = "abcdefghij  "; // Too long.
     std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
     ASSERT_EQ(std::memcmp(b.data(), "abcdefghij", b.size()), 0);
   }
   {
-    std::string s = "abcdefghij__"; // Too long.
+    std::string_view s = "abcdefghij__"; // Too long.
     std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
@@ -401,70 +402,70 @@ TEST(packing, pack_session) {
 TEST(packing, unpack_session) {
   constexpr auto size = 10;
   {
-    std::string b = "          ";
+    std::string_view b = "          ";
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, ""s);
   }
   {
-    std::string b = "         a";
+    std::string_view b = "         a";
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, "a"s);
   }
   {
-    std::string b = "     abcde";
+    std::string_view b = "     abcde";
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, "abcde"s);
   }
   {
-    std::string b = " abcdefghi";
+    std::string_view b = " abcdefghi";
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, "abcdefghi"s);
   }
   {
-    std::string b = "abcdefghij";
+    std::string_view b = "abcdefghij";
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, "abcdefghij"s);
   }
   {
-    std::string b = "_____abcde"; // Leading invalid character.
+    std::string_view b = "_____abcde"; // Leading invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, ""s);
   }
   {
-    std::string b = "abcde     "; // Trailing invalid character.
+    std::string_view b = "abcde     "; // Trailing invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, "abcde"s);
   }
   {
-    std::string b = "abcde_____"; // Trailing invalid character.
+    std::string_view b = "abcde_____"; // Trailing invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, "abcde"s);
   }
   {
-    std::string b = "abc    def"; // Embedded invalid character.
+    std::string_view b = "abc    def"; // Embedded invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, "abc"s);
   }
   {
-    std::string b = "abc____def"; // Embedded invalid character.
+    std::string_view b = "abc____def"; // Embedded invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
@@ -533,105 +534,105 @@ TEST(packing, unpack_sequence_number) {
   constexpr auto size = 20;
   constexpr auto distinct_initial_value = 42;
   {
-    std::string b = "                   0";
+    std::string_view b = "                   0";
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 0u);
   }
   {
-    std::string b = "                   1";
+    std::string_view b = "                   1";
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 1u);
   }
   {
-    std::string b = "               12345";
+    std::string_view b = "               12345";
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 12345u);
   }
   {
-    std::string b = "          1234567890";
+    std::string_view b = "          1234567890";
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 1234567890u);
   }
   {
-    std::string b = "     123456789012345";
+    std::string_view b = "     123456789012345";
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 123456789012345uL);
   }
   {
-    std::string b = " 9999999999999999999";
+    std::string_view b = " 9999999999999999999";
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 9999999999999999999uL);
   }
   {
-    std::string b = "18446744073709551615";
+    std::string_view b = "18446744073709551615";
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, std::numeric_limits<std::uint64_t>::max());
   }
   {
-    std::string b = "                    "; // No digits.
+    std::string_view b = "                    "; // No digits.
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 0u);
   }
   {
-    std::string b = "__________1234567890"; // Leading invalid character.
+    std::string_view b = "__________1234567890"; // Leading invalid character.
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 0u);
   }
   {
-    std::string b = "1234567890          "; // Trailing invalid character.
+    std::string_view b = "1234567890          "; // Trailing invalid character.
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 1234567890u);
   }
   {
-    std::string b = "1234567890__________"; // Trailing invalid character.
+    std::string_view b = "1234567890__________"; // Trailing invalid character.
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 1234567890u);
   }
   {
-    std::string b = "12345          67890"; // Embedded invalid character.
+    std::string_view b = "12345          67890"; // Embedded invalid character.
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 12345u);
   }
   {
-    std::string b = "12345__________67890"; // Embedded invalid character.
+    std::string_view b = "12345__________67890"; // Embedded invalid character.
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 12345u);
   }
   {
-    std::string b = "18446744073709551616"; // Overflow.
+    std::string_view b = "18446744073709551616"; // Overflow.
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 0u);
   }
   {
-    std::string b = "18446744073709551617"; // Overflow.
+    std::string_view b = "18446744073709551617"; // Overflow.
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
