@@ -56,28 +56,25 @@ void pack_alphanumeric_left_padded(std::string_view str, void* data) {
   auto* ptr = static_cast<char*>(data);
   if (str.size() > length)
     str.remove_suffix(str.size() - length);
-  std::size_t i = 0;
-  while (i != str.size() && std::isalnum(str[i])) {
-    ++i;
+  std::size_t i = str.size();
+  while (i != 0 && std::isalnum(str[i - 1])) {
+    --i;
   }
+  i = str.size() - i;
   std::memset(ptr, ' ', length - i);
-  std::memcpy(ptr + (length - i), str.data(), i);
+  std::memcpy(ptr + (length - i), str.end() - i, i);
 }
 
 template <std::size_t length>
 void unpack_alphanumeric_left_padded(std::string& str, const void* data) {
   const auto* ptr = static_cast<const char*>(data);
-  std::size_t j = 0;
-  while (j != length && ptr[j] == ' ') {
-    ++j;
+  std::size_t i = length;
+  while (i != 0 && std::isalnum(ptr[i - 1])) {
+    --i;
   }
-  std::size_t i = j;
-  while (i != length && std::isalnum(ptr[i])) {
-    ++i;
-  }
-  i -= j;
+  i = length - i;
   str.resize(i);
-  std::memcpy(str.data(), ptr + j, i);
+  std::memcpy(str.data(), (ptr + length) - i, i);
 }
 
 } // namespace

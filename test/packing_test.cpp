@@ -433,7 +433,7 @@ TEST(packing, pack_session) {
     std::array<char, size> b = {};
     b.fill('.');
     pack_session(s, b.begin() + pad);
-    std::string_view e = "...          ...";
+    std::string_view e = "...     abcde...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::memcmp(b.data(), e.data(), b.size()), 0);
   }
@@ -442,7 +442,7 @@ TEST(packing, pack_session) {
     std::array<char, size> b = {};
     b.fill('.');
     pack_session(s, b.begin() + pad);
-    std::string_view e = "...          ...";
+    std::string_view e = "...     abcde...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::memcmp(b.data(), e.data(), b.size()), 0);
   }
@@ -451,7 +451,7 @@ TEST(packing, pack_session) {
     std::array<char, size> b = {};
     b.fill('.');
     pack_session(s, b.begin() + pad);
-    std::string_view e = "...     abcde...";
+    std::string_view e = "...          ...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::memcmp(b.data(), e.data(), b.size()), 0);
   }
@@ -460,7 +460,7 @@ TEST(packing, pack_session) {
     std::array<char, size> b = {};
     b.fill('.');
     pack_session(s, b.begin() + pad);
-    std::string_view e = "...     abcde...";
+    std::string_view e = "...          ...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::memcmp(b.data(), e.data(), b.size()), 0);
   }
@@ -469,7 +469,7 @@ TEST(packing, pack_session) {
     std::array<char, size> b = {};
     b.fill('.');
     pack_session(s, b.begin() + pad);
-    std::string_view e = "...       abc...";
+    std::string_view e = "...       def...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::memcmp(b.data(), e.data(), b.size()), 0);
   }
@@ -478,7 +478,7 @@ TEST(packing, pack_session) {
     std::array<char, size> b = {};
     b.fill('.');
     pack_session(s, b.begin() + pad);
-    std::string_view e = "...       abc...";
+    std::string_view e = "...       def...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::memcmp(b.data(), e.data(), b.size()), 0);
   }
@@ -496,7 +496,7 @@ TEST(packing, pack_session) {
     std::array<char, size> b = {};
     b.fill('.');
     pack_session(s, b.begin() + pad);
-    std::string_view e = "...          ...";
+    std::string_view e = "...  abcdefgh...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::memcmp(b.data(), e.data(), b.size()), 0);
   }
@@ -505,7 +505,7 @@ TEST(packing, pack_session) {
     std::array<char, size> b = {};
     b.fill('.');
     pack_session(s, b.begin() + pad);
-    std::string_view e = "...          ...";
+    std::string_view e = "...  abcdefgh...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::memcmp(b.data(), e.data(), b.size()), 0);
   }
@@ -572,35 +572,35 @@ TEST(packing, unpack_session) {
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
-    ASSERT_EQ(s, ""s);
+    ASSERT_EQ(s, "abcde"s);
   }
   {
     std::string_view b = "abcde     "; // Trailing invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
-    ASSERT_EQ(s, "abcde"s);
+    ASSERT_EQ(s, ""s);
   }
   {
     std::string_view b = "abcde_____"; // Trailing invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
-    ASSERT_EQ(s, "abcde"s);
+    ASSERT_EQ(s, ""s);
   }
   {
     std::string_view b = "abc    def"; // Embedded invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
-    ASSERT_EQ(s, "abc"s);
+    ASSERT_EQ(s, "def"s);
   }
   {
     std::string_view b = "abc____def"; // Embedded invalid character.
     ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
-    ASSERT_EQ(s, "abc"s);
+    ASSERT_EQ(s, "def"s);
   }
   {
     std::string_view b = "abcdefghijkl"; // Too long.
@@ -621,7 +621,7 @@ TEST(packing, unpack_session) {
     ASSERT_EQ(b.size(), size + extra);
     std::string s;
     unpack_session(s, b.data());
-    ASSERT_EQ(s, ""s);
+    ASSERT_EQ(s, "abcdefgh"s);
   }
   {
     std::string_view b = "abcdefghij  "; // Too long (trailing invalid).
