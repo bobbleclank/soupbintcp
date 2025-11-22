@@ -122,133 +122,135 @@ TEST(packing, enumeration) {
 }
 
 TEST(packing, pack_alphanumeric) {
+  constexpr auto size = 4;
   {
     std::string s = "";
-    std::array<char, 4> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), b.size());
+    pack_alphanumeric(s, b.data(), size);
     ASSERT_EQ(std::memcmp(b.data(), "    ", b.size()), 0);
   }
   {
     std::string s = "a";
-    std::array<char, 4> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), b.size());
+    pack_alphanumeric(s, b.data(), size);
     ASSERT_EQ(std::memcmp(b.data(), "a   ", b.size()), 0);
   }
   {
     std::string s = "ab";
-    std::array<char, 4> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), b.size());
+    pack_alphanumeric(s, b.data(), size);
     ASSERT_EQ(std::memcmp(b.data(), "ab  ", b.size()), 0);
   }
   {
     std::string s = "abc";
-    std::array<char, 4> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), b.size());
+    pack_alphanumeric(s, b.data(), size);
     ASSERT_EQ(std::memcmp(b.data(), "abc ", b.size()), 0);
   }
   {
     std::string s = "abcd";
-    std::array<char, 4> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), b.size());
+    pack_alphanumeric(s, b.data(), size);
     ASSERT_EQ(std::memcmp(b.data(), "abcd", b.size()), 0);
   }
   {
     std::string s = "  ab"; // Leading invalid character.
-    std::array<char, 4> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), b.size());
+    pack_alphanumeric(s, b.data(), size);
     ASSERT_EQ(std::memcmp(b.data(), "    ", b.size()), 0);
   }
   {
     std::string s = "ab__"; // Trailing invalid character.
-    std::array<char, 4> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), b.size());
+    pack_alphanumeric(s, b.data(), size);
     ASSERT_EQ(std::memcmp(b.data(), "ab  ", b.size()), 0);
   }
   {
     std::string s = "a  b"; // Embedded invalid character.
-    std::array<char, 4> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), b.size());
+    pack_alphanumeric(s, b.data(), size);
     ASSERT_EQ(std::memcmp(b.data(), "a   ", b.size()), 0);
   }
   {
     std::string s = "abcde"; // Too long.
-    std::array<char, 4> b = {};
+    std::array<char, size> b = {};
     b.fill('*');
-    pack_alphanumeric(s, b.data(), b.size());
+    pack_alphanumeric(s, b.data(), size);
     ASSERT_EQ(std::memcmp(b.data(), "abcd", b.size()), 0);
   }
 }
 
 TEST(packing, unpack_alphanumeric) {
+  constexpr auto size = 4;
   {
     std::string b = "    ";
-    ASSERT_EQ(b.size(), 4);
+    ASSERT_EQ(b.size(), size);
     std::string s;
-    unpack_alphanumeric(s, b.data(), b.size());
+    unpack_alphanumeric(s, b.data(), size);
     ASSERT_EQ(s, ""s);
   }
   {
     std::string b = "a   ";
-    ASSERT_EQ(b.size(), 4);
+    ASSERT_EQ(b.size(), size);
     std::string s;
-    unpack_alphanumeric(s, b.data(), b.size());
+    unpack_alphanumeric(s, b.data(), size);
     ASSERT_EQ(s, "a"s);
   }
   {
     std::string b = "ab  ";
-    ASSERT_EQ(b.size(), 4);
+    ASSERT_EQ(b.size(), size);
     std::string s;
-    unpack_alphanumeric(s, b.data(), b.size());
+    unpack_alphanumeric(s, b.data(), size);
     ASSERT_EQ(s, "ab"s);
   }
   {
     std::string b = "abc ";
-    ASSERT_EQ(b.size(), 4);
+    ASSERT_EQ(b.size(), size);
     std::string s;
-    unpack_alphanumeric(s, b.data(), b.size());
+    unpack_alphanumeric(s, b.data(), size);
     ASSERT_EQ(s, "abc"s);
   }
   {
     std::string b = "abcd";
-    ASSERT_EQ(b.size(), 4);
+    ASSERT_EQ(b.size(), size);
     std::string s;
-    unpack_alphanumeric(s, b.data(), b.size());
+    unpack_alphanumeric(s, b.data(), size);
     ASSERT_EQ(s, "abcd"s);
   }
   {
     std::string b = "  ab"; // Leading invalid character.
-    ASSERT_EQ(b.size(), 4);
+    ASSERT_EQ(b.size(), size);
     std::string s;
-    unpack_alphanumeric(s, b.data(), b.size());
+    unpack_alphanumeric(s, b.data(), size);
     ASSERT_EQ(s, ""s);
   }
   {
     std::string b = "ab__"; // Trailing invalid character.
-    ASSERT_EQ(b.size(), 4);
+    ASSERT_EQ(b.size(), size);
     std::string s;
-    unpack_alphanumeric(s, b.data(), b.size());
+    unpack_alphanumeric(s, b.data(), size);
     ASSERT_EQ(s, "ab"s);
   }
   {
     std::string b = "a  b"; // Embedded invalid character.
-    ASSERT_EQ(b.size(), 4);
+    ASSERT_EQ(b.size(), size);
     std::string s;
-    unpack_alphanumeric(s, b.data(), b.size());
+    unpack_alphanumeric(s, b.data(), size);
     ASSERT_EQ(s, "a"s);
   }
   {
     std::string b = "abcde"; // Too long.
-    ASSERT_EQ(b.size(), 4 + 1);
+    ASSERT_EQ(b.size(), size + 1);
     std::string s;
-    unpack_alphanumeric(s, b.data(), b.size() - 1);
+    unpack_alphanumeric(s, b.data(), size);
     ASSERT_EQ(s, "abcd"s);
   }
 }
@@ -321,65 +323,66 @@ TEST(packing, pack_session) {
 }
 
 TEST(packing, unpack_session) {
+  constexpr auto size = 10;
   {
     std::string b = "          ";
-    ASSERT_EQ(b.size(), 10);
+    ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, ""s);
   }
   {
     std::string b = "         a";
-    ASSERT_EQ(b.size(), 10);
+    ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, "a"s);
   }
   {
     std::string b = "     abcde";
-    ASSERT_EQ(b.size(), 10);
+    ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, "abcde"s);
   }
   {
     std::string b = " abcdefghi";
-    ASSERT_EQ(b.size(), 10);
+    ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, "abcdefghi"s);
   }
   {
     std::string b = "abcdefghij";
-    ASSERT_EQ(b.size(), 10);
+    ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, "abcdefghij"s);
   }
   {
     std::string b = "  ---abcde"; // Leading invalid character.
-    ASSERT_EQ(b.size(), 10);
+    ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, ""s);
   }
   {
     std::string b = "abcde_____"; // Trailing invalid character.
-    ASSERT_EQ(b.size(), 10);
+    ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, "abcde"s);
   }
   {
     std::string b = "abc    def"; // Embedded invalid character.
-    ASSERT_EQ(b.size(), 10);
+    ASSERT_EQ(b.size(), size);
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, "abc"s);
   }
   {
     std::string b = "abcdefghijk"; // Too long.
-    ASSERT_EQ(b.size(), 10 + 1);
+    ASSERT_EQ(b.size(), size + 1);
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, "abcdefghij"s);
