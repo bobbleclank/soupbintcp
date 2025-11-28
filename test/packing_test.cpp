@@ -232,7 +232,7 @@ TEST(packing, pack_password) {
     ASSERT_EQ(std::memcmp(b.data(), e.data(), b.size()), 0);
   }
   {
-    std::string_view s = "abcdefghij  "; // Too long.
+    std::string_view s = "abcdefghij  "; // Too long (trailing invalid).
     std::array<char, size> b = {};
     b.fill('*');
     pack_password(s, b.data());
@@ -241,7 +241,7 @@ TEST(packing, pack_password) {
     ASSERT_EQ(std::memcmp(b.data(), e.data(), b.size()), 0);
   }
   {
-    std::string_view s = "abcdefghij__"; // Too long.
+    std::string_view s = "abcdefghij__"; // Too long (trailing invalid).
     std::array<char, size> b = {};
     b.fill('*');
     pack_password(s, b.data());
@@ -436,7 +436,7 @@ TEST(packing, pack_session) {
     ASSERT_EQ(std::memcmp(b.data(), e.data(), b.size()), 0);
   }
   {
-    std::string_view s = "abcdefghij  "; // Too long.
+    std::string_view s = "abcdefghij  "; // Too long (trailing invalid).
     std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
@@ -445,7 +445,7 @@ TEST(packing, pack_session) {
     ASSERT_EQ(std::memcmp(b.data(), e.data(), b.size()), 0);
   }
   {
-    std::string_view s = "abcdefghij__"; // Too long.
+    std::string_view s = "abcdefghij__"; // Too long (trailing invalid).
     std::array<char, size> b = {};
     b.fill('*');
     pack_session(s, b.data());
