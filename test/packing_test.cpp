@@ -232,6 +232,24 @@ TEST(packing, pack_password) {
     ASSERT_EQ(std::memcmp(b.data(), e.data(), b.size()), 0);
   }
   {
+    std::string_view s = "  abcdefghij"; // Too long (leading invalid).
+    std::array<char, size> b = {};
+    b.fill('*');
+    pack_password(s, b.data());
+    std::string_view e = "          ";
+    ASSERT_EQ(e.size(), size);
+    ASSERT_EQ(std::memcmp(b.data(), e.data(), b.size()), 0);
+  }
+  {
+    std::string_view s = "__abcdefghij"; // Too long (leading invalid).
+    std::array<char, size> b = {};
+    b.fill('*');
+    pack_password(s, b.data());
+    std::string_view e = "          ";
+    ASSERT_EQ(e.size(), size);
+    ASSERT_EQ(std::memcmp(b.data(), e.data(), b.size()), 0);
+  }
+  {
     std::string_view s = "abcdefghij  "; // Too long (trailing invalid).
     std::array<char, size> b = {};
     b.fill('*');
@@ -253,6 +271,7 @@ TEST(packing, pack_password) {
 
 TEST(packing, unpack_password) {
   constexpr auto size = 10;
+  constexpr auto extra = 2;
   {
     std::string_view b = "          ";
     ASSERT_EQ(b.size(), size);
@@ -322,6 +341,41 @@ TEST(packing, unpack_password) {
     std::string s;
     unpack_password(s, b.data());
     ASSERT_EQ(s, "abc"s);
+  }
+  {
+    std::string_view b = "abcdefghijkl"; // Too long.
+    ASSERT_EQ(b.size(), size + extra);
+    std::string s;
+    unpack_password(s, b.data());
+    ASSERT_EQ(s, "abcdefghij"s);
+  }
+  {
+    std::string_view b = "  abcdefghij"; // Too long (leading invalid).
+    ASSERT_EQ(b.size(), size + extra);
+    std::string s;
+    unpack_password(s, b.data());
+    ASSERT_EQ(s, ""s);
+  }
+  {
+    std::string_view b = "__abcdefghij"; // Too long (leading invalid).
+    ASSERT_EQ(b.size(), size + extra);
+    std::string s;
+    unpack_password(s, b.data());
+    ASSERT_EQ(s, ""s);
+  }
+  {
+    std::string_view b = "abcdefghij  "; // Too long (trailing pad).
+    ASSERT_EQ(b.size(), size + extra);
+    std::string s;
+    unpack_password(s, b.data());
+    ASSERT_EQ(s, "abcdefghij"s);
+  }
+  {
+    std::string_view b = "abcdefghij__"; // Too long (trailing invalid).
+    ASSERT_EQ(b.size(), size + extra);
+    std::string s;
+    unpack_password(s, b.data());
+    ASSERT_EQ(s, "abcdefghij"s);
   }
 }
 
@@ -436,6 +490,24 @@ TEST(packing, pack_session) {
     ASSERT_EQ(std::memcmp(b.data(), e.data(), b.size()), 0);
   }
   {
+    std::string_view s = "  abcdefghij"; // Too long (leading invalid).
+    std::array<char, size> b = {};
+    b.fill('*');
+    pack_session(s, b.data());
+    std::string_view e = "          ";
+    ASSERT_EQ(e.size(), size);
+    ASSERT_EQ(std::memcmp(b.data(), e.data(), b.size()), 0);
+  }
+  {
+    std::string_view s = "__abcdefghij"; // Too long (leading invalid).
+    std::array<char, size> b = {};
+    b.fill('*');
+    pack_session(s, b.data());
+    std::string_view e = "          ";
+    ASSERT_EQ(e.size(), size);
+    ASSERT_EQ(std::memcmp(b.data(), e.data(), b.size()), 0);
+  }
+  {
     std::string_view s = "abcdefghij  "; // Too long (trailing invalid).
     std::array<char, size> b = {};
     b.fill('*');
@@ -457,6 +529,7 @@ TEST(packing, pack_session) {
 
 TEST(packing, unpack_session) {
   constexpr auto size = 10;
+  constexpr auto extra = 2;
   {
     std::string_view b = "          ";
     ASSERT_EQ(b.size(), size);
@@ -526,6 +599,41 @@ TEST(packing, unpack_session) {
     std::string s;
     unpack_session(s, b.data());
     ASSERT_EQ(s, "abc"s);
+  }
+  {
+    std::string_view b = "abcdefghijkl"; // Too long.
+    ASSERT_EQ(b.size(), size + extra);
+    std::string s;
+    unpack_session(s, b.data());
+    ASSERT_EQ(s, "abcdefghij"s);
+  }
+  {
+    std::string_view b = "  abcdefghij"; // Too long (leading pad).
+    ASSERT_EQ(b.size(), size + extra);
+    std::string s;
+    unpack_session(s, b.data());
+    ASSERT_EQ(s, "abcdefgh"s);
+  }
+  {
+    std::string_view b = "__abcdefghij"; // Too long (leading invalid).
+    ASSERT_EQ(b.size(), size + extra);
+    std::string s;
+    unpack_session(s, b.data());
+    ASSERT_EQ(s, ""s);
+  }
+  {
+    std::string_view b = "abcdefghij  "; // Too long (trailing invalid).
+    ASSERT_EQ(b.size(), size + extra);
+    std::string s;
+    unpack_session(s, b.data());
+    ASSERT_EQ(s, "abcdefghij"s);
+  }
+  {
+    std::string_view b = "abcdefghij__"; // Too long (trailing invalid).
+    ASSERT_EQ(b.size(), size + extra);
+    std::string s;
+    unpack_session(s, b.data());
+    ASSERT_EQ(s, "abcdefghij"s);
   }
 }
 
@@ -602,6 +710,7 @@ TEST(packing, pack_sequence_number) {
 
 TEST(packing, unpack_sequence_number) {
   constexpr auto size = 20;
+  constexpr auto extra = 2;
   constexpr auto distinct_initial_value = 42;
   {
     std::string_view b = "                   0";
@@ -693,6 +802,44 @@ TEST(packing, unpack_sequence_number) {
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
     ASSERT_EQ(i, 12345u);
+  }
+  {
+    std::string_view b = "1234512345123451234599"; // Too long.
+    ASSERT_EQ(b.size(), size + extra);
+    std::uint64_t i = distinct_initial_value;
+    unpack_sequence_number(i, b.data());
+    ASSERT_EQ(i, 12345123451234512345uL);
+  }
+  {
+    std::string_view b = "  12345123451234512345"; // Too long (leading pad).
+    ASSERT_EQ(b.size(), size + extra);
+    std::uint64_t i = distinct_initial_value;
+    unpack_sequence_number(i, b.data());
+    ASSERT_EQ(i, 123451234512345123uL);
+  }
+  {
+    std::string_view b =
+        "__12345123451234512345"; // Too long (leading invalid).
+    ASSERT_EQ(b.size(), size + extra);
+    std::uint64_t i = distinct_initial_value;
+    unpack_sequence_number(i, b.data());
+    ASSERT_EQ(i, 0u);
+  }
+  {
+    std::string_view b =
+        "12345123451234512345  "; // Too long (trailing invalid).
+    ASSERT_EQ(b.size(), size + extra);
+    std::uint64_t i = distinct_initial_value;
+    unpack_sequence_number(i, b.data());
+    ASSERT_EQ(i, 12345123451234512345uL);
+  }
+  {
+    std::string_view b =
+        "12345123451234512345__"; // Too long (trailing invalid).
+    ASSERT_EQ(b.size(), size + extra);
+    std::uint64_t i = distinct_initial_value;
+    unpack_sequence_number(i, b.data());
+    ASSERT_EQ(i, 12345123451234512345uL);
   }
   {
     std::string_view b = "18446744073709551616"; // Overflow.
