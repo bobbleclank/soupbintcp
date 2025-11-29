@@ -20,12 +20,13 @@ void pack_alphanumeric_right_padded(std::string_view str, void* data) {
 
 template <std::size_t length>
 void unpack_alphanumeric_right_padded(std::string& str, const void* data) {
-  const auto* ptr = static_cast<const char*>(data);
+  std::string_view sv(static_cast<const char*>(data), length);
   std::size_t i = 0;
-  while (i != length && std::isalnum(ptr[i])) {
+  while (i != sv.size() && std::isalnum(sv[i])) {
     ++i;
   }
-  str.insert(str.begin(), ptr, ptr + i);
+  sv.remove_suffix(sv.size() - i);
+  str.insert(str.begin(), sv.begin(), sv.end());
 }
 
 } // namespace
@@ -66,12 +67,13 @@ void pack_alphanumeric_left_padded(std::string_view str, void* data) {
 
 template <std::size_t length>
 void unpack_alphanumeric_left_padded(std::string& str, const void* data) {
-  const auto* ptr = static_cast<const char*>(data);
-  std::size_t i = length;
-  while (i != 0 && std::isalnum(ptr[i - 1])) {
+  std::string_view sv(static_cast<const char*>(data), length);
+  std::size_t i = sv.size();
+  while (i != 0 && std::isalnum(sv[i - 1])) {
     --i;
   }
-  str.insert(str.begin(), ptr + i, ptr + length);
+  sv.remove_prefix(i);
+  str.insert(str.begin(), sv.begin(), sv.end());
 }
 
 } // namespace
