@@ -1,5 +1,7 @@
 #include "bc/soup/packing.h"
 
+#include <span>
+
 namespace bc::soup {
 namespace {
 
@@ -20,13 +22,13 @@ void pack_alphanumeric_right_padded(std::string_view str, void* data) {
 
 template <std::size_t length>
 void unpack_alphanumeric_right_padded(std::string& str, const void* data) {
-  std::string_view sv(static_cast<const char*>(data), length);
+  const std::span<const char, length> s(static_cast<const char*>(data), length);
   std::size_t i = 0;
-  while (i != sv.size() && std::isalnum(sv[i])) {
+  while (i != s.size() && std::isalnum(s[i])) {
     ++i;
   }
-  sv.remove_suffix(sv.size() - i);
-  str.insert(str.begin(), sv.begin(), sv.end());
+  const auto sub = s.first(i);
+  str.insert(str.begin(), sub.begin(), sub.end());
 }
 
 } // namespace
@@ -67,13 +69,13 @@ void pack_alphanumeric_left_padded(std::string_view str, void* data) {
 
 template <std::size_t length>
 void unpack_alphanumeric_left_padded(std::string& str, const void* data) {
-  std::string_view sv(static_cast<const char*>(data), length);
-  std::size_t i = sv.size();
-  while (i != 0 && std::isalnum(sv[i - 1])) {
+  const std::span<const char, length> s(static_cast<const char*>(data), length);
+  std::size_t i = s.size();
+  while (i != 0 && std::isalnum(s[i - 1])) {
     --i;
   }
-  sv.remove_prefix(i);
-  str.insert(str.begin(), sv.begin(), sv.end());
+  const auto sub = s.last(s.size() - i);
+  str.insert(str.begin(), sub.begin(), sub.end());
 }
 
 } // namespace
