@@ -25,8 +25,7 @@ void unpack_alphanumeric_right_padded(std::string& str, const void* data) {
   while (i != length && std::isalnum(ptr[i])) {
     ++i;
   }
-  str.resize(i);
-  std::memcpy(str.data(), ptr, i);
+  str.insert(str.begin(), ptr, ptr + i);
 }
 
 } // namespace
@@ -72,9 +71,7 @@ void unpack_alphanumeric_left_padded(std::string& str, const void* data) {
   while (i != 0 && std::isalnum(ptr[i - 1])) {
     --i;
   }
-  i = length - i;
-  str.resize(i);
-  std::memcpy(str.data(), (ptr + length) - i, i);
+  str.insert(str.begin(), ptr + i, ptr + length);
 }
 
 } // namespace
