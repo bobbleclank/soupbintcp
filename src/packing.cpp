@@ -1,5 +1,6 @@
 #include "bc/soup/packing.h"
 
+#include <algorithm>
 #include <span>
 
 namespace bc::soup {
@@ -12,10 +13,9 @@ void pack_alphanumeric_right_padded(std::string_view str, void* data) {
   auto* ptr = static_cast<char*>(data);
   if (str.size() > length)
     str.remove_suffix(str.size() - length);
-  std::size_t i = 0;
-  while (i != str.size() && std::isalnum(str[i])) {
-    ++i;
-  }
+  const auto iter =
+      std::ranges::find_if_not(str, [](auto c) { return std::isalnum(c); });
+  const std::size_t i = iter - str.begin();
   std::memcpy(ptr, str.data(), i);
   std::memset(ptr + i, ' ', length - i);
 }
@@ -23,11 +23,9 @@ void pack_alphanumeric_right_padded(std::string_view str, void* data) {
 template <std::size_t length>
 void unpack_alphanumeric_right_padded(std::string& str, const void* data) {
   const std::span<const char, length> s(static_cast<const char*>(data), length);
-  std::size_t i = 0;
-  while (i != s.size() && std::isalnum(s[i])) {
-    ++i;
-  }
-  const auto sub = s.first(i);
+  const auto iter =
+      std::ranges::find_if_not(s, [](auto c) { return std::isalnum(c); });
+  const auto sub = s.first(iter - s.begin());
   str.insert(str.begin(), sub.begin(), sub.end());
 }
 
@@ -58,11 +56,9 @@ void pack_alphanumeric_left_padded(std::string_view str, void* data) {
   auto* ptr = static_cast<char*>(data);
   if (str.size() > length)
     str.remove_suffix(str.size() - length);
-  std::size_t i = str.size();
-  while (i != 0 && std::isalnum(str[i - 1])) {
-    --i;
-  }
-  i = str.size() - i;
+  const auto iter = std::ranges::find_if_not(
+      str.rbegin(), str.rend(), [](auto c) { return std::isalnum(c); });
+  const std::size_t i = iter - str.rbegin();
   std::memset(ptr, ' ', length - i);
   std::memcpy(ptr + (length - i), str.end() - i, i);
 }
@@ -70,11 +66,9 @@ void pack_alphanumeric_left_padded(std::string_view str, void* data) {
 template <std::size_t length>
 void unpack_alphanumeric_left_padded(std::string& str, const void* data) {
   const std::span<const char, length> s(static_cast<const char*>(data), length);
-  std::size_t i = s.size();
-  while (i != 0 && std::isalnum(s[i - 1])) {
-    --i;
-  }
-  const auto sub = s.last(s.size() - i);
+  const auto iter = std::ranges::find_if_not(
+      s.rbegin(), s.rend(), [](auto c) { return std::isalnum(c); });
+  const auto sub = s.last(iter - s.rbegin());
   str.insert(str.begin(), sub.begin(), sub.end());
 }
 
