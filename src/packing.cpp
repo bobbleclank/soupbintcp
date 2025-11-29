@@ -10,14 +10,15 @@ namespace {
 
 template <std::size_t length>
 void pack_alphanumeric_right_padded(std::string_view str, void* data) {
-  auto* ptr = static_cast<char*>(data);
-  if (str.size() > length)
-    str.remove_suffix(str.size() - length);
+  const std::span<char, length> s(static_cast<char*>(data), length);
+  if (str.size() > s.size())
+    str.remove_suffix(str.size() - s.size());
   const auto iter =
       std::ranges::find_if_not(str, [](auto c) { return std::isalnum(c); });
   str.remove_suffix(str.end() - iter);
-  std::memcpy(ptr, str.data(), str.size());
-  std::memset(ptr + str.size(), ' ', length - str.size());
+  const auto pad = s.last(s.size() - str.size());
+  std::memcpy(s.data(), str.data(), str.size());
+  std::memset(pad.data(), ' ', pad.size());
 }
 
 template <std::size_t length>
@@ -53,14 +54,16 @@ namespace {
 
 template <std::size_t length>
 void pack_alphanumeric_left_padded(std::string_view str, void* data) {
-  auto* ptr = static_cast<char*>(data);
-  if (str.size() > length)
-    str.remove_suffix(str.size() - length);
+  const std::span<char, length> s(static_cast<char*>(data), length);
+  if (str.size() > s.size())
+    str.remove_suffix(str.size() - s.size());
   const auto iter = std::ranges::find_if_not(
       str.rbegin(), str.rend(), [](auto c) { return std::isalnum(c); });
   str.remove_prefix(str.rend() - iter);
-  std::memset(ptr, ' ', length - str.size());
-  std::memcpy(ptr + (length - str.size()), str.data(), str.size());
+  const auto pad = s.first(s.size() - str.size());
+  const auto sub = s.last(str.size());
+  std::memset(pad.data(), ' ', pad.size());
+  std::memcpy(sub.data(), str.data(), str.size());
 }
 
 template <std::size_t length>
