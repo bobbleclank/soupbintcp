@@ -15,9 +15,9 @@ void pack_alphanumeric_right_padded(std::string_view str, void* data) {
     str.remove_suffix(str.size() - length);
   const auto iter =
       std::ranges::find_if_not(str, [](auto c) { return std::isalnum(c); });
-  const std::size_t i = iter - str.begin();
-  std::memcpy(ptr, str.data(), i);
-  std::memset(ptr + i, ' ', length - i);
+  str.remove_suffix(str.end() - iter);
+  std::memcpy(ptr, str.data(), str.size());
+  std::memset(ptr + str.size(), ' ', length - str.size());
 }
 
 template <std::size_t length>
@@ -58,9 +58,9 @@ void pack_alphanumeric_left_padded(std::string_view str, void* data) {
     str.remove_suffix(str.size() - length);
   const auto iter = std::ranges::find_if_not(
       str.rbegin(), str.rend(), [](auto c) { return std::isalnum(c); });
-  const std::size_t i = iter - str.rbegin();
-  std::memset(ptr, ' ', length - i);
-  std::memcpy(ptr + (length - i), str.end() - i, i);
+  str.remove_prefix(str.rend() - iter);
+  std::memset(ptr, ' ', length - str.size());
+  std::memcpy(ptr + (length - str.size()), str.data(), str.size());
 }
 
 template <std::size_t length>
