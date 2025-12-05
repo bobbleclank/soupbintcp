@@ -776,35 +776,35 @@ TEST(packing, unpack_sequence_number) {
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
-    ASSERT_EQ(i, 0u);
+    ASSERT_EQ(i, 1234567890u);
   }
   {
     std::string_view b = "1234567890          "; // Trailing invalid character.
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
-    ASSERT_EQ(i, 1234567890u);
+    ASSERT_EQ(i, 0u);
   }
   {
     std::string_view b = "1234567890__________"; // Trailing invalid character.
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
-    ASSERT_EQ(i, 1234567890u);
+    ASSERT_EQ(i, 0u);
   }
   {
     std::string_view b = "12345          67890"; // Embedded invalid character.
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
-    ASSERT_EQ(i, 12345u);
+    ASSERT_EQ(i, 67890u);
   }
   {
     std::string_view b = "12345__________67890"; // Embedded invalid character.
     ASSERT_EQ(b.size(), size);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
-    ASSERT_EQ(i, 12345u);
+    ASSERT_EQ(i, 67890u);
   }
   {
     std::string_view b = "1234512345123451234599"; // Too long.
@@ -826,7 +826,7 @@ TEST(packing, unpack_sequence_number) {
     ASSERT_EQ(b.size(), size + extra);
     std::uint64_t i = distinct_initial_value;
     unpack_sequence_number(i, b.data());
-    ASSERT_EQ(i, 0u);
+    ASSERT_EQ(i, 123451234512345123uL);
   }
   {
     std::string_view b =

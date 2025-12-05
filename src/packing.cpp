@@ -116,15 +116,14 @@ template <typename Integral, std::size_t length>
 void unpack_numeric(Integral& i, const void* data) {
   static_assert(std::numeric_limits<Integral>::digits10 + 1 == length);
   constexpr auto base = 10;
-  const auto* ptr = static_cast<const char*>(data);
-  const auto* end = ptr + length;
-  while (ptr != end && *ptr == ' ') {
-    ++ptr;
+  const auto* begin = static_cast<const char*>(data);
+  const auto* end = begin + length;
+  const auto* ptr = end;
+  while (ptr != begin && std::isdigit(*(ptr - 1))) {
+    --ptr;
   }
   i = 0;
   while (ptr != end) {
-    if (!std::isdigit(*ptr))
-      break;
     i *= base;
     i += *ptr - '0';
     ++ptr;
