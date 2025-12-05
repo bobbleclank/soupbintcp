@@ -117,10 +117,8 @@ void unpack_numeric(Integral& i, const void* data) {
   static_assert(std::numeric_limits<Integral>::digits10 + 1 == length);
   constexpr auto base = 10;
   const std::span<const char, length> s(static_cast<const char*>(data), length);
-  auto iter = s.rbegin();
-  while (iter != s.rend() && std::isdigit(*iter)) {
-    ++iter;
-  }
+  const auto iter = std::ranges::find_if_not(
+      s.rbegin(), s.rend(), [](auto c) { return std::isdigit(c); });
   const auto sub = s.last(iter - s.rbegin());
   i = 0;
   for (const char c : sub) {
