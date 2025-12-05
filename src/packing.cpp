@@ -98,15 +98,17 @@ template <typename Integral, std::size_t length>
 void pack_numeric(Integral i, void* data) {
   static_assert(std::numeric_limits<Integral>::digits10 + 1 == length);
   constexpr auto base = 10;
-  auto* ptr = static_cast<char*>(data) + length;
+  const std::span<char, length> s(static_cast<char*>(data), length);
+  auto iter = s.end();
   // NOLINTNEXTLINE(*-avoid-do-while): Clear statement of a solution
   do {
     const char c = '0' + (i % base);
     i /= base;
-    --ptr;
-    *ptr = c;
+    --iter;
+    *iter = c;
   } while (i != 0);
-  std::memset(data, ' ', ptr - static_cast<char*>(data));
+  const auto pad = s.first(iter - s.begin());
+  std::memset(pad.data(), ' ', pad.size());
 }
 
 template <typename Integral, std::size_t length>
