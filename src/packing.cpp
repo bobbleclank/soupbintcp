@@ -100,13 +100,14 @@ void pack_numeric(Integral i, void* data) {
   constexpr auto base = 10;
   const std::span<char, length> s(static_cast<char*>(data), length);
   auto iter = s.end();
-  // NOLINTNEXTLINE(*-avoid-do-while): Clear statement of a solution
-  do {
+  while (iter != s.begin()) {
     const char c = '0' + (i % base);
     i /= base;
     --iter;
     *iter = c;
-  } while (i != 0);
+    if (i == 0)
+      break;
+  }
   const auto pad = s.first(iter - s.begin());
   std::ranges::fill(pad, ' ');
 }
