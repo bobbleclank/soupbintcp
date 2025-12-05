@@ -1,12 +1,7 @@
 #ifndef INCLUDE_BC_SOUP_PACKING_H
 #define INCLUDE_BC_SOUP_PACKING_H
 
-#include "bc/soup/constants.h"
-
-#include <cctype>
-#include <cstddef>
 #include <cstring>
-#include <limits>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -61,56 +56,8 @@ void unpack_password(std::string&, const void*);
 void pack_session(std::string_view, void*);
 void unpack_session(std::string&, const void*);
 
-namespace internal {
-
-// Numeric fields are padded on the left with spaces.
-
-template <typename Integral, std::size_t length>
-void pack_numeric(Integral i, void* data) {
-  static_assert(std::numeric_limits<Integral>::digits10 + 1 == length);
-  constexpr auto base = 10;
-  auto* ptr = static_cast<char*>(data) + length;
-  if (i == 0) {
-    --ptr;
-    *ptr = '0';
-  }
-  while (i != 0) {
-    const char c = '0' + (i % base);
-    i /= base;
-    --ptr;
-    *ptr = c;
-  }
-  std::memset(data, ' ', ptr - static_cast<char*>(data));
-}
-
-template <typename Integral, std::size_t length>
-void unpack_numeric(Integral& i, const void* data) {
-  static_assert(std::numeric_limits<Integral>::digits10 + 1 == length);
-  constexpr auto base = 10;
-  const auto* ptr = static_cast<const char*>(data);
-  const auto* end = ptr + length;
-  while (ptr != end && *ptr == ' ') {
-    ++ptr;
-  }
-  i = 0;
-  while (ptr != end) {
-    if (!std::isdigit(*ptr))
-      break;
-    i *= base;
-    i += *ptr - '0';
-    ++ptr;
-  }
-}
-
-} // namespace internal
-
-inline void pack_sequence_number(std::uint64_t i, void* data) {
-  internal::pack_numeric<std::uint64_t, sequence_number_length>(i, data);
-}
-
-inline void unpack_sequence_number(std::uint64_t& i, const void* data) {
-  internal::unpack_numeric<std::uint64_t, sequence_number_length>(i, data);
-}
+void pack_sequence_number(std::uint64_t, void*);
+void unpack_sequence_number(std::uint64_t&, const void*);
 
 } // namespace bc::soup
 

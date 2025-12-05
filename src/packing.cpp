@@ -1,6 +1,11 @@
 #include "bc/soup/packing.h"
 
+#include "bc/soup/constants.h"
+
 #include <algorithm>
+#include <cctype>
+#include <cstddef>
+#include <limits>
 #include <span>
 
 namespace bc::soup {
@@ -83,6 +88,57 @@ void pack_session(std::string_view str, void* data) {
 
 void unpack_session(std::string& str, const void* data) {
   unpack_alphanumeric_left_padded<session_length>(str, data);
+}
+
+namespace {
+
+// Sequence number is numeric and padded on the left with spaces.
+
+template <typename Integral, std::size_t length>
+void pack_numeric(Integral i, void* data) {
+  static_assert(std::numeric_limits<Integral>::digits10 + 1 == length);
+  constexpr auto base = 10;
+  auto* ptr = static_cast<char*>(data) + length;
+  if (i == 0) {
+    --ptr;
+    *ptr = '0';
+  }
+  while (i != 0) {
+    const char c = '0' + (i % base);
+    i /= base;
+    --ptr;
+    *ptr = c;
+  }
+  std::memset(data, ' ', ptr - static_cast<char*>(data));
+}
+
+template <typename Integral, std::size_t length>
+void unpack_numeric(Integral& i, const void* data) {
+  static_assert(std::numeric_limits<Integral>::digits10 + 1 == length);
+  constexpr auto base = 10;
+  const auto* ptr = static_cast<const char*>(data);
+  const auto* end = ptr + length;
+  while (ptr != end && *ptr == ' ') {
+    ++ptr;
+  }
+  i = 0;
+  while (ptr != end) {
+    if (!std::isdigit(*ptr))
+      break;
+    i *= base;
+    i += *ptr - '0';
+    ++ptr;
+  }
+}
+
+} // namespace
+
+void pack_sequence_number(std::uint64_t i, void* data) {
+  pack_numeric<std::uint64_t, sequence_number_length>(i, data);
+}
+
+void unpack_sequence_number(std::uint64_t& i, const void* data) {
+  unpack_numeric<std::uint64_t, sequence_number_length>(i, data);
 }
 
 } // namespace bc::soup
