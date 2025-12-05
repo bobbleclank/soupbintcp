@@ -108,7 +108,7 @@ void pack_numeric(Integral i, void* data) {
     *iter = c;
   } while (i != 0);
   const auto pad = s.first(iter - s.begin());
-  std::memset(pad.data(), ' ', pad.size());
+  std::ranges::fill(pad, ' ');
 }
 
 template <typename Integral, std::size_t length>
