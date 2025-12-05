@@ -99,16 +99,13 @@ void pack_numeric(Integral i, void* data) {
   static_assert(std::numeric_limits<Integral>::digits10 + 1 == length);
   constexpr auto base = 10;
   auto* ptr = static_cast<char*>(data) + length;
-  if (i == 0) {
-    --ptr;
-    *ptr = '0';
-  }
-  while (i != 0) {
+  // NOLINTNEXTLINE(*-avoid-do-while): Clear statement of a solution
+  do {
     const char c = '0' + (i % base);
     i /= base;
     --ptr;
     *ptr = c;
-  }
+  } while (i != 0);
   std::memset(data, ' ', ptr - static_cast<char*>(data));
 }
 
