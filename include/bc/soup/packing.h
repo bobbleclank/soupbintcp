@@ -1,6 +1,7 @@
 #ifndef INCLUDE_BC_SOUP_PACKING_H
 #define INCLUDE_BC_SOUP_PACKING_H
 
+#include <cstdint>
 #include <cstring>
 #include <string>
 #include <string_view>
