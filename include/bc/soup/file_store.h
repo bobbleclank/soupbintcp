@@ -4,14 +4,51 @@
 #include "bc/soup/rw_packets.h"
 
 #include <cstddef>
+#include <functional>
 #include <string>
 #include <string_view>
 #include <system_error>
+#include <utility>
 #include <vector>
 
 #include <sys/types.h>
 
 namespace bc::soup {
+
+namespace internal {
+
+template <typename Read>
+ssize_t read_partial_handling(int fd, void* buf, size_t nbyte, Read&& read) {
+  auto* ptr = static_cast<unsigned char*>(buf);
+  ssize_t total = 0;
+  while (total != static_cast<ssize_t>(nbyte)) {
+    const auto n =
+        std::invoke(std::forward<Read>(read), fd, ptr + total, nbyte - total);
+    if (n == -1)
+      return -1;
+    if (n == 0)
+      return 0;
+    total += n;
+  }
+  return total;
+}
+
+template <typename Write>
+ssize_t write_partial_handling(int fd, const void* buf, size_t nbyte,
+                               Write&& write) {
+  const auto* ptr = static_cast<const unsigned char*>(buf);
+  ssize_t total = 0;
+  while (total != static_cast<ssize_t>(nbyte)) {
+    const auto n =
+        std::invoke(std::forward<Write>(write), fd, ptr + total, nbyte - total);
+    if (n == -1)
+      return -1;
+    total += n;
+  }
+  return total;
+}
+
+} // namespace internal
 
 class Message {
 public:

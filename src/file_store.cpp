@@ -1,8 +1,6 @@
 #include "bc/soup/file_store.h"
 
 #include <cerrno>
-#include <functional>
-#include <utility>
 
 #include <arpa/inet.h>
 #include <fcntl.h>
@@ -33,49 +31,18 @@ int close(int fd) {
   return status;
 }
 
-template <typename Read>
-ssize_t read_partial_handling(int fd, void* buf, size_t nbyte, Read&& read) {
-  auto* ptr = static_cast<unsigned char*>(buf);
-  ssize_t total = 0;
-  while (total != static_cast<ssize_t>(nbyte)) {
-    const auto n =
-        std::invoke(std::forward<Read>(read), fd, ptr + total, nbyte - total);
-    if (n == -1)
-      return -1;
-    if (n == 0)
-      return 0;
-    total += n;
-  }
-  return total;
-}
-
 ssize_t read(int fd, void* buf, size_t nbyte) {
   auto r = [](int fd, void* buf, size_t nbyte) {
     return while_interrupted<ssize_t>(::read, fd, buf, nbyte);
   };
-  return read_partial_handling(fd, buf, nbyte, r);
-}
-
-template <typename Write>
-ssize_t write_partial_handling(int fd, const void* buf, size_t nbyte,
-                               Write&& write) {
-  const auto* ptr = static_cast<const unsigned char*>(buf);
-  ssize_t total = 0;
-  while (total != static_cast<ssize_t>(nbyte)) {
-    const auto n =
-        std::invoke(std::forward<Write>(write), fd, ptr + total, nbyte - total);
-    if (n == -1)
-      return -1;
-    total += n;
-  }
-  return total;
+  return internal::read_partial_handling(fd, buf, nbyte, r);
 }
 
 ssize_t write(int fd, const void* buf, size_t nbyte) {
   auto w = [](int fd, const void* buf, size_t nbyte) {
     return while_interrupted<ssize_t>(::write, fd, buf, nbyte);
   };
-  return write_partial_handling(fd, buf, nbyte, w);
+  return internal::write_partial_handling(fd, buf, nbyte, w);
 }
 
 } // namespace
