@@ -2,6 +2,7 @@
 
 #include "bc/soup/packing.h"
 
+#include <cassert>
 #include <span>
 
 namespace bc::soup {
@@ -19,6 +20,7 @@ void read(Login_accepted_packet& packet, const void* data) {
   unpack_session(packet.session, &*iter);
   iter += session_length;
   unpack_sequence_number(packet.next_sequence_number, &*iter);
+  assert((iter += sequence_number_length) == s.end());
 }
 
 void write(const Login_accepted_packet& packet, void* data) {
@@ -28,6 +30,7 @@ void write(const Login_accepted_packet& packet, void* data) {
   pack_session(packet.session, &*iter);
   iter += session_length;
   pack_sequence_number(packet.next_sequence_number, &*iter);
+  assert((iter += sequence_number_length) == s.end());
 }
 
 Login_rejected_packet::Login_rejected_packet(Reason reason_) : reason(reason_) {
@@ -39,6 +42,7 @@ void read(Login_rejected_packet& packet, const void* data) {
                                            size);
   auto iter = s.begin();
   unpack(packet.reason, &*iter);
+  assert((iter += sizeof(Login_rejected_packet::Reason)) == s.end());
 }
 
 void write(const Login_rejected_packet& packet, void* data) {
@@ -46,6 +50,7 @@ void write(const Login_rejected_packet& packet, void* data) {
   const std::span<std::byte, size> s(static_cast<std::byte*>(data), size);
   auto iter = s.begin();
   pack(packet.reason, &*iter);
+  assert((iter += sizeof(Login_rejected_packet::Reason)) == s.end());
 }
 
 Login_request_packet::Login_request_packet(
@@ -70,6 +75,7 @@ void read(Login_request_packet& packet, const void* data) {
   unpack_session(packet.requested_session, &*iter);
   iter += session_length;
   unpack_sequence_number(packet.requested_sequence_number, &*iter);
+  assert((iter += sequence_number_length) == s.end());
 }
 
 void write(const Login_request_packet& packet, void* data) {
@@ -83,6 +89,7 @@ void write(const Login_request_packet& packet, void* data) {
   pack_session(packet.requested_session, &*iter);
   iter += session_length;
   pack_sequence_number(packet.requested_sequence_number, &*iter);
+  assert((iter += sequence_number_length) == s.end());
 }
 
 } // namespace bc::soup
