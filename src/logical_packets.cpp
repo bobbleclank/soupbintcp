@@ -2,6 +2,8 @@
 
 #include "bc/soup/packing.h"
 
+#include <span>
+
 namespace bc::soup {
 
 Login_accepted_packet::Login_accepted_packet(
@@ -10,30 +12,40 @@ Login_accepted_packet::Login_accepted_packet(
 }
 
 void read(Login_accepted_packet& packet, const void* data) {
-  const auto* ptr = static_cast<const std::byte*>(data);
-  unpack_session(packet.session, ptr);
-  ptr += session_length;
-  unpack_sequence_number(packet.next_sequence_number, ptr);
+  constexpr auto size = Login_accepted_packet::payload_size;
+  const std::span<const std::byte, size> s(static_cast<const std::byte*>(data),
+                                           size);
+  auto iter = s.begin();
+  unpack_session(packet.session, &*iter);
+  iter += session_length;
+  unpack_sequence_number(packet.next_sequence_number, &*iter);
 }
 
 void write(const Login_accepted_packet& packet, void* data) {
-  auto* ptr = static_cast<std::byte*>(data);
-  pack_session(packet.session, ptr);
-  ptr += session_length;
-  pack_sequence_number(packet.next_sequence_number, ptr);
+  constexpr auto size = Login_accepted_packet::payload_size;
+  const std::span<std::byte, size> s(static_cast<std::byte*>(data), size);
+  auto iter = s.begin();
+  pack_session(packet.session, &*iter);
+  iter += session_length;
+  pack_sequence_number(packet.next_sequence_number, &*iter);
 }
 
 Login_rejected_packet::Login_rejected_packet(Reason reason_) : reason(reason_) {
 }
 
 void read(Login_rejected_packet& packet, const void* data) {
-  const auto* ptr = static_cast<const std::byte*>(data);
-  unpack(packet.reason, ptr);
+  constexpr auto size = Login_rejected_packet::payload_size;
+  const std::span<const std::byte, size> s(static_cast<const std::byte*>(data),
+                                           size);
+  auto iter = s.begin();
+  unpack(packet.reason, &*iter);
 }
 
 void write(const Login_rejected_packet& packet, void* data) {
-  auto* ptr = static_cast<std::byte*>(data);
-  pack(packet.reason, ptr);
+  constexpr auto size = Login_rejected_packet::payload_size;
+  const std::span<std::byte, size> s(static_cast<std::byte*>(data), size);
+  auto iter = s.begin();
+  pack(packet.reason, &*iter);
 }
 
 Login_request_packet::Login_request_packet(
@@ -47,25 +59,30 @@ Login_request_packet::Login_request_packet(
 }
 
 void read(Login_request_packet& packet, const void* data) {
-  const auto* ptr = static_cast<const std::byte*>(data);
-  unpack_username(packet.username, ptr);
-  ptr += username_length;
-  unpack_password(packet.password, ptr);
-  ptr += password_length;
-  unpack_session(packet.requested_session, ptr);
-  ptr += session_length;
-  unpack_sequence_number(packet.requested_sequence_number, ptr);
+  constexpr auto size = Login_request_packet::payload_size;
+  const std::span<const std::byte, size> s(static_cast<const std::byte*>(data),
+                                           size);
+  auto iter = s.begin();
+  unpack_username(packet.username, &*iter);
+  iter += username_length;
+  unpack_password(packet.password, &*iter);
+  iter += password_length;
+  unpack_session(packet.requested_session, &*iter);
+  iter += session_length;
+  unpack_sequence_number(packet.requested_sequence_number, &*iter);
 }
 
 void write(const Login_request_packet& packet, void* data) {
-  auto* ptr = static_cast<std::byte*>(data);
-  pack_username(packet.username, ptr);
-  ptr += username_length;
-  pack_password(packet.password, ptr);
-  ptr += password_length;
-  pack_session(packet.requested_session, ptr);
-  ptr += session_length;
-  pack_sequence_number(packet.requested_sequence_number, ptr);
+  constexpr auto size = Login_request_packet::payload_size;
+  const std::span<std::byte, size> s(static_cast<std::byte*>(data), size);
+  auto iter = s.begin();
+  pack_username(packet.username, &*iter);
+  iter += username_length;
+  pack_password(packet.password, &*iter);
+  iter += password_length;
+  pack_session(packet.requested_session, &*iter);
+  iter += session_length;
+  pack_sequence_number(packet.requested_sequence_number, &*iter);
 }
 
 } // namespace bc::soup
