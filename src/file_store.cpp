@@ -1,6 +1,7 @@
 #include "bc/soup/file_store.h"
 
 #include <cerrno>
+#include <functional>
 #include <utility>
 
 #include <arpa/inet.h>
@@ -10,23 +11,25 @@
 namespace bc::soup {
 namespace {
 
-int open(const char* path, int oflag) {
-  constexpr mode_t mode = 0666;
-  int fd = -1;
+template <typename Result, typename Callable, typename... Args>
+Result while_interrupted(Callable&& callable, Args&&... args) {
+  Result res = -1;
   // NOLINTNEXTLINE(*-avoid-do-while): Clear statement of a solution
   do
-    // NOLINTNEXTLINE(*-pro-type-vararg): C-style vararg function
-    fd = ::open(path, oflag, mode);
-  while (fd == -1 && errno == EINTR);
+    res = std::invoke(std::forward<Callable>(callable),
+                      std::forward<Args>(args)...);
+  while (res == -1 && errno == EINTR);
+  return res;
+}
+
+int open(const char* path, int oflag) {
+  constexpr mode_t mode = 0666;
+  const auto fd = while_interrupted<int>(::open, path, oflag, mode);
   return fd;
 }
 
 int close(int fd) {
-  int status = -1;
-  // NOLINTNEXTLINE(*-avoid-do-while): Clear statement of a solution
-  do
-    status = ::close(fd);
-  while (status == -1 && errno == EINTR);
+  const auto status = while_interrupted<int>(::close, fd);
   return status;
 }
 
@@ -34,11 +37,8 @@ ssize_t read(int fd, void* buf, size_t nbyte) {
   auto* ptr = static_cast<unsigned char*>(buf);
   ssize_t total = 0;
   while (total != static_cast<ssize_t>(nbyte)) {
-    ssize_t n = -1;
-    // NOLINTNEXTLINE(*-avoid-do-while): Clear statement of a solution
-    do
-      n = ::read(fd, ptr + total, nbyte - total);
-    while (n == -1 && errno == EINTR);
+    const auto n =
+        while_interrupted<ssize_t>(::read, fd, ptr + total, nbyte - total);
     if (n == -1)
       return -1;
     if (n == 0)
@@ -52,11 +52,8 @@ ssize_t write(int fd, const void* buf, size_t nbyte) {
   const auto* ptr = static_cast<const unsigned char*>(buf);
   ssize_t total = 0;
   while (total != static_cast<ssize_t>(nbyte)) {
-    ssize_t n = -1;
-    // NOLINTNEXTLINE(*-avoid-do-while): Clear statement of a solution
-    do
-      n = ::write(fd, ptr + total, nbyte - total);
-    while (n == -1 && errno == EINTR);
+    const auto n =
+        while_interrupted<ssize_t>(::write, fd, ptr + total, nbyte - total);
     if (n == -1)
       return -1;
     total += n;
