@@ -100,7 +100,7 @@ TEST(File_store, read_partial_handling) {
     const std::initializer_list<ssize_t> in = {10};
     Partial_read p{{in}};
     auto res = p.read();
-    ASSERT_EQ(res.status, 1);
+    ASSERT_EQ(res.status, internal::Read_status::success);
     ASSERT_EQ(res.nbyte, 10u);
     ASSERT_EQ(p.out.size(), 1u);
     auto i = p.out.begin();
@@ -113,7 +113,7 @@ TEST(File_store, read_partial_handling) {
     const std::initializer_list<ssize_t> in = {3, 5, 2};
     Partial_read p{{in}};
     auto res = p.read();
-    ASSERT_EQ(res.status, 1);
+    ASSERT_EQ(res.status, internal::Read_status::success);
     ASSERT_EQ(res.nbyte, 10u);
     ASSERT_EQ(p.out.size(), 3u);
     auto i = p.out.begin();
@@ -132,7 +132,7 @@ TEST(File_store, read_partial_handling) {
     const std::initializer_list<ssize_t> in = {-1, 6, 4};
     Partial_read p{{in}};
     auto res = p.read();
-    ASSERT_EQ(res.status, -1);
+    ASSERT_EQ(res.status, internal::Read_status::failure);
     ASSERT_EQ(res.nbyte, 0u);
     ASSERT_EQ(p.out.size(), 1u);
     auto i = p.out.begin();
@@ -145,7 +145,7 @@ TEST(File_store, read_partial_handling) {
     const std::initializer_list<ssize_t> in = {6, -1, 4};
     Partial_read p{{in}};
     auto res = p.read();
-    ASSERT_EQ(res.status, -1);
+    ASSERT_EQ(res.status, internal::Read_status::failure);
     ASSERT_EQ(res.nbyte, 6u);
     ASSERT_EQ(p.out.size(), 2u);
     auto i = p.out.begin();
@@ -161,7 +161,7 @@ TEST(File_store, read_partial_handling) {
     const std::initializer_list<ssize_t> in = {0, 6, 4};
     Partial_read p{{in}};
     auto res = p.read();
-    ASSERT_EQ(res.status, 0);
+    ASSERT_EQ(res.status, internal::Read_status::end_of_file);
     ASSERT_EQ(res.nbyte, 0u);
     ASSERT_EQ(p.out.size(), 1u);
     auto i = p.out.begin();
@@ -174,7 +174,7 @@ TEST(File_store, read_partial_handling) {
     const std::initializer_list<ssize_t> in = {6, 0, 4};
     Partial_read p{{in}};
     auto res = p.read();
-    ASSERT_EQ(res.status, 0);
+    ASSERT_EQ(res.status, internal::Read_status::end_of_file);
     ASSERT_EQ(res.nbyte, 6u);
     ASSERT_EQ(p.out.size(), 2u);
     auto i = p.out.begin();
@@ -193,7 +193,7 @@ TEST(File_store, write_partial_handling) {
     const std::initializer_list<ssize_t> in = {10};
     Partial_write p{{in}};
     auto res = p.write();
-    ASSERT_EQ(res.status, 1);
+    ASSERT_EQ(res.status, internal::Write_status::success);
     ASSERT_EQ(res.nbyte, 10u);
     ASSERT_EQ(p.out.size(), 1u);
     auto i = p.out.begin();
@@ -206,7 +206,7 @@ TEST(File_store, write_partial_handling) {
     const std::initializer_list<ssize_t> in = {3, 5, 2};
     Partial_write p{{in}};
     auto res = p.write();
-    ASSERT_EQ(res.status, 1);
+    ASSERT_EQ(res.status, internal::Write_status::success);
     ASSERT_EQ(res.nbyte, 10u);
     ASSERT_EQ(p.out.size(), 3u);
     auto i = p.out.begin();
@@ -225,7 +225,7 @@ TEST(File_store, write_partial_handling) {
     const std::initializer_list<ssize_t> in = {-1, 6, 4};
     Partial_write p{{in}};
     auto res = p.write();
-    ASSERT_EQ(res.status, -1);
+    ASSERT_EQ(res.status, internal::Write_status::failure);
     ASSERT_EQ(res.nbyte, 0u);
     ASSERT_EQ(p.out.size(), 1u);
     auto i = p.out.begin();
@@ -238,7 +238,7 @@ TEST(File_store, write_partial_handling) {
     const std::initializer_list<ssize_t> in = {6, -1, 4};
     Partial_write p{{in}};
     auto res = p.write();
-    ASSERT_EQ(res.status, -1);
+    ASSERT_EQ(res.status, internal::Write_status::failure);
     ASSERT_EQ(res.nbyte, 6u);
     ASSERT_EQ(p.out.size(), 2u);
     auto i = p.out.begin();
@@ -254,7 +254,7 @@ TEST(File_store, write_partial_handling) {
     const std::initializer_list<ssize_t> in = {0, 6, 4};
     Partial_write p{{in}};
     auto res = p.write();
-    ASSERT_EQ(res.status, 1);
+    ASSERT_EQ(res.status, internal::Write_status::success);
     ASSERT_EQ(res.nbyte, 10u);
     ASSERT_EQ(p.out.size(), 3u);
     auto i = p.out.begin();
@@ -273,7 +273,7 @@ TEST(File_store, write_partial_handling) {
     const std::initializer_list<ssize_t> in = {6, 0, 4};
     Partial_write p{{in}};
     auto res = p.write();
-    ASSERT_EQ(res.status, 1);
+    ASSERT_EQ(res.status, internal::Write_status::success);
     ASSERT_EQ(res.nbyte, 10u);
     ASSERT_EQ(p.out.size(), 3u);
     auto i = p.out.begin();

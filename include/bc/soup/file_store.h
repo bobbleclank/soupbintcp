@@ -17,40 +17,56 @@ namespace bc::soup {
 
 namespace internal {
 
+enum class Read_status {
+  success,
+  end_of_file,
+  failure
+};
+
+enum class Write_status {
+  success,
+  failure
+};
+
+template <typename Status>
 struct Rw_result {
-  int status = 0;
+  Status status = Status::success;
   size_t nbyte = 0;
 };
 
+using Read_result = Rw_result<Read_status>;
+using Write_result = Rw_result<Write_status>;
+
 template <typename Read>
-Rw_result read_partial_handling(int fd, void* buf, size_t nbyte, Read&& read) {
+Read_result read_partial_handling(int fd, void* buf, size_t nbyte,
+                                  Read&& read) {
   auto* ptr = static_cast<unsigned char*>(buf);
   size_t total = 0;
   while (total != nbyte) {
     const auto n =
         std::invoke(std::forward<Read>(read), fd, ptr + total, nbyte - total);
     if (n == -1)
-      return {-1, total};
+      return {Read_status::failure, total};
     if (n == 0)
-      return {0, total};
+      return {Read_status::end_of_file, total};
     total += static_cast<size_t>(n);
   }
-  return {1, total};
+  return {Read_status::success, total};
 }
 
 template <typename Write>
-Rw_result write_partial_handling(int fd, const void* buf, size_t nbyte,
-                                 Write&& write) {
+Write_result write_partial_handling(int fd, const void* buf, size_t nbyte,
+                                    Write&& write) {
   const auto* ptr = static_cast<const unsigned char*>(buf);
   size_t total = 0;
   while (total != nbyte) {
     const auto n =
         std::invoke(std::forward<Write>(write), fd, ptr + total, nbyte - total);
     if (n == -1)
-      return {-1, total};
+      return {Write_status::failure, total};
     total += static_cast<size_t>(n);
   }
-  return {1, total};
+  return {Write_status::success, total};
 }
 
 } // namespace internal
