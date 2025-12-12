@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <functional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <system_error>
@@ -40,33 +41,32 @@ using Write_result = Rw_result<Write_status>;
 template <typename Read>
 Read_result read_partial_handling(int fd, void* buf, size_t nbyte,
                                   Read&& read) {
-  auto* ptr = static_cast<unsigned char*>(buf);
-  size_t total = 0;
-  while (total != nbyte) {
+  std::span<unsigned char> s(static_cast<unsigned char*>(buf), nbyte);
+  while (!s.empty()) {
     const auto n =
-        std::invoke(std::forward<Read>(read), fd, ptr + total, nbyte - total);
+        std::invoke(std::forward<Read>(read), fd, s.data(), s.size());
     if (n == -1)
-      return {Read_status::failure, total};
+      return {Read_status::failure, nbyte - s.size()};
     if (n == 0)
-      return {Read_status::end_of_file, total};
-    total += static_cast<size_t>(n);
+      return {Read_status::end_of_file, nbyte - s.size()};
+    s = s.last(s.size() - static_cast<size_t>(n));
   }
-  return {Read_status::success, total};
+  return {Read_status::success, nbyte};
 }
 
 template <typename Write>
 Write_result write_partial_handling(int fd, const void* buf, size_t nbyte,
                                     Write&& write) {
-  const auto* ptr = static_cast<const unsigned char*>(buf);
-  size_t total = 0;
-  while (total != nbyte) {
+  std::span<const unsigned char> s(static_cast<const unsigned char*>(buf),
+                                   nbyte);
+  while (!s.empty()) {
     const auto n =
-        std::invoke(std::forward<Write>(write), fd, ptr + total, nbyte - total);
+        std::invoke(std::forward<Write>(write), fd, s.data(), s.size());
     if (n == -1)
-      return {Write_status::failure, total};
-    total += static_cast<size_t>(n);
+      return {Write_status::failure, nbyte - s.size()};
+    s = s.last(s.size() - static_cast<size_t>(n));
   }
-  return {Write_status::success, total};
+  return {Write_status::success, nbyte};
 }
 
 } // namespace internal
