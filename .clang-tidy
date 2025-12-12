@@ -1,3 +1,4 @@
 Checks:
   - clang-analyzer-*
   - cppcoreguidelines-*
+WarningsAsErrors: 'clang-diagnostic-*,clang-analyzer-*,cppcoreguidelines-*'
