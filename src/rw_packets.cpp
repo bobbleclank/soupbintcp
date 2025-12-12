@@ -71,6 +71,7 @@ Write_packet::Write_packet(char packet_type, std::uint16_t payload_size)
 Write_packet::Write_packet(char packet_type, const void* payload_data,
                            std::uint16_t payload_size)
     : Write_packet(packet_type, payload_size) {
+  // NOLINTNEXTLINE(*-pro-bounds-pointer-arithmetic): Payload location
   std::memcpy(packet_.data() + packet_header_length, payload_data,
               payload_size);
 }

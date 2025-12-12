@@ -132,6 +132,7 @@ void write_header(Read_packet& p, std::uint16_t packet_size, char packet_type) {
   auto* ptr = static_cast<unsigned char*>(p.header_data());
   packet_size = htons(packet_size);
   std::memcpy(ptr, &packet_size, sizeof(packet_size));
+  // NOLINTNEXTLINE(*-pro-bounds-pointer-arithmetic): Packet type location
   std::memcpy(ptr + sizeof(packet_size), &packet_type, sizeof(packet_type));
 }
 

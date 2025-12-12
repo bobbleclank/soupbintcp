@@ -105,9 +105,13 @@ public:
 
   [[nodiscard]] Resize_result resize_payload(std::uint16_t);
 
-  void* payload_data() { return packet_.data() + packet_header_length; }
+  void* payload_data() {
+    // NOLINTNEXTLINE(*-pro-bounds-pointer-arithmetic): Payload location
+    return packet_.data() + packet_header_length;
+  }
 
   const void* payload_data() const {
+    // NOLINTNEXTLINE(*-pro-bounds-pointer-arithmetic): Payload location
     return packet_.data() + packet_header_length;
   }
 
