@@ -1,6 +1,9 @@
 #include "bc/soup/file_store.h"
 
+#include <array>
+#include <cstddef>
 #include <cstring>
+#include <initializer_list>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -54,7 +57,226 @@ void assert_messages(const std::vector<Message>& v) {
   ASSERT_EQ(i, v.end());
 }
 
+template <typename T>
+struct Partial_rw {
+  std::initializer_list<ssize_t> in;
+  decltype(in)::const_iterator iter = in.begin();
+
+  struct out_value_type {
+    std::ptrdiff_t pos;
+    size_t nbyte;
+  };
+  std::vector<out_value_type> out = {};
+
+  ssize_t operator()(int, T* buf, size_t nbyte) {
+    out.emplace_back(buf - arr.data(), nbyte);
+    if (iter != in.end())
+      return *iter++;
+    constexpr ssize_t distinct_unexpected_value = -2;
+    return distinct_unexpected_value;
+  }
+
+  static constexpr int fd = 1;
+  static constexpr std::size_t size = 10;
+  std::array<unsigned char, size> arr = {};
+};
+
+struct Partial_read : Partial_rw<unsigned char> {
+  auto read() {
+    return internal::read_partial_handling(fd, arr.data(), arr.size(), *this);
+  }
+};
+
+struct Partial_write : Partial_rw<const unsigned char> {
+  auto write() {
+    return internal::write_partial_handling(fd, arr.data(), arr.size(), *this);
+  }
+};
+
 } // namespace
+
+TEST(File_store, read_partial_handling) {
+  {
+    const std::initializer_list<ssize_t> in = {10};
+    Partial_read p{{in}};
+    auto res = p.read();
+    ASSERT_EQ(res, 10);
+    ASSERT_EQ(p.out.size(), 1u);
+    auto i = p.out.begin();
+    ASSERT_EQ(i->pos, 0);
+    ASSERT_EQ(i->nbyte, 10u);
+    ++i;
+    ASSERT_EQ(i, p.out.end());
+  }
+  {
+    const std::initializer_list<ssize_t> in = {3, 5, 2};
+    Partial_read p{{in}};
+    auto res = p.read();
+    ASSERT_EQ(res, 10);
+    ASSERT_EQ(p.out.size(), 3u);
+    auto i = p.out.begin();
+    ASSERT_EQ(i->pos, 0);
+    ASSERT_EQ(i->nbyte, 10u);
+    ++i;
+    ASSERT_EQ(i->pos, 3);
+    ASSERT_EQ(i->nbyte, 7u);
+    ++i;
+    ASSERT_EQ(i->pos, 8);
+    ASSERT_EQ(i->nbyte, 2u);
+    ++i;
+    ASSERT_EQ(i, p.out.end());
+  }
+  {
+    const std::initializer_list<ssize_t> in = {-1, 6, 4};
+    Partial_read p{{in}};
+    auto res = p.read();
+    ASSERT_EQ(res, -1);
+    ASSERT_EQ(p.out.size(), 1u);
+    auto i = p.out.begin();
+    ASSERT_EQ(i->pos, 0);
+    ASSERT_EQ(i->nbyte, 10u);
+    ++i;
+    ASSERT_EQ(i, p.out.end());
+  }
+  {
+    const std::initializer_list<ssize_t> in = {6, -1, 4};
+    Partial_read p{{in}};
+    auto res = p.read();
+    ASSERT_EQ(res, -1);
+    ASSERT_EQ(p.out.size(), 2u);
+    auto i = p.out.begin();
+    ASSERT_EQ(i->pos, 0);
+    ASSERT_EQ(i->nbyte, 10u);
+    ++i;
+    ASSERT_EQ(i->pos, 6);
+    ASSERT_EQ(i->nbyte, 4u);
+    ++i;
+    ASSERT_EQ(i, p.out.end());
+  }
+  {
+    const std::initializer_list<ssize_t> in = {0, 6, 4};
+    Partial_read p{{in}};
+    auto res = p.read();
+    ASSERT_EQ(res, 0);
+    ASSERT_EQ(p.out.size(), 1u);
+    auto i = p.out.begin();
+    ASSERT_EQ(i->pos, 0);
+    ASSERT_EQ(i->nbyte, 10u);
+    ++i;
+    ASSERT_EQ(i, p.out.end());
+  }
+  {
+    const std::initializer_list<ssize_t> in = {6, 0, 4};
+    Partial_read p{{in}};
+    auto res = p.read();
+    ASSERT_EQ(res, 0);
+    ASSERT_EQ(p.out.size(), 2u);
+    auto i = p.out.begin();
+    ASSERT_EQ(i->pos, 0);
+    ASSERT_EQ(i->nbyte, 10u);
+    ++i;
+    ASSERT_EQ(i->pos, 6);
+    ASSERT_EQ(i->nbyte, 4u);
+    ++i;
+    ASSERT_EQ(i, p.out.end());
+  }
+}
+
+TEST(File_store, write_partial_handling) {
+  {
+    const std::initializer_list<ssize_t> in = {10};
+    Partial_write p{{in}};
+    auto res = p.write();
+    ASSERT_EQ(res, 10);
+    ASSERT_EQ(p.out.size(), 1u);
+    auto i = p.out.begin();
+    ASSERT_EQ(i->pos, 0);
+    ASSERT_EQ(i->nbyte, 10u);
+    ++i;
+    ASSERT_EQ(i, p.out.end());
+  }
+  {
+    const std::initializer_list<ssize_t> in = {3, 5, 2};
+    Partial_write p{{in}};
+    auto res = p.write();
+    ASSERT_EQ(res, 10);
+    ASSERT_EQ(p.out.size(), 3u);
+    auto i = p.out.begin();
+    ASSERT_EQ(i->pos, 0);
+    ASSERT_EQ(i->nbyte, 10u);
+    ++i;
+    ASSERT_EQ(i->pos, 3);
+    ASSERT_EQ(i->nbyte, 7u);
+    ++i;
+    ASSERT_EQ(i->pos, 8);
+    ASSERT_EQ(i->nbyte, 2u);
+    ++i;
+    ASSERT_EQ(i, p.out.end());
+  }
+  {
+    const std::initializer_list<ssize_t> in = {-1, 6, 4};
+    Partial_write p{{in}};
+    auto res = p.write();
+    ASSERT_EQ(res, -1);
+    ASSERT_EQ(p.out.size(), 1u);
+    auto i = p.out.begin();
+    ASSERT_EQ(i->pos, 0);
+    ASSERT_EQ(i->nbyte, 10u);
+    ++i;
+    ASSERT_EQ(i, p.out.end());
+  }
+  {
+    const std::initializer_list<ssize_t> in = {6, -1, 4};
+    Partial_write p{{in}};
+    auto res = p.write();
+    ASSERT_EQ(res, -1);
+    ASSERT_EQ(p.out.size(), 2u);
+    auto i = p.out.begin();
+    ASSERT_EQ(i->pos, 0);
+    ASSERT_EQ(i->nbyte, 10u);
+    ++i;
+    ASSERT_EQ(i->pos, 6);
+    ASSERT_EQ(i->nbyte, 4u);
+    ++i;
+    ASSERT_EQ(i, p.out.end());
+  }
+  {
+    const std::initializer_list<ssize_t> in = {0, 6, 4};
+    Partial_write p{{in}};
+    auto res = p.write();
+    ASSERT_EQ(res, 10);
+    ASSERT_EQ(p.out.size(), 3u);
+    auto i = p.out.begin();
+    ASSERT_EQ(i->pos, 0);
+    ASSERT_EQ(i->nbyte, 10u);
+    ++i;
+    ASSERT_EQ(i->pos, 0);
+    ASSERT_EQ(i->nbyte, 10u);
+    ++i;
+    ASSERT_EQ(i->pos, 6);
+    ASSERT_EQ(i->nbyte, 4u);
+    ++i;
+    ASSERT_EQ(i, p.out.end());
+  }
+  {
+    const std::initializer_list<ssize_t> in = {6, 0, 4};
+    Partial_write p{{in}};
+    auto res = p.write();
+    ASSERT_EQ(res, 10);
+    ASSERT_EQ(p.out.size(), 3u);
+    auto i = p.out.begin();
+    ASSERT_EQ(i->pos, 0);
+    ASSERT_EQ(i->nbyte, 10u);
+    ++i;
+    ASSERT_EQ(i->pos, 6);
+    ASSERT_EQ(i->nbyte, 4u);
+    ++i;
+    ASSERT_EQ(i->pos, 6);
+    ASSERT_EQ(i->nbyte, 4u);
+    ++i;
+    ASSERT_EQ(i, p.out.end());
+  }
+}
 
 TEST(File_store, add_to_empty_file) {
   unlink(filename.c_str());
