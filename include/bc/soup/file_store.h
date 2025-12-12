@@ -19,21 +19,21 @@ namespace internal {
 
 struct Rw_result {
   int status = 0;
-  ssize_t nbyte = 0;
+  size_t nbyte = 0;
 };
 
 template <typename Read>
 Rw_result read_partial_handling(int fd, void* buf, size_t nbyte, Read&& read) {
   auto* ptr = static_cast<unsigned char*>(buf);
-  ssize_t total = 0;
-  while (total != static_cast<ssize_t>(nbyte)) {
+  size_t total = 0;
+  while (total != nbyte) {
     const auto n =
         std::invoke(std::forward<Read>(read), fd, ptr + total, nbyte - total);
     if (n == -1)
       return {-1, total};
     if (n == 0)
       return {0, total};
-    total += n;
+    total += static_cast<size_t>(n);
   }
   return {1, total};
 }
@@ -42,13 +42,13 @@ template <typename Write>
 Rw_result write_partial_handling(int fd, const void* buf, size_t nbyte,
                                  Write&& write) {
   const auto* ptr = static_cast<const unsigned char*>(buf);
-  ssize_t total = 0;
-  while (total != static_cast<ssize_t>(nbyte)) {
+  size_t total = 0;
+  while (total != nbyte) {
     const auto n =
         std::invoke(std::forward<Write>(write), fd, ptr + total, nbyte - total);
     if (n == -1)
       return {-1, total};
-    total += n;
+    total += static_cast<size_t>(n);
   }
   return {1, total};
 }

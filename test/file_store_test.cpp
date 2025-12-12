@@ -101,7 +101,7 @@ TEST(File_store, read_partial_handling) {
     Partial_read p{{in}};
     auto res = p.read();
     ASSERT_EQ(res.status, 1);
-    ASSERT_EQ(res.nbyte, 10);
+    ASSERT_EQ(res.nbyte, 10u);
     ASSERT_EQ(p.out.size(), 1u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -114,7 +114,7 @@ TEST(File_store, read_partial_handling) {
     Partial_read p{{in}};
     auto res = p.read();
     ASSERT_EQ(res.status, 1);
-    ASSERT_EQ(res.nbyte, 10);
+    ASSERT_EQ(res.nbyte, 10u);
     ASSERT_EQ(p.out.size(), 3u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -133,7 +133,7 @@ TEST(File_store, read_partial_handling) {
     Partial_read p{{in}};
     auto res = p.read();
     ASSERT_EQ(res.status, -1);
-    ASSERT_EQ(res.nbyte, 0);
+    ASSERT_EQ(res.nbyte, 0u);
     ASSERT_EQ(p.out.size(), 1u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -146,7 +146,7 @@ TEST(File_store, read_partial_handling) {
     Partial_read p{{in}};
     auto res = p.read();
     ASSERT_EQ(res.status, -1);
-    ASSERT_EQ(res.nbyte, 6);
+    ASSERT_EQ(res.nbyte, 6u);
     ASSERT_EQ(p.out.size(), 2u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -162,7 +162,7 @@ TEST(File_store, read_partial_handling) {
     Partial_read p{{in}};
     auto res = p.read();
     ASSERT_EQ(res.status, 0);
-    ASSERT_EQ(res.nbyte, 0);
+    ASSERT_EQ(res.nbyte, 0u);
     ASSERT_EQ(p.out.size(), 1u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -175,7 +175,7 @@ TEST(File_store, read_partial_handling) {
     Partial_read p{{in}};
     auto res = p.read();
     ASSERT_EQ(res.status, 0);
-    ASSERT_EQ(res.nbyte, 6);
+    ASSERT_EQ(res.nbyte, 6u);
     ASSERT_EQ(p.out.size(), 2u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -194,7 +194,7 @@ TEST(File_store, write_partial_handling) {
     Partial_write p{{in}};
     auto res = p.write();
     ASSERT_EQ(res.status, 1);
-    ASSERT_EQ(res.nbyte, 10);
+    ASSERT_EQ(res.nbyte, 10u);
     ASSERT_EQ(p.out.size(), 1u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -207,7 +207,7 @@ TEST(File_store, write_partial_handling) {
     Partial_write p{{in}};
     auto res = p.write();
     ASSERT_EQ(res.status, 1);
-    ASSERT_EQ(res.nbyte, 10);
+    ASSERT_EQ(res.nbyte, 10u);
     ASSERT_EQ(p.out.size(), 3u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -226,7 +226,7 @@ TEST(File_store, write_partial_handling) {
     Partial_write p{{in}};
     auto res = p.write();
     ASSERT_EQ(res.status, -1);
-    ASSERT_EQ(res.nbyte, 0);
+    ASSERT_EQ(res.nbyte, 0u);
     ASSERT_EQ(p.out.size(), 1u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -239,7 +239,7 @@ TEST(File_store, write_partial_handling) {
     Partial_write p{{in}};
     auto res = p.write();
     ASSERT_EQ(res.status, -1);
-    ASSERT_EQ(res.nbyte, 6);
+    ASSERT_EQ(res.nbyte, 6u);
     ASSERT_EQ(p.out.size(), 2u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -255,7 +255,7 @@ TEST(File_store, write_partial_handling) {
     Partial_write p{{in}};
     auto res = p.write();
     ASSERT_EQ(res.status, 1);
-    ASSERT_EQ(res.nbyte, 10);
+    ASSERT_EQ(res.nbyte, 10u);
     ASSERT_EQ(p.out.size(), 3u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -274,7 +274,7 @@ TEST(File_store, write_partial_handling) {
     Partial_write p{{in}};
     auto res = p.write();
     ASSERT_EQ(res.status, 1);
-    ASSERT_EQ(res.nbyte, 10);
+    ASSERT_EQ(res.nbyte, 10u);
     ASSERT_EQ(p.out.size(), 3u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
