@@ -100,7 +100,8 @@ TEST(File_store, read_partial_handling) {
     const std::initializer_list<ssize_t> in = {10};
     Partial_read p{{in}};
     auto res = p.read();
-    ASSERT_EQ(res, 10);
+    ASSERT_EQ(res.status, 1);
+    ASSERT_EQ(res.nbyte, 10);
     ASSERT_EQ(p.out.size(), 1u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -112,7 +113,8 @@ TEST(File_store, read_partial_handling) {
     const std::initializer_list<ssize_t> in = {3, 5, 2};
     Partial_read p{{in}};
     auto res = p.read();
-    ASSERT_EQ(res, 10);
+    ASSERT_EQ(res.status, 1);
+    ASSERT_EQ(res.nbyte, 10);
     ASSERT_EQ(p.out.size(), 3u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -130,7 +132,8 @@ TEST(File_store, read_partial_handling) {
     const std::initializer_list<ssize_t> in = {-1, 6, 4};
     Partial_read p{{in}};
     auto res = p.read();
-    ASSERT_EQ(res, -1);
+    ASSERT_EQ(res.status, -1);
+    ASSERT_EQ(res.nbyte, 0);
     ASSERT_EQ(p.out.size(), 1u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -142,7 +145,8 @@ TEST(File_store, read_partial_handling) {
     const std::initializer_list<ssize_t> in = {6, -1, 4};
     Partial_read p{{in}};
     auto res = p.read();
-    ASSERT_EQ(res, -1);
+    ASSERT_EQ(res.status, -1);
+    ASSERT_EQ(res.nbyte, 6);
     ASSERT_EQ(p.out.size(), 2u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -157,7 +161,8 @@ TEST(File_store, read_partial_handling) {
     const std::initializer_list<ssize_t> in = {0, 6, 4};
     Partial_read p{{in}};
     auto res = p.read();
-    ASSERT_EQ(res, 0);
+    ASSERT_EQ(res.status, 0);
+    ASSERT_EQ(res.nbyte, 0);
     ASSERT_EQ(p.out.size(), 1u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -169,7 +174,8 @@ TEST(File_store, read_partial_handling) {
     const std::initializer_list<ssize_t> in = {6, 0, 4};
     Partial_read p{{in}};
     auto res = p.read();
-    ASSERT_EQ(res, 0);
+    ASSERT_EQ(res.status, 0);
+    ASSERT_EQ(res.nbyte, 6);
     ASSERT_EQ(p.out.size(), 2u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -187,7 +193,8 @@ TEST(File_store, write_partial_handling) {
     const std::initializer_list<ssize_t> in = {10};
     Partial_write p{{in}};
     auto res = p.write();
-    ASSERT_EQ(res, 10);
+    ASSERT_EQ(res.status, 1);
+    ASSERT_EQ(res.nbyte, 10);
     ASSERT_EQ(p.out.size(), 1u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -199,7 +206,8 @@ TEST(File_store, write_partial_handling) {
     const std::initializer_list<ssize_t> in = {3, 5, 2};
     Partial_write p{{in}};
     auto res = p.write();
-    ASSERT_EQ(res, 10);
+    ASSERT_EQ(res.status, 1);
+    ASSERT_EQ(res.nbyte, 10);
     ASSERT_EQ(p.out.size(), 3u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -217,7 +225,8 @@ TEST(File_store, write_partial_handling) {
     const std::initializer_list<ssize_t> in = {-1, 6, 4};
     Partial_write p{{in}};
     auto res = p.write();
-    ASSERT_EQ(res, -1);
+    ASSERT_EQ(res.status, -1);
+    ASSERT_EQ(res.nbyte, 0);
     ASSERT_EQ(p.out.size(), 1u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -229,7 +238,8 @@ TEST(File_store, write_partial_handling) {
     const std::initializer_list<ssize_t> in = {6, -1, 4};
     Partial_write p{{in}};
     auto res = p.write();
-    ASSERT_EQ(res, -1);
+    ASSERT_EQ(res.status, -1);
+    ASSERT_EQ(res.nbyte, 6);
     ASSERT_EQ(p.out.size(), 2u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -244,7 +254,8 @@ TEST(File_store, write_partial_handling) {
     const std::initializer_list<ssize_t> in = {0, 6, 4};
     Partial_write p{{in}};
     auto res = p.write();
-    ASSERT_EQ(res, 10);
+    ASSERT_EQ(res.status, 1);
+    ASSERT_EQ(res.nbyte, 10);
     ASSERT_EQ(p.out.size(), 3u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);
@@ -262,7 +273,8 @@ TEST(File_store, write_partial_handling) {
     const std::initializer_list<ssize_t> in = {6, 0, 4};
     Partial_write p{{in}};
     auto res = p.write();
-    ASSERT_EQ(res, 10);
+    ASSERT_EQ(res.status, 1);
+    ASSERT_EQ(res.nbyte, 10);
     ASSERT_EQ(p.out.size(), 3u);
     auto i = p.out.begin();
     ASSERT_EQ(i->pos, 0);

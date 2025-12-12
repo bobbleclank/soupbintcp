@@ -31,14 +31,14 @@ int close(int fd) {
   return status;
 }
 
-ssize_t read(int fd, void* buf, size_t nbyte) {
+internal::Rw_result read(int fd, void* buf, size_t nbyte) {
   auto r = [](int fd, void* buf, size_t nbyte) {
     return while_interrupted<ssize_t>(::read, fd, buf, nbyte);
   };
   return internal::read_partial_handling(fd, buf, nbyte, r);
 }
 
-ssize_t write(int fd, const void* buf, size_t nbyte) {
+internal::Rw_result write(int fd, const void* buf, size_t nbyte) {
   auto w = [](int fd, const void* buf, size_t nbyte) {
     return while_interrupted<ssize_t>(::write, fd, buf, nbyte);
   };
@@ -106,14 +106,14 @@ std::error_code File_store::add(const void* data, std::size_t size) {
 
   {
     const std::uint16_t sz = htons(size);
-    const ssize_t n = soup::write(fd_, &sz, sizeof(sz));
-    if (n == -1)
+    const auto res = soup::write(fd_, &sz, sizeof(sz));
+    if (res.status == -1)
       return {errno, std::system_category()};
   }
 
   {
-    const ssize_t n = soup::write(fd_, data, size);
-    if (n == -1)
+    const auto res = soup::write(fd_, data, size);
+    if (res.status == -1)
       return {errno, std::system_category()};
   }
   return {};
@@ -162,10 +162,10 @@ std::error_code File_store::set_offsets() {
   off_t off = 0;
   while (true) {
     std::uint16_t sz = 0;
-    const ssize_t n = soup::read(fd_, &sz, sizeof(sz));
-    if (n == -1)
+    const auto res = soup::read(fd_, &sz, sizeof(sz));
+    if (res.status == -1)
       return {errno, std::system_category()};
-    if (n == 0)
+    if (res.status == 0)
       break;
     const std::uint16_t size = ntohs(sz);
 
@@ -180,20 +180,20 @@ std::error_code File_store::set_offsets() {
 std::error_code File_store::get(Message& message) {
   std::uint16_t sz = 0;
   {
-    const ssize_t n = soup::read(fd_, &sz, sizeof(sz));
-    if (n == -1)
+    const auto res = soup::read(fd_, &sz, sizeof(sz));
+    if (res.status == -1)
       return {errno, std::system_category()};
-    if (n == 0)
+    if (res.status == 0)
       return {EIO, std::system_category()};
   }
   const std::uint16_t size = ntohs(sz);
 
   message = Message(size);
   {
-    const ssize_t n = soup::read(fd_, message.data(), message.size());
-    if (n == -1)
+    const auto res = soup::read(fd_, message.data(), message.size());
+    if (res.status == -1)
       return {errno, std::system_category()};
-    if (n == 0)
+    if (res.status == 0)
       return {EIO, std::system_category()};
   }
   return {};
