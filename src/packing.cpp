@@ -32,7 +32,7 @@ void unpack_alphanumeric_right_padded(std::string& str, const void* data) {
   const auto iter =
       std::ranges::find_if_not(s, [](auto c) { return std::isalnum(c); });
   const auto sub = s.first(iter - s.begin());
-  str.insert(str.begin(), sub.begin(), sub.end());
+  str.insert_range(str.begin(), sub);
 }
 
 } // namespace
@@ -77,7 +77,7 @@ void unpack_alphanumeric_left_padded(std::string& str, const void* data) {
   const auto iter = std::ranges::find_if_not(
       s.rbegin(), s.rend(), [](auto c) { return std::isalnum(c); });
   const auto sub = s.last(iter - s.rbegin());
-  str.insert(str.begin(), sub.begin(), sub.end());
+  str.insert_range(str.begin(), sub);
 }
 
 } // namespace
