@@ -47,7 +47,7 @@ public:
   Socket(const Socket&) = delete;
   Socket& operator=(const Socket&) = delete;
 
-  Socket(Socket&&) = default;
+  Socket(Socket&&) noexcept = default;
   Socket& operator=(Socket&&) noexcept = default;
 
   void set_handler(Handler&);

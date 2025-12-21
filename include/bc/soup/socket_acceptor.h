@@ -32,7 +32,7 @@ public:
   Socket_acceptor(const Socket_acceptor&) = delete;
   Socket_acceptor& operator=(const Socket_acceptor&) = delete;
 
-  Socket_acceptor(Socket_acceptor&&) = default;
+  Socket_acceptor(Socket_acceptor&&) noexcept = default;
   Socket_acceptor& operator=(Socket_acceptor&&) noexcept = default;
 
   void set_handler(Handler&);
