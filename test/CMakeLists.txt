@@ -11,4 +11,9 @@ target_sources(test_${PROJECT_NAME}
     rw_packets_test.cpp
     validate_test.cpp
 )
-target_link_libraries(test_${PROJECT_NAME} PRIVATE bcsouptcp gtest_main gtest)
+target_link_libraries(test_${PROJECT_NAME}
+  PRIVATE
+    bcsouptcp
+    gtest_main
+    gtest
+)
