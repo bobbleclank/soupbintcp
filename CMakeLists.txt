@@ -15,5 +15,6 @@ endif()
 configure_file(${PROJECT_NAME}_config.h.in ${PROJECT_NAME}_config.h)
 
 add_subdirectory(src)
+add_subdirectory(include)
 add_subdirectory(test)
 add_subdirectory(example)

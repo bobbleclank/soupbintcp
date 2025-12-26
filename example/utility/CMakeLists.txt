@@ -4,5 +4,11 @@ target_sources(bcutility
     io_context_runner.cpp
     option_convert.cpp
     option_error.cpp
+
+  PUBLIC
+    FILE_SET HEADERS
+    FILES
+      io_context_runner.h
+      option_convert.h
+      option_error.h
 )
-target_include_directories(bcutility PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")

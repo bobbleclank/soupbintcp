@@ -1,0 +1,28 @@
+target_sources(bcsouptcp
+  PUBLIC
+    FILE_SET HEADERS
+    FILES
+      bc/soup/client/client.h
+      bc/soup/client/connection.h
+      bc/soup/client/handler.h
+      bc/soup/client/message.h
+      bc/soup/client/tcp_connection.h
+      bc/soup/constants.h
+      bc/soup/error.h
+      bc/soup/expected.h
+      bc/soup/file_store.h
+      bc/soup/heartbeat_timer.h
+      bc/soup/logical_packets.h
+      bc/soup/packing.h
+      bc/soup/rw_packets.h
+      bc/soup/server/acceptor.h
+      bc/soup/server/handler.h
+      bc/soup/server/message.h
+      bc/soup/server/port.h
+      bc/soup/server/server.h
+      bc/soup/server/tcp_connection.h
+      bc/soup/socket.h
+      bc/soup/socket_acceptor.h
+      bc/soup/types.h
+      bc/soup/validate.h
+)

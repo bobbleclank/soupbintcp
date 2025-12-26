@@ -19,4 +19,3 @@ target_sources(bcsouptcp
     types.cpp
     validate.cpp
 )
-target_include_directories(bcsouptcp PUBLIC "${CMAKE_SOURCE_DIR}/include")
