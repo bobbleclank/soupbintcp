@@ -16,3 +16,10 @@ target_compile_features(bcutility
   PRIVATE
     cxx_std_23
 )
+target_compile_options(bcutility
+  PRIVATE
+    -Wall
+    -Wextra
+    -pedantic
+    -Werror
+)

@@ -21,3 +21,10 @@ target_compile_features(test_${PROJECT_NAME}
   PRIVATE
     cxx_std_23
 )
+target_compile_options(test_${PROJECT_NAME}
+  PRIVATE
+    -Wall
+    -Wextra
+    -pedantic
+    -Werror
+)

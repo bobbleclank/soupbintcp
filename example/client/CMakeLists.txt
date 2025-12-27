@@ -16,3 +16,10 @@ target_compile_features(bc_soup_client
   PRIVATE
     cxx_std_23
 )
+target_compile_options(bc_soup_client
+  PRIVATE
+    -Wall
+    -Wextra
+    -pedantic
+    -Werror
+)

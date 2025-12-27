@@ -23,3 +23,10 @@ target_compile_features(bcsouptcp
   PUBLIC
     cxx_std_23
 )
+target_compile_options(bcsouptcp
+  PUBLIC
+    -Wall
+    -Wextra
+    -pedantic
+    -Werror
+)

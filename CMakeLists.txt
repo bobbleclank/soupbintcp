@@ -4,7 +4,6 @@ project(bc_soupbintcp VERSION 0.1)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-add_compile_options(-Wall -Wextra -pedantic -Werror)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 

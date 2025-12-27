@@ -14,3 +14,10 @@ target_compile_features(test_bc_utility
   PRIVATE
     cxx_std_23
 )
+target_compile_options(test_bc_utility
+  PRIVATE
+    -Wall
+    -Wextra
+    -pedantic
+    -Werror
+)
