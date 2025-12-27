@@ -24,10 +24,5 @@ install(
     bcsouptcp
     bc_soup_client
     bc_soup_server
-)
-install(
-  DIRECTORY include/
-  TYPE INCLUDE
-  FILES_MATCHING
-  PATTERN "*.h"
+  FILE_SET HEADERS
 )
