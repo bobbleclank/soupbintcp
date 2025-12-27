@@ -12,3 +12,7 @@ target_link_libraries(bc_soup_server
     bcutility
     bcsouptcp
 )
+target_compile_features(bc_soup_server
+  PRIVATE
+    cxx_std_23
+)

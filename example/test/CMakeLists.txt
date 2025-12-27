@@ -10,3 +10,7 @@ target_link_libraries(test_bc_utility
     gtest_main
     gtest
 )
+target_compile_features(test_bc_utility
+  PRIVATE
+    cxx_std_23
+)

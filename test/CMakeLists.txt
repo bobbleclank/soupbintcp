@@ -17,3 +17,7 @@ target_link_libraries(test_${PROJECT_NAME}
     gtest_main
     gtest
 )
+target_compile_features(test_${PROJECT_NAME}
+  PRIVATE
+    cxx_std_23
+)

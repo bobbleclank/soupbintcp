@@ -12,3 +12,7 @@ target_sources(bcutility
       option_convert.h
       option_error.h
 )
+target_compile_features(bcutility
+  PRIVATE
+    cxx_std_23
+)

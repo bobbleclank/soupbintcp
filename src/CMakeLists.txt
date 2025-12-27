@@ -19,3 +19,7 @@ target_sources(bcsouptcp
     types.cpp
     validate.cpp
 )
+target_compile_features(bcsouptcp
+  PUBLIC
+    cxx_std_23
+)
