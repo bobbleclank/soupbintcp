@@ -1,6 +1,6 @@
 /build/
 /.cache/
 compile_commands.json
-cmake-init.sh
+configure.sh
 format.sh
 tidy.sh
