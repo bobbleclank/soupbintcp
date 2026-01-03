@@ -7,10 +7,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "Release")
-endif()
-
 configure_file(${PROJECT_NAME}_config.h.in ${PROJECT_NAME}_config.h)
 
 add_subdirectory(src)
