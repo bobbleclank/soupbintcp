@@ -5,8 +5,6 @@ project(bc_soupbintcp VERSION 0.1)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 configure_file(${PROJECT_NAME}_config.h.in ${PROJECT_NAME}_config.h)
 
 add_subdirectory(src)
