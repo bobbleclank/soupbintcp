@@ -7,15 +7,22 @@ configure_file(
   "${PROJECT_NAME}_config.h"
 )
 
+option(BCSOUP_BUILD_TESTS "Build the unit tests" ON)
+option(BCSOUP_BUILD_EXAMPLES "Build the examples" ON)
+
 add_subdirectory(src)
 add_subdirectory(include)
-add_subdirectory(test)
-add_subdirectory(example)
+
+if(BCSOUP_BUILD_TESTS)
+  add_subdirectory(test)
+endif()
+
+if(BCSOUP_BUILD_EXAMPLES)
+  add_subdirectory(example)
+endif()
 
 install(
   TARGETS
     bcsouptcp
-    bc_soup_client
-    bc_soup_server
   FILE_SET HEADERS
 )
