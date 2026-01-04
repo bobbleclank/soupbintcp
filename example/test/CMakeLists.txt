@@ -1,4 +1,5 @@
 find_package(GTest CONFIG REQUIRED)
+message("Found GTest: ${GTest_CONFIG} (found version \"${GTest_VERSION}\")")
 
 add_executable(test_bc_utility)
 target_sources(test_bc_utility

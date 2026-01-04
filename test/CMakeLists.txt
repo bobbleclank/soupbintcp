@@ -1,4 +1,5 @@
 find_package(GTest CONFIG REQUIRED)
+message("Found GTest: ${GTest_CONFIG} (found version \"${GTest_VERSION}\")")
 
 add_executable(test_${PROJECT_NAME})
 target_sources(test_${PROJECT_NAME}
