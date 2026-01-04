@@ -1,3 +1,5 @@
+find_package(GTest CONFIG REQUIRED)
+
 add_executable(test_bc_utility)
 target_sources(test_bc_utility
   PRIVATE
@@ -7,8 +9,8 @@ target_sources(test_bc_utility
 target_link_libraries(test_bc_utility
   PRIVATE
     bcutility
-    gtest_main
-    gtest
+    GTest::gtest_main
+    GTest::gtest
 )
 target_compile_features(test_bc_utility
   PRIVATE
