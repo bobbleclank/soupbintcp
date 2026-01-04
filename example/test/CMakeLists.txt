@@ -24,3 +24,8 @@ target_compile_options(test_bc_utility
     -pedantic
     -Werror
 )
+
+add_test(
+  NAME bc_utility
+  COMMAND test_bc_utility
+)

@@ -14,6 +14,7 @@ add_subdirectory(src)
 add_subdirectory(include)
 
 if(BCSOUP_BUILD_TESTS)
+  enable_testing()
   add_subdirectory(test)
 endif()
 
