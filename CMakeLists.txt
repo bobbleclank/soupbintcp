@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.23)
 
-project(bc_soupbintcp VERSION 0.1)
+project(bc_soupbintcp
+  VERSION 0.1
+)
 
 configure_file(
   "${PROJECT_NAME}_config.h.in"
