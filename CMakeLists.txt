@@ -18,6 +18,7 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/google/googletest.git
   GIT_TAG v1.17.0
 )
+set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(src)
 add_subdirectory(include)
