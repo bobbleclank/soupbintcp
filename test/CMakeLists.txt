@@ -32,7 +32,5 @@ target_compile_options(test_${PROJECT_NAME}
     -Werror
 )
 
-add_test(
-  NAME ${PROJECT_NAME}
-  COMMAND test_${PROJECT_NAME}
-)
+include(GoogleTest)
+gtest_discover_tests(test_${PROJECT_NAME})

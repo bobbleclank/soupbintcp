@@ -25,7 +25,5 @@ target_compile_options(test_bc_utility
     -Werror
 )
 
-add_test(
-  NAME bc_utility
-  COMMAND test_bc_utility
-)
+include(GoogleTest)
+gtest_discover_tests(test_bc_utility)
