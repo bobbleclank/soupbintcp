@@ -1,5 +1,4 @@
-find_package(GTest CONFIG REQUIRED)
-message("Found GTest: ${GTest_CONFIG} (found version \"${GTest_VERSION}\")")
+FetchContent_MakeAvailable(googletest)
 
 add_executable(test_bc_utility)
 target_sources(test_bc_utility

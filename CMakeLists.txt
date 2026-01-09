@@ -12,6 +12,13 @@ configure_file(
 option(BCSOUP_BUILD_TESTS "Build the unit tests" ON)
 option(BCSOUP_BUILD_EXAMPLES "Build the examples" ON)
 
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG v1.17.0
+)
+
 add_subdirectory(src)
 add_subdirectory(include)
 
