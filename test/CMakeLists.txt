@@ -1,7 +1,7 @@
 FetchContent_MakeAvailable(googletest)
 
-add_executable(test_${PROJECT_NAME})
-target_sources(test_${PROJECT_NAME}
+add_executable(test_bcsoup)
+target_sources(test_bcsoup
   PRIVATE
     constants_test.cpp
     error_test.cpp
@@ -13,17 +13,17 @@ target_sources(test_${PROJECT_NAME}
     rw_packets_test.cpp
     validate_test.cpp
 )
-target_link_libraries(test_${PROJECT_NAME}
+target_link_libraries(test_bcsoup
   PRIVATE
     bcsoup
     GTest::gtest_main
     GTest::gtest
 )
-target_compile_features(test_${PROJECT_NAME}
+target_compile_features(test_bcsoup
   PRIVATE
     cxx_std_23
 )
-target_compile_options(test_${PROJECT_NAME}
+target_compile_options(test_bcsoup
   PRIVATE
     -Wall
     -Wextra
@@ -32,6 +32,6 @@ target_compile_options(test_${PROJECT_NAME}
 )
 
 add_test(
-  NAME ${PROJECT_NAME}
-  COMMAND test_${PROJECT_NAME}
+  NAME test_bcsoup
+  COMMAND test_bcsoup
 )
