@@ -15,7 +15,7 @@ target_sources(test_${PROJECT_NAME}
 )
 target_link_libraries(test_${PROJECT_NAME}
   PRIVATE
-    bcsouptcp
+    bcsoup
     GTest::gtest_main
     GTest::gtest
 )

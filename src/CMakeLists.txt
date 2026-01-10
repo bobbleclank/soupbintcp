@@ -1,5 +1,5 @@
-add_library(bcsouptcp)
-target_sources(bcsouptcp
+add_library(bcsoup)
+target_sources(bcsoup
   PRIVATE
     client/client.cpp
     client/connection.cpp
@@ -19,11 +19,11 @@ target_sources(bcsouptcp
     types.cpp
     validate.cpp
 )
-target_compile_features(bcsouptcp
+target_compile_features(bcsoup
   PUBLIC
     cxx_std_23
 )
-target_compile_options(bcsouptcp
+target_compile_options(bcsoup
   PUBLIC
     -Wall
     -Wextra

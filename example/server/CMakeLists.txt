@@ -10,7 +10,7 @@ target_include_directories(bc_soup_server
 target_link_libraries(bc_soup_server
   PRIVATE
     bcutility
-    bcsouptcp
+    bcsoup
 )
 target_compile_features(bc_soup_server
   PRIVATE

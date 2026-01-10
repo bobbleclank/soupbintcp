@@ -1,4 +1,4 @@
-target_sources(bcsouptcp
+target_sources(bcsoup
   PUBLIC
     FILE_SET HEADERS
     FILES

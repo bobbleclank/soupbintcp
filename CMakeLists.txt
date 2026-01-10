@@ -35,6 +35,6 @@ endif()
 
 install(
   TARGETS
-    bcsouptcp
+    bcsoup
   FILE_SET HEADERS
 )
