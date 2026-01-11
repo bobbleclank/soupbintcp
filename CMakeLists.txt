@@ -33,8 +33,20 @@ if(BCSOUP_BUILD_EXAMPLES)
   add_subdirectory(example)
 endif()
 
+include(GNUInstallDirs)
 install(
   TARGETS
     bcsoup
+  EXPORT BcSoupTargets
   FILE_SET HEADERS
+)
+install(
+  EXPORT BcSoupTargets
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/BcSoup
+  NAMESPACE BcSoup::
+)
+install(
+  FILES
+    cmake/BcSoupConfig.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/BcSoup
 )

@@ -10,4 +10,5 @@ install(
   TARGETS
     bc_soup_client
     bc_soup_server
+  EXPORT BcSoupTargets
 )
