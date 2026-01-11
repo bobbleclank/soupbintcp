@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.23)
 
-project(bc_soupbintcp
+project(bc_soup
   VERSION 0.1
 )
 

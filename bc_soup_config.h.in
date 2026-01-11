@@ -1,0 +1,2 @@
+#define bc_soup_VERSION_MAJOR @bc_soup_VERSION_MAJOR@
+#define bc_soup_VERSION_MINOR @bc_soup_VERSION_MINOR@

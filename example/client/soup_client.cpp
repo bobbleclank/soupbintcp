@@ -1,5 +1,5 @@
 #include "bc/soup/client/client.h"
-#include "bc_soupbintcp_config.h"
+#include "bc_soup_config.h"
 #include "io_context_runner.h"
 #include "option_convert.h"
 #include "option_error.h"
@@ -63,8 +63,8 @@ void display_usage() {
 }
 
 void display_version() {
-  std::cout << "version " << bc_soupbintcp_VERSION_MAJOR << '.'
-            << bc_soupbintcp_VERSION_MINOR << '\n';
+  std::cout << "version " << bc_soup_VERSION_MAJOR << '.'
+            << bc_soup_VERSION_MINOR << '\n';
 }
 
 int main(int argc, char** argv) {
