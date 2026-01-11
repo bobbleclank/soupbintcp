@@ -1,22 +1,22 @@
 FetchContent_MakeAvailable(googletest)
 
-add_executable(test_bc_utility)
-target_sources(test_bc_utility
+add_executable(test_bcsouputility)
+target_sources(test_bcsouputility
   PRIVATE
     option_convert_test.cpp
     option_error_test.cpp
 )
-target_link_libraries(test_bc_utility
+target_link_libraries(test_bcsouputility
   PRIVATE
-    bcutility
+    bcsouputility
     GTest::gtest_main
     GTest::gtest
 )
-target_compile_features(test_bc_utility
+target_compile_features(test_bcsouputility
   PRIVATE
     cxx_std_23
 )
-target_compile_options(test_bc_utility
+target_compile_options(test_bcsouputility
   PRIVATE
     -Wall
     -Wextra
@@ -25,6 +25,6 @@ target_compile_options(test_bc_utility
 )
 
 add_test(
-  NAME bc_utility
-  COMMAND test_bc_utility
+  NAME test_bcsouputility
+  COMMAND test_bcsouputility
 )
