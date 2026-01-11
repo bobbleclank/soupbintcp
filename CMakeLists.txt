@@ -34,6 +34,7 @@ if(BCSOUP_BUILD_EXAMPLES)
 endif()
 
 include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
 install(
   TARGETS
     bcsoup
@@ -45,8 +46,13 @@ install(
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/BcSoup
   NAMESPACE BcSoup::
 )
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/BcSoupConfigVersion.cmake
+  COMPATIBILITY ExactVersion
+)
 install(
   FILES
     cmake/BcSoupConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/BcSoupConfigVersion.cmake
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/BcSoup
 )
