@@ -41,6 +41,7 @@ install(
   EXPORT BcSoupTargets
   FILE_SET HEADERS
 )
+add_library(BcSoup::bcsoup ALIAS bcsoup)
 install(
   EXPORT BcSoupTargets
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/BcSoup
