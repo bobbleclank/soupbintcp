@@ -16,7 +16,7 @@
 
 namespace bc::soup {
 
-namespace internal {
+namespace detail {
 
 enum class Read_status {
   success,
@@ -69,7 +69,7 @@ Write_result write_partial_handling(int fd, const void* buf, size_t nbyte,
   return {Write_status::success, nbyte};
 }
 
-} // namespace internal
+} // namespace detail
 
 class Message {
 public:

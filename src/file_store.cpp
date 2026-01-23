@@ -31,18 +31,18 @@ int close(int fd) {
   return status;
 }
 
-internal::Read_result read(int fd, void* buf, size_t nbyte) {
+detail::Read_result read(int fd, void* buf, size_t nbyte) {
   auto r = [](int fd, void* buf, size_t nbyte) {
     return while_interrupted<ssize_t>(::read, fd, buf, nbyte);
   };
-  return internal::read_partial_handling(fd, buf, nbyte, r);
+  return detail::read_partial_handling(fd, buf, nbyte, r);
 }
 
-internal::Write_result write(int fd, const void* buf, size_t nbyte) {
+detail::Write_result write(int fd, const void* buf, size_t nbyte) {
   auto w = [](int fd, const void* buf, size_t nbyte) {
     return while_interrupted<ssize_t>(::write, fd, buf, nbyte);
   };
-  return internal::write_partial_handling(fd, buf, nbyte, w);
+  return detail::write_partial_handling(fd, buf, nbyte, w);
 }
 
 } // namespace
@@ -107,13 +107,13 @@ std::error_code File_store::add(const void* data, std::size_t size) {
   {
     const std::uint16_t sz = htons(size);
     const auto res = soup::write(fd_, &sz, sizeof(sz));
-    if (res.status == internal::Write_status::failure)
+    if (res.status == detail::Write_status::failure)
       return {errno, std::system_category()};
   }
 
   {
     const auto res = soup::write(fd_, data, size);
-    if (res.status == internal::Write_status::failure)
+    if (res.status == detail::Write_status::failure)
       return {errno, std::system_category()};
   }
   return {};
@@ -163,9 +163,9 @@ std::error_code File_store::set_offsets() {
   while (true) {
     std::uint16_t sz = 0;
     const auto res = soup::read(fd_, &sz, sizeof(sz));
-    if (res.status == internal::Read_status::failure)
+    if (res.status == detail::Read_status::failure)
       return {errno, std::system_category()};
-    if (res.status == internal::Read_status::end_of_file)
+    if (res.status == detail::Read_status::end_of_file)
       break;
     const std::uint16_t size = ntohs(sz);
 
@@ -181,9 +181,9 @@ std::error_code File_store::get(Message& message) {
   std::uint16_t sz = 0;
   {
     const auto res = soup::read(fd_, &sz, sizeof(sz));
-    if (res.status == internal::Read_status::failure)
+    if (res.status == detail::Read_status::failure)
       return {errno, std::system_category()};
-    if (res.status == internal::Read_status::end_of_file)
+    if (res.status == detail::Read_status::end_of_file)
       return {EIO, std::system_category()};
   }
   const std::uint16_t size = ntohs(sz);
@@ -191,9 +191,9 @@ std::error_code File_store::get(Message& message) {
   message = Message(size);
   {
     const auto res = soup::read(fd_, message.data(), message.size());
-    if (res.status == internal::Read_status::failure)
+    if (res.status == detail::Read_status::failure)
       return {errno, std::system_category()};
-    if (res.status == internal::Read_status::end_of_file)
+    if (res.status == detail::Read_status::end_of_file)
       return {EIO, std::system_category()};
   }
   return {};
