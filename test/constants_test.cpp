@@ -19,4 +19,8 @@ TEST(constants, field_lengths) {
 
 TEST(constants, timeouts) {
   ASSERT_EQ(heartbeat_period.count(), 1);
+  ASSERT_EQ(client_heartbeat_timeout.count(), 15);
+  ASSERT_EQ(server_heartbeat_timeout.count(), 5);
+  ASSERT_EQ(login_request_timeout.count(), 30);
+  ASSERT_EQ(login_response_timeout.count(), 10);
 }
