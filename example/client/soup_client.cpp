@@ -9,7 +9,7 @@
 #include <atomic>
 #include <chrono>
 #include <cstdlib>
-#include <iostream>
+#include <print>
 #include <thread>
 
 #include <unistd.h>
@@ -55,16 +55,15 @@ void run(int time) {
 }
 
 void display_usage() {
-  std::cout << "usage: bc_souptcp_client [options]\n"
-               "options:\n"
-               "  -h  help\n"
-               "  -t  running time (seconds) [15]\n"
-               "  -v  version\n";
+  std::print("usage: bc_souptcp_client [options]\n"
+             "options:\n"
+             "  -h  help\n"
+             "  -t  running time (seconds) [15]\n"
+             "  -v  version\n");
 }
 
 void display_version() {
-  std::cout << "version " << bc_soup_VERSION_MAJOR << '.'
-            << bc_soup_VERSION_MINOR << '\n';
+  std::println("version {}.{}", bc_soup_VERSION_MAJOR, bc_soup_VERSION_MINOR);
 }
 
 int main(int argc, char** argv) {
@@ -92,7 +91,7 @@ int main(int argc, char** argv) {
       }
     }
   } catch (const Option_error& e) {
-    std::cout << e.what() << '\n';
+    std::println("{}", e.what());
     return EXIT_FAILURE;
   }
 
