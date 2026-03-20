@@ -32,12 +32,14 @@ struct Login_accepted_packet {
 void read(Login_accepted_packet&, const void*);
 void write(const Login_accepted_packet&, void*);
 
+enum class Login_rejected_reason : char {
+  not_authorized = 'A',
+  session_not_available = 'S',
+  sequence_number_too_high = 'N'
+};
+
 struct Login_rejected_packet {
-  enum class Reason : char {
-    not_authorized = 'A',
-    session_not_available = 'S',
-    sequence_number_too_high = 'N'
-  };
+  using Reason = Login_rejected_reason;
 
   static constexpr char packet_type = 'J';
   static constexpr std::size_t payload_size = sizeof(Reason);
