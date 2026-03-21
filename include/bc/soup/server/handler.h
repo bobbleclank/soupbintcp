@@ -3,17 +3,17 @@
 
 namespace bc::soup::server {
 
-class Handler {
+class Acceptor_handler {
 public:
 protected:
-  Handler() = default;
-  ~Handler() = default;
+  Acceptor_handler() = default;
+  ~Acceptor_handler() = default;
 
-  Handler(const Handler&) = default;
-  Handler& operator=(const Handler&) = default;
+  Acceptor_handler(const Acceptor_handler&) = default;
+  Acceptor_handler& operator=(const Acceptor_handler&) = default;
 
-  Handler(Handler&&) = default;
-  Handler& operator=(Handler&&) = default;
+  Acceptor_handler(Acceptor_handler&&) = default;
+  Acceptor_handler& operator=(Acceptor_handler&&) = default;
 };
 
 } // namespace bc::soup::server

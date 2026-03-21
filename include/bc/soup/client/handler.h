@@ -3,17 +3,17 @@
 
 namespace bc::soup::client {
 
-class Handler {
+class Client_handler {
 public:
 protected:
-  Handler() = default;
-  ~Handler() = default;
+  Client_handler() = default;
+  ~Client_handler() = default;
 
-  Handler(const Handler&) = default;
-  Handler& operator=(const Handler&) = default;
+  Client_handler(const Client_handler&) = default;
+  Client_handler& operator=(const Client_handler&) = default;
 
-  Handler(Handler&&) = default;
-  Handler& operator=(Handler&&) = default;
+  Client_handler(Client_handler&&) = default;
+  Client_handler& operator=(Client_handler&&) = default;
 };
 
 } // namespace bc::soup::client
