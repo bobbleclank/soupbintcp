@@ -16,6 +16,19 @@ protected:
   Acceptor_handler& operator=(Acceptor_handler&&) = default;
 };
 
+class Port_handler {
+public:
+protected:
+  Port_handler() = default;
+  ~Port_handler() = default;
+
+  Port_handler(const Port_handler&) = default;
+  Port_handler& operator=(const Port_handler&) = default;
+
+  Port_handler(Port_handler&&) = default;
+  Port_handler& operator=(Port_handler&&) = default;
+};
+
 } // namespace bc::soup::server
 
 #endif

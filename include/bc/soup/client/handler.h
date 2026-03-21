@@ -16,6 +16,19 @@ protected:
   Client_handler& operator=(Client_handler&&) = default;
 };
 
+class Connection_handler {
+public:
+protected:
+  Connection_handler() = default;
+  ~Connection_handler() = default;
+
+  Connection_handler(const Connection_handler&) = default;
+  Connection_handler& operator=(const Connection_handler&) = default;
+
+  Connection_handler(Connection_handler&&) = default;
+  Connection_handler& operator=(Connection_handler&&) = default;
+};
+
 } // namespace bc::soup::client
 
 #endif
