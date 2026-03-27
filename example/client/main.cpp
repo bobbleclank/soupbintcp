@@ -67,8 +67,8 @@ void display_version() {
 }
 
 int main(int argc, char** argv) {
-  // NOLINTNEXTLINE(*-avoid-magic-numbers): Default value
-  int time = 15;
+  constexpr int default_time = 15;
+  int time = default_time;
 
   try {
     int opt = 0;
