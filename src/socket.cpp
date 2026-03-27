@@ -137,7 +137,7 @@ void Socket::header_received(asio::error_code ec, std::size_t n) {
     break;
   case Result::empty_payload: {
     const Read_packet packet(std::move(read_packet_));
-    handler_->read_completed(packet);
+    handler_->read_success(packet);
     break;
   }
   case Result::bad_packet:
@@ -173,7 +173,7 @@ void Socket::payload_received(asio::error_code ec, std::size_t n) {
     return;
   }
   const Read_packet packet(std::move(read_packet_));
-  handler_->read_completed(packet);
+  handler_->read_success(packet);
 }
 
 void Socket::write_packet() {
@@ -198,7 +198,7 @@ void Socket::packet_sent(asio::error_code ec, std::size_t n) {
     handler_->write_failure(ec);
     return;
   }
-  handler_->write_completed(packet);
+  handler_->write_success(packet);
   write_packets_.pop_front();
   if (!write_packets_.empty())
     write_packet();

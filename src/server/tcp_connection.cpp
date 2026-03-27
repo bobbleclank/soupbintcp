@@ -17,7 +17,7 @@ void Tcp_connection::read_failure(asio::error_code) {
 void Tcp_connection::read_failure(Packet_error) {
 }
 
-void Tcp_connection::read_completed(const Read_packet&) {
+void Tcp_connection::read_success(const Read_packet&) {
 }
 
 void Tcp_connection::end_of_file() {
@@ -26,7 +26,7 @@ void Tcp_connection::end_of_file() {
 void Tcp_connection::write_failure(asio::error_code) {
 }
 
-void Tcp_connection::write_completed(const Write_packet&) {
+void Tcp_connection::write_success(const Write_packet&) {
 }
 
 void Tcp_connection::write_buffer_empty() {
