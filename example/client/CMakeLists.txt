@@ -1,7 +1,7 @@
 add_executable(bc_soup_client)
 target_sources(bc_soup_client
   PRIVATE
-    soup_client.cpp
+    main.cpp
 )
 target_include_directories(bc_soup_client
   PRIVATE
