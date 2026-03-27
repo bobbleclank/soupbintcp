@@ -55,7 +55,7 @@ void run(int time) {
 }
 
 void display_usage() {
-  std::print("usage: bc_souptcp_client [options]\n"
+  std::print("usage: bc_soup_client [options]\n"
              "options:\n"
              "  -h  help\n"
              "  -t  running time (seconds) [15]\n"
