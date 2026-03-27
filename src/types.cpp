@@ -12,8 +12,8 @@ const char* to_string(Packet_error error) {
 
 const char* to_string(Write_error error) {
   switch (error) {
-  case Write_error::success:
-    return "success";
+  case Write_error::none:
+    return "none";
   case Write_error::buffer_full:
     return "buffer full";
   }

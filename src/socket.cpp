@@ -81,7 +81,7 @@ Write_error Socket::async_write(Write_packet&& packet) {
   write_packets_.push_back(std::move(packet));
   if (size == 0)
     write_packet();
-  return Write_error::success;
+  return Write_error::none;
 }
 
 asio::ip::tcp::endpoint Socket::local_endpoint(asio::error_code* error) const {
