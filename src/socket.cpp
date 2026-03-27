@@ -140,8 +140,8 @@ void Socket::header_received(asio::error_code ec, std::size_t n) {
     handler_->read_success(packet);
     break;
   }
-  case Result::bad_packet:
-    handler_->read_failure(Packet_error::bad_length);
+  case Result::malformed_header:
+    handler_->read_failure(Packet_error::malformed_header);
     break;
   }
 }

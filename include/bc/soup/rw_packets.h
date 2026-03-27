@@ -43,7 +43,7 @@ public:
   enum class Resize_result {
     resized,
     empty_payload,
-    bad_packet
+    malformed_header
   };
 
   Read_packet();

@@ -4,7 +4,7 @@
 namespace bc::soup {
 
 enum class Packet_error {
-  bad_length
+  malformed_header
 };
 
 const char* to_string(Packet_error);

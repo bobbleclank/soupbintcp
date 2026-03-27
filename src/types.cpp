@@ -4,8 +4,8 @@ namespace bc::soup {
 
 const char* to_string(Packet_error error) {
   switch (error) {
-  case Packet_error::bad_length:
-    return "bad length";
+  case Packet_error::malformed_header:
+    return "malformed header";
   }
   return "?";
 }

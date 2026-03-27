@@ -271,7 +271,7 @@ TEST(Read_packet, resize_payload) {
   ASSERT_EQ(size, 5u);
   {
     Read_packet p;
-    ASSERT_EQ(p.resize_payload(), Read_packet::Resize_result::bad_packet);
+    ASSERT_EQ(p.resize_payload(), Read_packet::Resize_result::malformed_header);
     assert_empty(p);
   }
   {
@@ -290,7 +290,7 @@ TEST(Read_packet, resize_payload) {
     Read_packet p;
     write_payload(p, 'a', size, data);
     write_header(p, 0 + 0, 'b');
-    ASSERT_EQ(p.resize_payload(), Read_packet::Resize_result::bad_packet);
+    ASSERT_EQ(p.resize_payload(), Read_packet::Resize_result::malformed_header);
     assert_empty(p, 0, 'b');
   }
   {
