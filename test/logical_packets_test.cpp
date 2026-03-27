@@ -99,24 +99,24 @@ TEST(logical_packets, Login_request_packet) {
     Login_request_packet p;
     ASSERT_EQ(p.username, "");
     ASSERT_EQ(p.password, "");
-    ASSERT_EQ(p.requested_session, "");
-    ASSERT_EQ(p.requested_sequence_number, 0u);
+    ASSERT_EQ(p.session, "");
+    ASSERT_EQ(p.next_sequence_number, 0u);
 
     std::string b = "ABC   DEFGH          abcde          1234567890";
     ASSERT_EQ(b.size(), Login_request_packet::payload_size);
     read(p, b.data());
     ASSERT_EQ(p.username, "ABC");
     ASSERT_EQ(p.password, "DEFGH");
-    ASSERT_EQ(p.requested_session, "abcde");
-    ASSERT_EQ(p.requested_sequence_number, 1234567890u);
+    ASSERT_EQ(p.session, "abcde");
+    ASSERT_EQ(p.next_sequence_number, 1234567890u);
   }
   {
     // NOLINTNEXTLINE(*-avoid-magic-numbers): Test value
     Login_request_packet p("ABC", "DEFGH", "abcde", 1234567890);
     ASSERT_EQ(p.username, "ABC");
     ASSERT_EQ(p.password, "DEFGH");
-    ASSERT_EQ(p.requested_session, "abcde");
-    ASSERT_EQ(p.requested_sequence_number, 1234567890u);
+    ASSERT_EQ(p.session, "abcde");
+    ASSERT_EQ(p.next_sequence_number, 1234567890u);
 
     std::array<char, Login_request_packet::payload_size> b = {};
     b.fill('*');

@@ -53,14 +53,14 @@ void write(const Login_rejected_packet& packet, void* data) {
   assert((iter += sizeof(Login_rejected_packet::Reason)) == s.end());
 }
 
-Login_request_packet::Login_request_packet(
-    std::string_view username_, std::string_view password_,
-    std::string_view requested_session_,
-    std::uint64_t requested_sequence_number_)
+Login_request_packet::Login_request_packet(std::string_view username_,
+                                           std::string_view password_,
+                                           std::string_view session_,
+                                           std::uint64_t next_sequence_number_)
     : username(username_),
       password(password_),
-      requested_session(requested_session_),
-      requested_sequence_number(requested_sequence_number_) {
+      session(session_),
+      next_sequence_number(next_sequence_number_) {
 }
 
 void read(Login_request_packet& packet, const void* data) {
@@ -72,9 +72,9 @@ void read(Login_request_packet& packet, const void* data) {
   iter += username_length;
   unpack_password(packet.password, &*iter);
   iter += password_length;
-  unpack_session(packet.requested_session, &*iter);
+  unpack_session(packet.session, &*iter);
   iter += session_length;
-  unpack_sequence_number(packet.requested_sequence_number, &*iter);
+  unpack_sequence_number(packet.next_sequence_number, &*iter);
   assert((iter += sequence_number_length) == s.end());
 }
 
@@ -86,9 +86,9 @@ void write(const Login_request_packet& packet, void* data) {
   iter += username_length;
   pack_password(packet.password, &*iter);
   iter += password_length;
-  pack_session(packet.requested_session, &*iter);
+  pack_session(packet.session, &*iter);
   iter += session_length;
-  pack_sequence_number(packet.requested_sequence_number, &*iter);
+  pack_sequence_number(packet.next_sequence_number, &*iter);
   assert((iter += sequence_number_length) == s.end());
 }
 

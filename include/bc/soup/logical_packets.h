@@ -81,8 +81,8 @@ struct Login_request_packet {
 
   std::string username;
   std::string password;
-  std::string requested_session;
-  std::uint64_t requested_sequence_number = 0;
+  std::string session;
+  std::uint64_t next_sequence_number = 0;
 };
 
 void read(Login_request_packet&, const void*);
