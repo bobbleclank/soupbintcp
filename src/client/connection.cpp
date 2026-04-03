@@ -23,9 +23,13 @@ bool Connection::is_handler_set() const {
 }
 
 void Connection::connect() {
+  connection_.emplace(io_executor_, *this, *handler_,
+                      client_->write_packets_limit());
 }
 
 void Connection::disconnect() {
+  if (connection_)
+    connection_->disconnect();
 }
 
 } // namespace bc::soup::client

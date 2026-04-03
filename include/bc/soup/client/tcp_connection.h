@@ -3,11 +3,19 @@
 
 #include "bc/soup/socket.h"
 
+#include <asio.hpp>
+
+#include <cstddef>
+
 namespace bc::soup::client {
+
+class Connection;
+class Connection_handler;
 
 class Tcp_connection final : public Socket::Handler {
 public:
-  Tcp_connection();
+  Tcp_connection(asio::any_io_executor, Connection&, Connection_handler&,
+                 std::size_t);
   ~Tcp_connection() = default;
 
   Tcp_connection(const Tcp_connection&) = delete;
@@ -29,6 +37,22 @@ public:
   void write_buffer_empty() override;
 
 private:
+  enum class State {
+    connecting,
+    connected,
+    disconnected
+  };
+
+  Connection* connection_ = nullptr;
+  Connection_handler* handler_ = nullptr;
+  Socket socket_;
+  State state_ = State::connecting;
+
+  void connection_failure(asio::error_code, const char*);
+
+  // Called by Connection
+  friend class Connection;
+  void disconnect();
 };
 
 } // namespace bc::soup::client

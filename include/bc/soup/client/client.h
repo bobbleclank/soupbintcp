@@ -6,6 +6,7 @@
 
 #include <asio.hpp>
 
+#include <cstddef>
 #include <list>
 #include <system_error>
 
@@ -20,6 +21,7 @@ public:
   Client(asio::any_io_executor, Client_handler&);
 
   void set_handler(Client_handler&);
+  void set_write_packets_limit(std::size_t);
 
   [[nodiscard]] expected<Connection*, std::error_code>
   add_connection(const asio::ip::tcp::endpoint&);
@@ -31,13 +33,20 @@ public:
   void stop();
 
 private:
+  static constexpr std::size_t default_write_packets_limit = 100;
+
   Client_handler* handler_ = nullptr;
   asio::any_io_executor io_executor_;
+  std::size_t write_packets_limit_ = default_write_packets_limit;
   std::list<Connection> connections_;
   bool started_ = false;
 
   [[nodiscard]] expected<Connection*, std::error_code>
   add_connection(const asio::ip::tcp::endpoint&, Connection_handler*);
+
+  // Called by Connection
+  friend class Connection;
+  std::size_t write_packets_limit() const { return write_packets_limit_; }
 };
 
 } // namespace bc::soup::client

@@ -1,7 +1,11 @@
 #ifndef INCLUDE_BC_SOUP_CLIENT_CONNECTION_H
 #define INCLUDE_BC_SOUP_CLIENT_CONNECTION_H
 
+#include "bc/soup/client/tcp_connection.h"
+
 #include <asio.hpp>
+
+#include <optional>
 
 namespace bc::soup::client {
 
@@ -22,6 +26,7 @@ private:
   Connection_handler* handler_ = nullptr;
   asio::any_io_executor io_executor_;
   asio::ip::tcp::endpoint endpoint_;
+  std::optional<Tcp_connection> connection_;
 
   // Called by Client
   friend class Client;

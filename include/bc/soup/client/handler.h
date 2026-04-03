@@ -1,6 +1,8 @@
 #ifndef INCLUDE_BC_SOUP_CLIENT_HANDLER_H
 #define INCLUDE_BC_SOUP_CLIENT_HANDLER_H
 
+#include <asio.hpp>
+
 namespace bc::soup::client {
 
 class Client_handler {
@@ -18,6 +20,11 @@ protected:
 
 class Connection_handler {
 public:
+  virtual void connecting(const asio::ip::tcp::endpoint&) = 0;
+  virtual void connection_failure(asio::error_code, const char*) = 0;
+  virtual void connection_success(const asio::ip::tcp::endpoint&,
+                                  const asio::ip::tcp::endpoint&) = 0;
+
 protected:
   Connection_handler() = default;
   ~Connection_handler() = default;

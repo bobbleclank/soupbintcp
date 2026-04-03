@@ -15,6 +15,10 @@ void Client::set_handler(Client_handler& handler) {
   handler_ = &handler;
 }
 
+void Client::set_write_packets_limit(std::size_t write_packets_limit) {
+  write_packets_limit_ = write_packets_limit;
+}
+
 expected<Connection*, std::error_code>
 Client::add_connection(const asio::ip::tcp::endpoint& endpoint) {
   return add_connection(endpoint, nullptr);
