@@ -21,6 +21,10 @@ private:
   Port_handler* handler_ = nullptr;
   std::string username_;
   std::string password_;
+
+  // Called by Acceptor
+  friend class Acceptor;
+  bool is_handler_set() const;
 };
 
 } // namespace bc::soup::server

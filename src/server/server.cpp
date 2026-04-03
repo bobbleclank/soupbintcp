@@ -16,7 +16,12 @@ Server::add_acceptor(const asio::ip::tcp::endpoint& endpoint,
   return add_acceptor(endpoint, &handler);
 }
 
-void Server::start() {
+std::error_code Server::start() {
+  for (const auto& acceptor : acceptors_) {
+    if (!acceptor.is_handler_set())
+      return std::make_error_code(std::errc::invalid_argument);
+  }
+
   asio::post(io_executor_, [this] {
     if (started_)
       return;
@@ -25,6 +30,8 @@ void Server::start() {
     for (auto& acceptor : acceptors_)
       acceptor.start();
   });
+
+  return {};
 }
 
 void Server::stop() {

@@ -23,7 +23,7 @@ public:
   [[nodiscard]] expected<Acceptor*, std::error_code>
   add_acceptor(const asio::ip::tcp::endpoint&, Acceptor_handler&);
 
-  void start();
+  [[nodiscard]] std::error_code start();
   void stop();
 
 private:

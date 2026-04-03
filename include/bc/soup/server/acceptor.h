@@ -47,6 +47,7 @@ private:
 
   // Called by Server
   friend class Server;
+  bool is_handler_set() const;
   void start();
   void stop();
 };

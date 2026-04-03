@@ -52,6 +52,16 @@ expected<Port*, std::error_code> Acceptor::add_port(std::string_view username,
   return &ports_.emplace_back(username, password, handler);
 }
 
+bool Acceptor::is_handler_set() const {
+  if (!handler_)
+    return false;
+  for (const auto& port : ports_) {
+    if (!port.is_handler_set())
+      return false;
+  }
+  return true;
+}
+
 void Acceptor::start() {
 }
 

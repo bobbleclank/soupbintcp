@@ -13,4 +13,8 @@ void Port::set_handler(Port_handler& handler) {
   handler_ = &handler;
 }
 
+bool Port::is_handler_set() const {
+  return handler_ != nullptr;
+}
+
 } // namespace bc::soup::server
