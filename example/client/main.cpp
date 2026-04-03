@@ -10,6 +10,7 @@
 #include <chrono>
 #include <cstdlib>
 #include <print>
+#include <system_error>
 #include <thread>
 
 #include <unistd.h>
@@ -22,7 +23,11 @@ public:
   explicit Client(asio::io_context& io_context)
       : client_(io_context.get_executor()) {}
 
-  void start() { client_.start(); }
+  void start() {
+    if (const auto ec = client_.start())
+      throw std::system_error(ec, "client start");
+  }
+
   void stop() { client_.stop(); }
 
 private:
@@ -95,7 +100,13 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
-  run(time);
+  try {
+    run(time);
+  } catch (const std::system_error& e) {
+    std::println("system error: {}:{} {}", e.code().category().name(),
+                 e.code().value(), e.what());
+    return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
 }

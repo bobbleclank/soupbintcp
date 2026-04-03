@@ -27,7 +27,7 @@ public:
   [[nodiscard]] expected<Connection*, std::error_code>
   add_connection(const asio::ip::tcp::endpoint&, Connection_handler&);
 
-  void start();
+  [[nodiscard]] std::error_code start();
   void stop();
 
 private:

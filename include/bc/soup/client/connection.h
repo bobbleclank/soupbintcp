@@ -25,6 +25,7 @@ private:
 
   // Called by Client
   friend class Client;
+  bool is_handler_set() const;
   void connect();
   void disconnect();
 };

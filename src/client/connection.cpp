@@ -18,6 +18,10 @@ void Connection::set_handler(Connection_handler& handler) {
   handler_ = &handler;
 }
 
+bool Connection::is_handler_set() const {
+  return handler_ != nullptr;
+}
+
 void Connection::connect() {
 }
 

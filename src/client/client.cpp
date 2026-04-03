@@ -26,7 +26,14 @@ Client::add_connection(const asio::ip::tcp::endpoint& endpoint,
   return add_connection(endpoint, &handler);
 }
 
-void Client::start() {
+std::error_code Client::start() {
+  if (!handler_)
+    return std::make_error_code(std::errc::invalid_argument);
+  for (const auto& connection : connections_) {
+    if (!connection.is_handler_set())
+      return std::make_error_code(std::errc::invalid_argument);
+  }
+
   asio::post(io_executor_, [this] {
     if (started_)
       return;
@@ -35,6 +42,8 @@ void Client::start() {
     for (auto& connection : connections_)
       connection.connect();
   });
+
+  return {};
 }
 
 void Client::stop() {
