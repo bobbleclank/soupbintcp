@@ -3,11 +3,15 @@
 
 #include "bc/soup/socket.h"
 
+#include <asio.hpp>
+
 namespace bc::soup::server {
+
+class Acceptor;
 
 class Tcp_connection final : public Socket::Handler {
 public:
-  Tcp_connection();
+  Tcp_connection(asio::any_io_executor, Socket&&, Acceptor&);
   ~Tcp_connection() = default;
 
   Tcp_connection(const Tcp_connection&) = delete;
@@ -29,6 +33,12 @@ public:
   void write_buffer_empty() override;
 
 private:
+  Acceptor* acceptor_ = nullptr;
+  Socket socket_;
+
+  // Called by Acceptor
+  friend class Acceptor;
+  void close();
 };
 
 } // namespace bc::soup::server

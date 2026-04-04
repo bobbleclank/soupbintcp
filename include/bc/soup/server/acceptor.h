@@ -3,10 +3,12 @@
 
 #include "bc/soup/expected.h"
 #include "bc/soup/server/port.h"
+#include "bc/soup/server/tcp_connection.h"
 #include "bc/soup/socket_acceptor.h"
 
 #include <asio.hpp>
 
+#include <cstddef>
 #include <list>
 #include <string_view>
 #include <system_error>
@@ -26,6 +28,7 @@ public:
   void accept_success(asio::ip::tcp::socket&&) override;
 
   void set_handler(Acceptor_handler&);
+  void set_write_packets_limit(std::size_t);
 
   [[nodiscard]] expected<Port*, std::error_code> add_port(std::string_view,
                                                           std::string_view);
@@ -36,11 +39,15 @@ public:
   const asio::ip::tcp::endpoint& endpoint() const { return endpoint_; }
 
 private:
+  static constexpr std::size_t default_write_packets_limit = 100;
+
   Server* server_ = nullptr;
   Acceptor_handler* handler_ = nullptr;
   asio::ip::tcp::endpoint endpoint_;
   Socket_acceptor acceptor_;
   std::list<Port> ports_;
+  std::size_t write_packets_limit_ = default_write_packets_limit;
+  std::list<Tcp_connection> connections_;
 
   [[nodiscard]] expected<Port*, std::error_code>
   add_port(std::string_view, std::string_view, Port_handler*);

@@ -2,7 +2,10 @@
 
 #include "bc/soup/server/handler.h"
 #include "bc/soup/server/server.h"
+#include "bc/soup/socket.h"
 #include "bc/soup/validate.h"
+
+#include <utility>
 
 namespace bc::soup::server {
 
@@ -15,15 +18,27 @@ Acceptor::Acceptor(asio::any_io_executor io_executor,
       acceptor_(io_executor, *this) {
 }
 
-void Acceptor::accept_failure(asio::error_code) {
+void Acceptor::accept_failure(asio::error_code ec) {
+  handler_->accept_failure(ec);
+  acceptor_.async_accept();
 }
 
-// NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Not implemented
-void Acceptor::accept_success(asio::ip::tcp::socket&&) {
+void Acceptor::accept_success(asio::ip::tcp::socket&& s) {
+  Socket socket(std::move(s));
+  socket.set_write_packets_limit(write_packets_limit_);
+  const auto local_endpoint = socket.local_endpoint();
+  const auto remote_endpoint = socket.remote_endpoint();
+  handler_->accept_success(local_endpoint, remote_endpoint);
+  connections_.emplace_back(acceptor_.get_executor(), std::move(socket), *this);
+  acceptor_.async_accept();
 }
 
 void Acceptor::set_handler(Acceptor_handler& handler) {
   handler_ = &handler;
+}
+
+void Acceptor::set_write_packets_limit(std::size_t write_packets_limit) {
+  write_packets_limit_ = write_packets_limit;
 }
 
 expected<Port*, std::error_code> Acceptor::add_port(std::string_view username,
@@ -63,9 +78,35 @@ bool Acceptor::is_handler_set() const {
 }
 
 void Acceptor::start() {
+  if (const auto ec = acceptor_.open()) {
+    handler_->listening_setup_failure(ec, "open");
+    return;
+  }
+  if (const auto ec = acceptor_.set_reuse_address()) {
+    handler_->listening_setup_failure(ec, "set reuse address");
+    return;
+  }
+  if (const auto ec = acceptor_.set_no_delay()) {
+    handler_->listening_setup_failure(ec, "set no delay");
+    return;
+  }
+  if (const auto ec = acceptor_.bind(endpoint_)) {
+    handler_->listening_setup_failure(ec, "bind");
+    return;
+  }
+  if (const auto ec = acceptor_.listen()) {
+    handler_->listening_setup_failure(ec, "listen");
+    return;
+  }
+  const auto local_endpoint = acceptor_.local_endpoint();
+  handler_->listening_setup_success(local_endpoint);
+  acceptor_.async_accept();
 }
 
 void Acceptor::stop() {
+  acceptor_.close();
+  for (auto& connection : connections_)
+    connection.close();
 }
 
 } // namespace bc::soup::server
