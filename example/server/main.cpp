@@ -1,3 +1,7 @@
+#include "bc/soup/expected.h"
+#include "bc/soup/server/acceptor.h"
+#include "bc/soup/server/handler.h"
+#include "bc/soup/server/port.h"
 #include "bc/soup/server/server.h"
 #include "bc_soup_config.h"
 #include "io_context_runner.h"
@@ -9,6 +13,7 @@
 #include <atomic>
 #include <chrono>
 #include <cstdlib>
+#include <optional>
 #include <print>
 #include <system_error>
 #include <thread>
@@ -18,10 +23,72 @@
 using namespace bc;
 using namespace std::chrono_literals;
 
+class Port final : public soup::server::Port_handler {
+public:
+  explicit Port(soup::server::Port* port) : port_(port) {
+    port_->set_handler(*this);
+  }
+
+private:
+  soup::server::Port* port_ = nullptr;
+};
+
+class Acceptor final : public soup::server::Acceptor_handler {
+public:
+  explicit Acceptor(soup::server::Acceptor* acceptor) : acceptor_(acceptor) {
+    acceptor_->set_handler(*this);
+  }
+
+  void initialize() {
+    const auto result = acceptor_->add_port("", "");
+    if (!result)
+      throw std::system_error(result.error(), "add port");
+    port_.emplace(*result);
+  }
+
+  void listening_setup_failure(asio::error_code ec,
+                               const char* phase) override {
+    std::println("listening setup failure: error = {}:{} {}, phase = {}",
+                 ec.category().name(), ec.value(), ec.message(), phase);
+  }
+
+  void listening_setup_success(const asio::ip::tcp::endpoint& ep) override {
+    std::println("listening setup success: endpoint = {}:{}",
+                 ep.address().to_string(), ep.port());
+  }
+
+  void accept_failure(asio::error_code ec) override {
+    std::println("accept failure: error = {}:{} {}", ec.category().name(),
+                 ec.value(), ec.message());
+  }
+
+  void accept_success(const asio::ip::tcp::endpoint& local_ep,
+                      const asio::ip::tcp::endpoint& remote_ep) override {
+    std::println(
+        "accept success: local endpoint = {}:{}, remote endpoint = {}:{}",
+        local_ep.address().to_string(), local_ep.port(),
+        remote_ep.address().to_string(), remote_ep.port());
+  }
+
+private:
+  soup::server::Acceptor* acceptor_ = nullptr;
+  std::optional<Port> port_;
+};
+
 class Server {
 public:
   explicit Server(asio::io_context& io_context)
       : server_(io_context.get_executor()) {}
+
+  void initialize() {
+    const unsigned short port = 5050;
+    const asio::ip::tcp::endpoint ep(asio::ip::tcp::v4(), port);
+    const auto result = server_.add_acceptor(ep);
+    if (!result)
+      throw std::system_error(result.error(), "add acceptor");
+    acceptor_.emplace(*result);
+    acceptor_->initialize();
+  }
 
   void start() {
     if (const auto ec = server_.start())
@@ -32,6 +99,7 @@ public:
 
 private:
   soup::server::Server server_;
+  std::optional<Acceptor> acceptor_;
 };
 
 void run(int time) {
@@ -40,6 +108,7 @@ void run(int time) {
   std::atomic<bool> keep_going = true;
   io_runner.set_signal_handler([&keep_going] { keep_going = false; });
   Server server(io_context);
+  server.initialize();
 
   io_runner.start();
   std::this_thread::sleep_for(1s);
