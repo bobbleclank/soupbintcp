@@ -61,7 +61,7 @@ public:
   void initialize() {
     const auto address = asio::ip::make_address("127.0.0.1");
     const unsigned short port = 5050;
-    asio::ip::tcp::endpoint ep(address, port);
+    const asio::ip::tcp::endpoint ep(address, port);
     const auto result = client_.add_connection(ep);
     if (!result)
       throw std::system_error(result.error(), "add connection");
