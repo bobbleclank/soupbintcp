@@ -30,7 +30,7 @@ public:
   void read_failure(asio::error_code) override;
   void read_failure(Packet_error) override;
   void read_success(const Read_packet&) override;
-  void end_of_file() override;
+  void read_end_of_file() override;
 
   void write_failure(asio::error_code) override;
   void write_success(const Write_packet&) override;

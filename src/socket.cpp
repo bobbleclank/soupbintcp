@@ -117,7 +117,7 @@ void Socket::header_received(asio::error_code ec, std::size_t n) {
     return;
   }
   if (ec == asio::error::eof) {
-    handler_->end_of_file();
+    handler_->read_end_of_file();
     return;
   }
   if (ec) {
@@ -160,7 +160,7 @@ void Socket::payload_received(asio::error_code ec, std::size_t n) {
     return;
   }
   if (ec == asio::error::eof) {
-    handler_->end_of_file();
+    handler_->read_end_of_file();
     return;
   }
   if (ec) {
