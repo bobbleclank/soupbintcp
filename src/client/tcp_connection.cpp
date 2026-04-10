@@ -68,6 +68,8 @@ void Tcp_connection::connection_failure(asio::error_code ec,
 }
 
 void Tcp_connection::disconnect() {
+  socket_.close();
+  state_ = State::disconnected;
 }
 
 } // namespace bc::soup::client

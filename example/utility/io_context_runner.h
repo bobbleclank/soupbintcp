@@ -4,6 +4,7 @@
 #include <asio.hpp>
 
 #include <functional>
+#include <optional>
 #include <thread>
 
 class Io_context_runner {
@@ -23,7 +24,11 @@ public:
   void stop();
 
 private:
+  using executor = asio::io_context::executor_type;
+  using work_guard = asio::executor_work_guard<executor>;
+
   asio::io_context& io_context_;
+  std::optional<work_guard> work_guard_;
   asio::signal_set signals_{io_context_};
   std::function<void()> signal_handler_;
   std::thread thread_;

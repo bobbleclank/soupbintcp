@@ -45,6 +45,7 @@ void Tcp_connection::write_buffer_empty() {
 }
 
 void Tcp_connection::close() {
+  socket_.close();
 }
 
 } // namespace bc::soup::server

@@ -18,6 +18,8 @@ void Io_context_runner::set_signal_handler(
   add_signal(SIGINT);
   add_signal(SIGTERM);
   signals_.async_wait([this](asio::error_code ec, int signal_number) {
+    if (ec == asio::error::operation_aborted)
+      return;
     std::println("signal occurred: signal number = {}", signal_number);
     if (ec) {
       std::println("signal occurred: error: {} ({})", ec.message(), ec.value());
@@ -28,15 +30,16 @@ void Io_context_runner::set_signal_handler(
 }
 
 void Io_context_runner::start() {
+  work_guard_.emplace(asio::make_work_guard(io_context_));
   thread_ = std::thread([this] {
-    const auto work_guard = asio::make_work_guard(io_context_);
     const asio::io_context::count_type count = io_context_.run();
     std::println("number of IO context handlers executed = {}", count);
   });
 }
 
 void Io_context_runner::stop() {
-  io_context_.stop();
+  signals_.cancel();
+  work_guard_.reset();
   if (thread_.joinable())
     thread_.join();
 }
