@@ -12,8 +12,7 @@ class Heartbeat_timer {
 public:
   class Handler {
   public:
-    virtual void set_expiry_failure(asio::error_code) = 0;
-    virtual void wait_failure(asio::error_code) = 0;
+    virtual void heartbeat_timer_error(const asio::system_error&) = 0;
     virtual void heartbeat_required() = 0;
     virtual void timed_out() = 0;
 
@@ -31,7 +30,7 @@ public:
   Heartbeat_timer(asio::steady_timer&, Handler&, std::chrono::seconds);
 
   void start();
-  [[nodiscard]] asio::error_code stop();
+  void stop();
 
   void increment_receive_count() { ++receive_count_; }
   void increment_send_count() { ++send_count_; }

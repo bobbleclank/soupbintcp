@@ -13,19 +13,18 @@ void Heartbeat_timer::start() {
   try {
     timer_->expires_after(heartbeat_period);
   } catch (const asio::system_error& e) {
-    handler_->set_expiry_failure(e.code());
+    handler_->heartbeat_timer_error(e);
     return;
   }
   timer_->async_wait([this](asio::error_code ec) { on_expiry(ec); });
 }
 
-asio::error_code Heartbeat_timer::stop() {
+void Heartbeat_timer::stop() {
   try {
     timer_->cancel();
   } catch (const asio::system_error& e) {
-    return e.code();
+    handler_->heartbeat_timer_error(e);
   }
-  return {};
 }
 
 void Heartbeat_timer::on_expiry(asio::error_code ec) {
@@ -33,7 +32,7 @@ void Heartbeat_timer::on_expiry(asio::error_code ec) {
     return;
   }
   if (ec) {
-    handler_->wait_failure(ec);
+    handler_->heartbeat_timer_error({ec, "async_wait"});
     return;
   }
 
