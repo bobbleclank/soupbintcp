@@ -42,7 +42,10 @@ private:
   std::chrono::seconds no_receive_period_ = std::chrono::seconds::zero();
   std::uint32_t receive_count_ = 0;
   std::uint32_t send_count_ = 0;
+  bool started_ = false;
 
+  void schedule();
+  void cancel();
   void on_expiry(asio::error_code);
 };
 

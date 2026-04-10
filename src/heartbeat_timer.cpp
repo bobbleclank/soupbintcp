@@ -10,6 +10,22 @@ Heartbeat_timer::Heartbeat_timer(asio::steady_timer& timer, Handler& handler,
 }
 
 void Heartbeat_timer::start() {
+  if (started_)
+    return;
+  started_ = true;
+
+  schedule();
+}
+
+void Heartbeat_timer::stop() {
+  if (!started_)
+    return;
+  started_ = false;
+
+  cancel();
+}
+
+void Heartbeat_timer::schedule() {
   try {
     timer_->expires_after(heartbeat_period);
   } catch (const asio::system_error& e) {
@@ -19,7 +35,7 @@ void Heartbeat_timer::start() {
   timer_->async_wait([this](asio::error_code ec) { on_expiry(ec); });
 }
 
-void Heartbeat_timer::stop() {
+void Heartbeat_timer::cancel() {
   try {
     timer_->cancel();
   } catch (const asio::system_error& e) {
@@ -35,6 +51,8 @@ void Heartbeat_timer::on_expiry(asio::error_code ec) {
     handler_->heartbeat_timer_error({ec, "async_wait"});
     return;
   }
+  if (!started_)
+    return;
 
   if (receive_count_ == 0) {
     no_receive_period_ += heartbeat_period;
@@ -52,7 +70,7 @@ void Heartbeat_timer::on_expiry(asio::error_code ec) {
   else
     send_count_ = 0;
 
-  start();
+  schedule();
 }
 
 } // namespace bc::soup
