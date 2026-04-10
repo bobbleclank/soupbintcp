@@ -14,6 +14,7 @@ void Heartbeat_timer::start() {
     return;
   started_ = true;
 
+  timer_->expires_at(std::chrono::steady_clock::now());
   schedule();
 }
 
@@ -27,7 +28,7 @@ void Heartbeat_timer::stop() {
 
 void Heartbeat_timer::schedule() {
   try {
-    timer_->expires_after(heartbeat_period);
+    timer_->expires_at(timer_->expiry() + heartbeat_period);
   } catch (const asio::system_error& e) {
     handler_->heartbeat_timer_error(e);
     return;
