@@ -39,7 +39,7 @@ void Heartbeat_timer::on_expiry(asio::error_code ec) {
   if (receive_count_ == 0) {
     no_receive_period_ += heartbeat_period;
     if (no_receive_period_ >= timeout_) {
-      handler_->timed_out();
+      handler_->heartbeat_receive_timeout();
       return;
     }
   } else {
@@ -48,7 +48,7 @@ void Heartbeat_timer::on_expiry(asio::error_code ec) {
   }
 
   if (send_count_ == 0)
-    handler_->heartbeat_required();
+    handler_->heartbeat_send_due();
   else
     send_count_ = 0;
 
