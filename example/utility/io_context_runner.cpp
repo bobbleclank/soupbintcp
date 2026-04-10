@@ -29,7 +29,7 @@ void Io_context_runner::set_signal_handler(
 
 void Io_context_runner::start() {
   thread_ = std::thread([this] {
-    const auto work_guard = asio::make_work_guard(io_context_.get_executor());
+    const auto work_guard = asio::make_work_guard(io_context_);
     const asio::io_context::count_type count = io_context_.run();
     std::println("number of IO context handlers executed = {}", count);
   });
