@@ -37,7 +37,8 @@ void Io_context_runner::start() {
 
 void Io_context_runner::stop() {
   io_context_.stop();
-  thread_.join();
+  if (thread_.joinable())
+    thread_.join();
 }
 
 void Io_context_runner::add_signal(int signal_number) {
