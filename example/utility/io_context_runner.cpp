@@ -26,7 +26,8 @@ void Io_context_runner::set_signal_handler(
                    ec.message(), ec.value());
       return;
     }
-    signal_handler_();
+    if (signal_handler_)
+      signal_handler_();
   });
 }
 
