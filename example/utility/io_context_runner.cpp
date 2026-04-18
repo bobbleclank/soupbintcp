@@ -25,7 +25,18 @@ void Io_context_runner::set_signal_handler(
                    ec.message(), ec.value());
       return;
     }
-    std::println("signal occurred: signal number = {}", signal_number);
+    auto to_string = [](int signal_number) {
+      switch (signal_number) {
+      case SIGINT:
+        return "SIGINT";
+      case SIGTERM:
+        return "SIGTERM";
+      default:
+        return "?";
+      }
+    };
+    std::println("signal received: {} ({}), shutting down",
+                 to_string(signal_number), signal_number);
     if (signal_handler_)
       signal_handler_();
   });
