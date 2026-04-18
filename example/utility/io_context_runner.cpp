@@ -22,7 +22,8 @@ void Io_context_runner::set_signal_handler(
       return;
     std::println("signal occurred: signal number = {}", signal_number);
     if (ec) {
-      std::println("signal occurred: error: {} ({})", ec.message(), ec.value());
+      std::println("asynchronous wait against signal set failure: {} ({})",
+                   ec.message(), ec.value());
       return;
     }
     signal_handler_();
