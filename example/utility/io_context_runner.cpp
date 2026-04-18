@@ -20,12 +20,12 @@ void Io_context_runner::set_signal_handler(
   signals_.async_wait([this](asio::error_code ec, int signal_number) {
     if (ec == asio::error::operation_aborted)
       return;
-    std::println("signal occurred: signal number = {}", signal_number);
     if (ec) {
       std::println("asynchronous wait against signal set failure: {} ({})",
                    ec.message(), ec.value());
       return;
     }
+    std::println("signal occurred: signal number = {}", signal_number);
     if (signal_handler_)
       signal_handler_();
   });
