@@ -44,6 +44,7 @@ void Io_context_runner::stop() {
   work_guard_.reset();
   if (thread_.joinable())
     thread_.join();
+  io_context_.restart();
 }
 
 void Io_context_runner::add_signal(int signal_number) {
