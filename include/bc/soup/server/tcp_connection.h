@@ -26,6 +26,7 @@ public:
   void read_failure(asio::error_code) override;
   void read_failure(Packet_error) override;
   void read_success(const Read_packet&) override;
+  void read_aborted() override;
   void read_end_of_file() override;
 
   void write_failure(asio::error_code) override;

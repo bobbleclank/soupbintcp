@@ -32,6 +32,9 @@ void Tcp_connection::read_failure(Packet_error) {
 void Tcp_connection::read_success(const Read_packet&) {
 }
 
+void Tcp_connection::read_aborted() {
+}
+
 void Tcp_connection::read_end_of_file() {
 }
 

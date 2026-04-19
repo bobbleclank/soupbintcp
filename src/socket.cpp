@@ -118,6 +118,7 @@ void Socket::read_header() {
 
 void Socket::header_received(asio::error_code ec, std::size_t n) {
   if (ec == asio::error::operation_aborted) {
+    handler_->read_aborted();
     return;
   }
   if (ec == asio::error::eof) {
@@ -161,6 +162,7 @@ void Socket::read_payload() {
 
 void Socket::payload_received(asio::error_code ec, std::size_t n) {
   if (ec == asio::error::operation_aborted) {
+    handler_->read_aborted();
     return;
   }
   if (ec == asio::error::eof) {

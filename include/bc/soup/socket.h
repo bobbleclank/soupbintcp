@@ -21,6 +21,7 @@ public:
     virtual void read_failure(asio::error_code) = 0;
     virtual void read_failure(Packet_error) = 0;
     virtual void read_success(const Read_packet&) = 0;
+    virtual void read_aborted() = 0;
     virtual void read_end_of_file() = 0;
 
     virtual void write_failure(asio::error_code) = 0;
