@@ -34,6 +34,8 @@ asio::error_code Socket::open() {
 }
 
 void Socket::shutdown(asio::error_code* error) {
+  if (!socket_.is_open())
+    return;
   asio::error_code ec;
   socket_.shutdown(asio::ip::tcp::socket::shutdown_both, ec);
   if (error)
@@ -41,6 +43,8 @@ void Socket::shutdown(asio::error_code* error) {
 }
 
 void Socket::close(asio::error_code* error) {
+  if (!socket_.is_open())
+    return;
   asio::error_code ec;
   socket_.close(ec);
   if (error)
