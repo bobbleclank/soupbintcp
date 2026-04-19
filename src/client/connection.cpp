@@ -29,7 +29,7 @@ void Connection::connect() {
 
 void Connection::disconnect() {
   if (connection_)
-    connection_->disconnect();
+    connection_->close();
 }
 
 } // namespace bc::soup::client

@@ -67,7 +67,7 @@ void Tcp_connection::connection_failure(asio::error_code ec,
   handler_->connection_failure(ec, phase);
 }
 
-void Tcp_connection::disconnect() {
+void Tcp_connection::close() {
   socket_.close();
   state_ = State::disconnected;
 }

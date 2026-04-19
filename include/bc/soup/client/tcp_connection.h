@@ -52,7 +52,7 @@ private:
 
   // Called by Connection
   friend class Connection;
-  void disconnect();
+  void close();
 };
 
 } // namespace bc::soup::client
