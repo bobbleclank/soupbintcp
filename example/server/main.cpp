@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <optional>
 #include <print>
+#include <string_view>
 #include <system_error>
 #include <thread>
 
@@ -40,8 +41,8 @@ public:
     acceptor_->set_handler(*this);
   }
 
-  void initialize() {
-    const auto result = acceptor_->add_port("", "");
+  void initialize(std::string_view username, std::string_view password) {
+    const auto result = acceptor_->add_port(username, password);
     if (!result)
       throw std::system_error(result.error(), "add port");
     port_.emplace(*result);
@@ -85,14 +86,14 @@ public:
   explicit Server(asio::io_context& io_context)
       : server_(io_context.get_executor()) {}
 
-  void initialize() {
+  void initialize(std::string_view username, std::string_view password) {
     const unsigned short port = 5050;
     const asio::ip::tcp::endpoint ep(asio::ip::tcp::v4(), port);
     const auto result = server_.add_acceptor(ep);
     if (!result)
       throw std::system_error(result.error(), "add acceptor");
     acceptor_.emplace(*result);
-    acceptor_->initialize();
+    acceptor_->initialize(username, password);
   }
 
   void start() {
@@ -107,13 +108,13 @@ private:
   std::optional<Acceptor> acceptor_;
 };
 
-void run(int time) {
+void run(std::string_view username, std::string_view password, int time) {
   asio::io_context io_context;
   Io_context_runner io_runner(io_context);
   std::atomic<bool> keep_going = true;
   io_runner.set_signal_handler([&keep_going] { keep_going = false; });
   Server server(io_context);
-  server.initialize();
+  server.initialize(username, password);
 
   io_runner.start();
   std::this_thread::sleep_for(1s);
@@ -137,7 +138,9 @@ void display_usage() {
   std::print("usage: bc_soup_server [options]\n"
              "options:\n"
              "  -h  help\n"
+             "  -p  password [pass]\n"
              "  -t  running time (seconds) [30]\n"
+             "  -u  username [user]\n"
              "  -v  version\n");
 }
 
@@ -146,18 +149,27 @@ void display_version() {
 }
 
 int main(int argc, char** argv) {
+  const char* username = "user";
+  const char* password = "pass";
+
   constexpr int default_time = 30;
   int time = default_time;
 
   try {
     int opt = 0;
-    while ((opt = getopt(argc, argv, ":ht:v")) != -1) {
+    while ((opt = getopt(argc, argv, ":hp:t:u:v")) != -1) {
       switch (opt) {
       case 'h':
         display_usage();
         return EXIT_SUCCESS;
+      case 'p':
+        password = optarg;
+        break;
       case 't':
         time = to_int(optarg, optopt);
+        break;
+      case 'u':
+        username = optarg;
         break;
       case 'v':
         display_version();
@@ -175,7 +187,7 @@ int main(int argc, char** argv) {
   }
 
   try {
-    run(time);
+    run(username, password, time);
   } catch (const std::system_error& e) {
     std::println("system error: {}:{} {}", e.code().category().name(),
                  e.code().value(), e.what());
