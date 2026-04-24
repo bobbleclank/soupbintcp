@@ -8,6 +8,11 @@
 
 #include <cstddef>
 
+namespace bc::soup {
+class Read_packet;
+class Write_packet;
+} // namespace bc::soup
+
 namespace bc::soup::client {
 
 class Connection;

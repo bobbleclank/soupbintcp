@@ -6,6 +6,11 @@
 
 #include <asio.hpp>
 
+namespace bc::soup {
+class Read_packet;
+class Write_packet;
+} // namespace bc::soup
+
 namespace bc::soup::server {
 
 class Acceptor;
