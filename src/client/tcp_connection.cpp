@@ -34,7 +34,7 @@ void Tcp_connection::connect_success() {
   state_ = State::connected;
   const auto local_endpoint = socket_.local_endpoint();
   const auto remote_endpoint = socket_.remote_endpoint();
-  handler_->connection_success(local_endpoint, remote_endpoint);
+  handler_->connect_success(local_endpoint, remote_endpoint);
 
   socket_.async_read();
 }
@@ -67,7 +67,7 @@ void Tcp_connection::handle_connect_failure(asio::error_code ec,
                                             const char* phase) {
   socket_.close();
   state_ = State::disconnected;
-  handler_->connection_failure(ec, phase);
+  handler_->connect_failure(ec, phase);
 }
 
 void Tcp_connection::close() {

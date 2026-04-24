@@ -34,15 +34,15 @@ public:
                  ep.port());
   }
 
-  void connection_failure(asio::error_code ec, const char* phase) override {
-    std::println("connection failure: error = {}:{} {}, phase = {}",
+  void connect_failure(asio::error_code ec, const char* phase) override {
+    std::println("connect failure: error = {}:{} {}, phase = {}",
                  ec.category().name(), ec.value(), ec.message(), phase);
   }
 
-  void connection_success(const asio::ip::tcp::endpoint& local_ep,
-                          const asio::ip::tcp::endpoint& remote_ep) override {
+  void connect_success(const asio::ip::tcp::endpoint& local_ep,
+                       const asio::ip::tcp::endpoint& remote_ep) override {
     std::println(
-        "connection success: local endpoint = {}:{}, remote endpoint = {}:{}",
+        "connect success: local endpoint = {}:{}, remote endpoint = {}:{}",
         local_ep.address().to_string(), local_ep.port(),
         remote_ep.address().to_string(), remote_ep.port());
   }
