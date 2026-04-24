@@ -2,6 +2,7 @@
 
 #include "bc/soup/client/client.h"
 #include "bc/soup/client/handler.h"
+#include "bc/soup/validate.h"
 
 namespace bc::soup::client {
 
@@ -16,6 +17,20 @@ Connection::Connection(asio::any_io_executor io_executor,
 
 void Connection::set_handler(Connection_handler& handler) {
   handler_ = &handler;
+}
+
+std::error_code Connection::set_username(std::string_view username) {
+  if (!is_valid_username(username))
+    return std::make_error_code(std::errc::invalid_argument);
+  username_ = username;
+  return {};
+}
+
+std::error_code Connection::set_password(std::string_view password) {
+  if (!is_valid_password(password))
+    return std::make_error_code(std::errc::invalid_argument);
+  password_ = password;
+  return {};
 }
 
 bool Connection::is_handler_set() const {
