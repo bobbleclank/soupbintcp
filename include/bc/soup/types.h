@@ -10,7 +10,7 @@ enum class Packet_error {
 const char* to_string(Packet_error);
 
 enum class Write_error {
-  none,
+  none = 0,
   buffer_full
 };
 
