@@ -72,7 +72,6 @@ void Tcp_connection::handle_connect_failure(asio::error_code ec,
 
 void Tcp_connection::close() {
   socket_.close();
-  state_ = State::disconnected;
 }
 
 } // namespace bc::soup::client
