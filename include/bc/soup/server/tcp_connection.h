@@ -6,6 +6,8 @@
 
 #include <asio.hpp>
 
+#include <cstddef>
+
 namespace bc::soup {
 class Read_packet;
 class Write_packet;
@@ -48,6 +50,11 @@ private:
   Acceptor* acceptor_ = nullptr;
   Socket socket_;
   State state_ = State::connected;
+  Disconnect_reason pending_reason_ = Disconnect_reason::none;
+
+  void process_packet(const Read_packet&);
+
+  [[nodiscard]] Packet_error process_login_request(const void*, std::size_t);
 
   void terminate(Disconnect_reason);
 
