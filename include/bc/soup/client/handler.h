@@ -5,6 +5,10 @@
 
 #include <asio.hpp>
 
+namespace bc::soup {
+struct Login_request_packet;
+}
+
 namespace bc::soup::client {
 
 class Client_handler {
@@ -26,6 +30,8 @@ public:
   virtual void connect_failure(asio::error_code, const char*) = 0;
   virtual void connect_success(const asio::ip::tcp::endpoint&,
                                const asio::ip::tcp::endpoint&) = 0;
+
+  virtual void logging_in(const Login_request_packet&) = 0;
 
   virtual void disconnect(Disconnect_reason) = 0;
 

@@ -2,6 +2,10 @@
 
 #include "bc/soup/client/connection.h"
 #include "bc/soup/client/handler.h"
+#include "bc/soup/logical_packets.h"
+#include "bc/soup/rw_packets.h"
+
+#include <utility>
 
 namespace bc::soup::client {
 
@@ -37,6 +41,14 @@ void Tcp_connection::connect_success() {
   handler_->connect_success(local_endpoint, remote_endpoint);
 
   socket_.async_read();
+
+  Login_request_packet request;
+  connection_->on_connect_success(request);
+  handler_->logging_in(request);
+  Write_packet packet(request.packet_type, request.payload_size);
+  write(request, packet.payload_data());
+  // Discard write failure: should not fail since first packet sent
+  (void)socket_.async_write(std::move(packet));
 }
 
 void Tcp_connection::read_failure(asio::error_code) {
@@ -72,6 +84,7 @@ void Tcp_connection::handle_connect_failure(asio::error_code ec,
   state_ = State::disconnected;
   socket_.close();
   handler_->connect_failure(ec, phase);
+  connection_->on_connect_failure();
 }
 
 void Tcp_connection::terminate(Disconnect_reason reason) {

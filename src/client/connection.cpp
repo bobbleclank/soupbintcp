@@ -2,6 +2,7 @@
 
 #include "bc/soup/client/client.h"
 #include "bc/soup/client/handler.h"
+#include "bc/soup/logical_packets.h"
 #include "bc/soup/validate.h"
 
 namespace bc::soup::client {
@@ -45,6 +46,14 @@ void Connection::connect() {
 void Connection::disconnect() {
   if (connection_)
     connection_->close();
+}
+
+void Connection::on_connect_failure() {
+}
+
+void Connection::on_connect_success(Login_request_packet& request) {
+  request.username = username_;
+  request.password = password_;
 }
 
 } // namespace bc::soup::client

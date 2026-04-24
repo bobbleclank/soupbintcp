@@ -10,6 +10,10 @@
 #include <string_view>
 #include <system_error>
 
+namespace bc::soup {
+struct Login_request_packet;
+}
+
 namespace bc::soup::client {
 
 class Client;
@@ -44,6 +48,11 @@ private:
   bool is_handler_set() const;
   void connect();
   void disconnect();
+
+  // Called by Tcp_connection
+  friend class Tcp_connection;
+  void on_connect_failure();
+  void on_connect_success(Login_request_packet&);
 };
 
 } // namespace bc::soup::client
