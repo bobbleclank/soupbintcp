@@ -49,7 +49,7 @@ private:
   Socket socket_;
   State state_ = State::connecting;
 
-  void connection_failure(asio::error_code, const char*);
+  void handle_connect_failure(asio::error_code, const char*);
 
   // Called by Connection
   friend class Connection;

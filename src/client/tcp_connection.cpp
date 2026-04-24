@@ -15,11 +15,11 @@ Tcp_connection::Tcp_connection(asio::any_io_executor io_executor,
 
   socket_.set_write_packets_limit(write_packets_limit);
   if (const auto ec = socket_.open()) {
-    connection_failure(ec, "open");
+    handle_connect_failure(ec, "open");
     return;
   }
   if (const auto ec = socket_.set_no_delay()) {
-    connection_failure(ec, "set no delay");
+    handle_connect_failure(ec, "set no delay");
     return;
   }
   handler_->connecting(connection_->endpoint());
@@ -27,7 +27,7 @@ Tcp_connection::Tcp_connection(asio::any_io_executor io_executor,
 }
 
 void Tcp_connection::connect_failure(asio::error_code ec) {
-  connection_failure(ec, "connect");
+  handle_connect_failure(ec, "connect");
 }
 
 void Tcp_connection::connect_success() {
@@ -63,8 +63,8 @@ void Tcp_connection::write_success(const Write_packet&) {
 void Tcp_connection::write_buffer_empty() {
 }
 
-void Tcp_connection::connection_failure(asio::error_code ec,
-                                        const char* phase) {
+void Tcp_connection::handle_connect_failure(asio::error_code ec,
+                                            const char* phase) {
   socket_.close();
   state_ = State::disconnected;
   handler_->connection_failure(ec, phase);
