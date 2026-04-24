@@ -65,8 +65,8 @@ void Tcp_connection::write_buffer_empty() {
 
 void Tcp_connection::handle_connect_failure(asio::error_code ec,
                                             const char* phase) {
-  socket_.close();
   state_ = State::disconnected;
+  socket_.close();
   handler_->connect_failure(ec, phase);
 }
 
