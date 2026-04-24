@@ -3,6 +3,7 @@
 #include "bc/soup/server/handler.h"
 #include "bc/soup/server/port.h"
 #include "bc/soup/server/server.h"
+#include "bc/soup/types.h"
 #include "bc_soup_config.h"
 #include "io_context_runner.h"
 #include "option_convert.h"
@@ -68,6 +69,10 @@ public:
         "accept success: local endpoint = {}:{}, remote endpoint = {}:{}",
         local_ep.address().to_string(), local_ep.port(),
         remote_ep.address().to_string(), remote_ep.port());
+  }
+
+  void disconnect(soup::Disconnect_reason reason) override {
+    std::println("disconnect: reason = {}", to_string(reason));
   }
 
 private:

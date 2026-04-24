@@ -2,6 +2,7 @@
 #define INCLUDE_BC_SOUP_SERVER_TCP_CONNECTION_H
 
 #include "bc/soup/socket.h"
+#include "bc/soup/types.h"
 
 #include <asio.hpp>
 
@@ -34,8 +35,16 @@ public:
   void write_buffer_empty() override;
 
 private:
+  enum class State {
+    connected,
+    disconnected
+  };
+
   Acceptor* acceptor_ = nullptr;
   Socket socket_;
+  State state_ = State::connected;
+
+  void terminate(Disconnect_reason);
 
   // Called by Acceptor
   friend class Acceptor;

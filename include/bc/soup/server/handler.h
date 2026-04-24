@@ -1,6 +1,8 @@
 #ifndef INCLUDE_BC_SOUP_SERVER_HANDLER_H
 #define INCLUDE_BC_SOUP_SERVER_HANDLER_H
 
+#include "bc/soup/types.h"
+
 #include <asio.hpp>
 
 namespace bc::soup::server {
@@ -13,6 +15,8 @@ public:
   virtual void accept_failure(asio::error_code) = 0;
   virtual void accept_success(const asio::ip::tcp::endpoint&,
                               const asio::ip::tcp::endpoint&) = 0;
+
+  virtual void disconnect(Disconnect_reason) = 0;
 
 protected:
   Acceptor_handler() = default;

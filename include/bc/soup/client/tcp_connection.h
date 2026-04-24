@@ -2,6 +2,7 @@
 #define INCLUDE_BC_SOUP_CLIENT_TCP_CONNECTION_H
 
 #include "bc/soup/socket.h"
+#include "bc/soup/types.h"
 
 #include <asio.hpp>
 
@@ -50,6 +51,7 @@ private:
   State state_ = State::connecting;
 
   void handle_connect_failure(asio::error_code, const char*);
+  void terminate(Disconnect_reason);
 
   // Called by Connection
   friend class Connection;

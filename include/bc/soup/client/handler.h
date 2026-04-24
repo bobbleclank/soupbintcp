@@ -1,6 +1,8 @@
 #ifndef INCLUDE_BC_SOUP_CLIENT_HANDLER_H
 #define INCLUDE_BC_SOUP_CLIENT_HANDLER_H
 
+#include "bc/soup/types.h"
+
 #include <asio.hpp>
 
 namespace bc::soup::client {
@@ -24,6 +26,8 @@ public:
   virtual void connect_failure(asio::error_code, const char*) = 0;
   virtual void connect_success(const asio::ip::tcp::endpoint&,
                                const asio::ip::tcp::endpoint&) = 0;
+
+  virtual void disconnect(Disconnect_reason) = 0;
 
 protected:
   Connection_handler() = default;

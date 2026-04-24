@@ -109,4 +109,8 @@ void Acceptor::stop() {
     connection.close();
 }
 
+void Acceptor::on_disconnect(Disconnect_reason reason) {
+  handler_->disconnect(reason);
+}
+
 } // namespace bc::soup::server

@@ -5,6 +5,7 @@
 #include "bc/soup/server/port.h"
 #include "bc/soup/server/tcp_connection.h"
 #include "bc/soup/socket_acceptor.h"
+#include "bc/soup/types.h"
 
 #include <asio.hpp>
 
@@ -57,6 +58,10 @@ private:
   bool is_handler_set() const;
   void start();
   void stop();
+
+  // Called by Tcp_connection
+  friend class Tcp_connection;
+  void on_disconnect(Disconnect_reason);
 };
 
 } // namespace bc::soup::server

@@ -40,18 +40,22 @@ void Tcp_connection::connect_success() {
 }
 
 void Tcp_connection::read_failure(asio::error_code) {
+  terminate(Disconnect_reason::transport_error);
 }
 
 void Tcp_connection::read_failure(Packet_error) {
+  terminate(Disconnect_reason::protocol_violation);
 }
 
 void Tcp_connection::read_success(const Read_packet&) {
 }
 
 void Tcp_connection::read_aborted() {
+  terminate(Disconnect_reason::user_initiated);
 }
 
 void Tcp_connection::read_end_of_file() {
+  terminate(Disconnect_reason::peer_closed);
 }
 
 void Tcp_connection::write_failure(asio::error_code) {
@@ -68,6 +72,14 @@ void Tcp_connection::handle_connect_failure(asio::error_code ec,
   state_ = State::disconnected;
   socket_.close();
   handler_->connect_failure(ec, phase);
+}
+
+void Tcp_connection::terminate(Disconnect_reason reason) {
+  if (state_ == State::disconnected)
+    return;
+  state_ = State::disconnected;
+  socket_.close();
+  handler_->disconnect(reason);
 }
 
 void Tcp_connection::close() {
