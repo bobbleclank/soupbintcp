@@ -48,6 +48,7 @@ private:
     connecting,
     connected,
     logged_in,
+    disconnecting,
     disconnected
   };
 
@@ -66,6 +67,7 @@ private:
   void terminate(Disconnect_reason);
   void terminate();
   void initiate_disconnect(Disconnect_reason);
+  bool is_closing() const;
 
   // Called by Connection
   friend class Connection;

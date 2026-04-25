@@ -118,8 +118,15 @@ void Tcp_connection::terminate() {
 }
 
 void Tcp_connection::initiate_disconnect(Disconnect_reason reason) {
+  if (is_closing())
+    return;
+  state_ = State::disconnecting;
   pending_reason_ = reason;
   socket_.close();
+}
+
+bool Tcp_connection::is_closing() const {
+  return state_ == State::disconnecting || state_ == State::disconnected;
 }
 
 void Tcp_connection::close() {
