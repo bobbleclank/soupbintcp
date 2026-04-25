@@ -60,7 +60,8 @@ void Tcp_connection::read_failure(Packet_error) {
 }
 
 void Tcp_connection::read_success(const Read_packet& packet) {
-  process_packet(packet);
+  if (!is_closing())
+    process_packet(packet);
   socket_.async_read();
 }
 
