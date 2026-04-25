@@ -15,8 +15,10 @@ const char* to_string(Packet_error);
 
 enum class Login_reject_reason {
   none = 0,
+  not_authorized,
   user_not_found,
-  incorrect_password
+  incorrect_password,
+  invalid_reject_reason
 };
 
 const char* to_string(Login_reject_reason);

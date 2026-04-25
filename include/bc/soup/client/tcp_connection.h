@@ -47,6 +47,7 @@ private:
   enum class State {
     connecting,
     connected,
+    logged_in,
     disconnected
   };
 
@@ -54,6 +55,12 @@ private:
   Connection_handler* handler_ = nullptr;
   Socket socket_;
   State state_ = State::connecting;
+  Disconnect_reason pending_reason_ = Disconnect_reason::none;
+
+  void process_packet(const Read_packet&);
+
+  [[nodiscard]] Packet_error process_login_accepted(const void*, std::size_t);
+  [[nodiscard]] Packet_error process_login_rejected(const void*, std::size_t);
 
   void handle_connect_failure(asio::error_code, const char*);
   void terminate(Disconnect_reason);

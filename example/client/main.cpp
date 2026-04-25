@@ -61,6 +61,15 @@ public:
                  p.username, p.password, p.session, p.next_sequence_number);
   }
 
+  void login_failure(soup::Login_reject_reason reason) override {
+    std::println("login failure: reason = {}", to_string(reason));
+  }
+
+  void login_success(const soup::Login_accepted_packet& p) override {
+    std::println("login success: session = {}, next sequence number = {}",
+                 p.session, p.next_sequence_number);
+  }
+
   void disconnect(soup::Disconnect_reason reason) override {
     std::println("disconnect: reason = {}", to_string(reason));
   }
