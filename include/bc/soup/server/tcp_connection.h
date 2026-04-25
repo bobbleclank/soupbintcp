@@ -16,6 +16,8 @@ class Write_packet;
 namespace bc::soup::server {
 
 class Acceptor;
+class Port;
+class Port_handler;
 
 class Tcp_connection final : public Socket::Handler {
 public:
@@ -44,10 +46,13 @@ public:
 private:
   enum class State {
     connected,
+    logged_in,
     disconnected
   };
 
   Acceptor* acceptor_ = nullptr;
+  Port* port_ = nullptr;
+  Port_handler* handler_ = nullptr;
   Socket socket_;
   State state_ = State::connected;
   Disconnect_reason pending_reason_ = Disconnect_reason::none;

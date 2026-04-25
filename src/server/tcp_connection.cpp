@@ -3,6 +3,8 @@
 #include "bc/soup/logical_packets.h"
 #include "bc/soup/rw_packets.h"
 #include "bc/soup/server/acceptor.h"
+#include "bc/soup/server/handler.h"
+#include "bc/soup/server/port.h"
 
 #include <cassert>
 #include <utility>
@@ -76,12 +78,31 @@ void Tcp_connection::process_packet(const Read_packet& packet) {
   }
 }
 
-Packet_error Tcp_connection::process_login_request(const void*,
+Packet_error Tcp_connection::process_login_request(const void* data,
                                                    std::size_t size) {
   if (size != Login_request_packet::payload_size)
     return Packet_error::incorrect_length;
   if (state_ != State::connected)
     return Packet_error::unexpected_sequence;
+
+  Login_request_packet request;
+  read(request, data);
+  const auto result =
+      acceptor_->on_login_request(*this, request, port_, handler_);
+  if (!result) {
+    const Login_rejected_packet& response = result.error();
+    Write_packet packet(response.packet_type, response.payload_size);
+    write(response, packet.payload_data());
+    // Discard write failure: should not fail since first packet sent
+    (void)socket_.async_write(std::move(packet));
+  } else {
+    const Login_accepted_packet& response = *result;
+    state_ = State::logged_in;
+    Write_packet packet(response.packet_type, response.payload_size);
+    write(response, packet.payload_data());
+    // Discard write failure: should not fail since first packet sent
+    (void)socket_.async_write(std::move(packet));
+  }
 
   return Packet_error::none;
 }

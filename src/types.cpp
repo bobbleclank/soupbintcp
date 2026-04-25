@@ -18,6 +18,18 @@ const char* to_string(Packet_error error) {
   return "?";
 }
 
+const char* to_string(Login_reject_reason reason) {
+  switch (reason) {
+  case Login_reject_reason::none:
+    return "none";
+  case Login_reject_reason::user_not_found:
+    return "user not found";
+  case Login_reject_reason::incorrect_password:
+    return "incorrect password";
+  }
+  return "?";
+}
+
 const char* to_string(Write_error error) {
   switch (error) {
   case Write_error::none:

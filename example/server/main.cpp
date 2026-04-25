@@ -1,4 +1,5 @@
 #include "bc/soup/expected.h"
+#include "bc/soup/logical_packets.h"
 #include "bc/soup/server/acceptor.h"
 #include "bc/soup/server/handler.h"
 #include "bc/soup/server/port.h"
@@ -29,6 +30,15 @@ class Port final : public soup::server::Port_handler {
 public:
   explicit Port(soup::server::Port* port) : port_(port) {
     port_->set_handler(*this);
+  }
+
+  void login_failure(soup::Login_reject_reason reason) override {
+    std::println("login failure: reason = {}", to_string(reason));
+  }
+
+  void login_success(const soup::Login_accepted_packet& p) override {
+    std::println("login success: session = {}, next sequence number = {}",
+                 p.session, p.next_sequence_number);
   }
 
 private:
@@ -70,6 +80,16 @@ public:
         "accept success: local endpoint = {}:{}, remote endpoint = {}:{}",
         local_ep.address().to_string(), local_ep.port(),
         remote_ep.address().to_string(), remote_ep.port());
+  }
+
+  void login_request(const soup::Login_request_packet& p) override {
+    std::println("login request: username = {}, password = {}, session = {}, "
+                 "next sequence number = {}",
+                 p.username, p.password, p.session, p.next_sequence_number);
+  }
+
+  void login_failure(soup::Login_reject_reason reason) override {
+    std::println("login failure: reason = {}", to_string(reason));
   }
 
   void disconnect(soup::Disconnect_reason reason) override {

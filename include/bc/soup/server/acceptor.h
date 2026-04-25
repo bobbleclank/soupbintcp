@@ -14,6 +14,12 @@
 #include <string_view>
 #include <system_error>
 
+namespace bc::soup {
+struct Login_accepted_packet;
+struct Login_rejected_packet;
+struct Login_request_packet;
+} // namespace bc::soup
+
 namespace bc::soup::server {
 
 class Server;
@@ -61,6 +67,9 @@ private:
 
   // Called by Tcp_connection
   friend class Tcp_connection;
+  [[nodiscard]] expected<Login_accepted_packet, Login_rejected_packet>
+  on_login_request(Tcp_connection&, const Login_request_packet&, Port*&,
+                   Port_handler*&);
   void on_disconnect(Disconnect_reason);
 };
 

@@ -5,6 +5,11 @@
 
 #include <asio.hpp>
 
+namespace bc::soup {
+struct Login_accepted_packet;
+struct Login_request_packet;
+} // namespace bc::soup
+
 namespace bc::soup::server {
 
 class Acceptor_handler {
@@ -15,6 +20,9 @@ public:
   virtual void accept_failure(asio::error_code) = 0;
   virtual void accept_success(const asio::ip::tcp::endpoint&,
                               const asio::ip::tcp::endpoint&) = 0;
+
+  virtual void login_request(const Login_request_packet&) = 0;
+  virtual void login_failure(Login_reject_reason) = 0;
 
   virtual void disconnect(Disconnect_reason) = 0;
 
@@ -31,6 +39,9 @@ protected:
 
 class Port_handler {
 public:
+  virtual void login_failure(Login_reject_reason) = 0;
+  virtual void login_success(const Login_accepted_packet&) = 0;
+
 protected:
   Port_handler() = default;
   ~Port_handler() = default;
