@@ -99,10 +99,8 @@ void Tcp_connection::process_packet(const Read_packet& packet) {
     error = Packet_error::invalid_message_type;
     break;
   }
-  if (error != Packet_error::none) {
-    pending_reason_ = Disconnect_reason::protocol_violation;
-    socket_.close();
-  }
+  if (error != Packet_error::none)
+    initiate_disconnect(Disconnect_reason::protocol_violation);
 }
 
 Packet_error Tcp_connection::process_login_accepted(const void* data,
@@ -161,9 +159,13 @@ void Tcp_connection::terminate(Disconnect_reason reason) {
   handler_->disconnect(reason);
 }
 
-void Tcp_connection::close() {
-  pending_reason_ = Disconnect_reason::user_initiated;
+void Tcp_connection::initiate_disconnect(Disconnect_reason reason) {
+  pending_reason_ = reason;
   socket_.close();
+}
+
+void Tcp_connection::close() {
+  initiate_disconnect(Disconnect_reason::user_initiated);
 }
 
 } // namespace bc::soup::client

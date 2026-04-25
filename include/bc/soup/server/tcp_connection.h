@@ -62,6 +62,7 @@ private:
   [[nodiscard]] Packet_error process_login_request(const void*, std::size_t);
 
   void terminate(Disconnect_reason);
+  void initiate_disconnect(Disconnect_reason);
 
   // Called by Acceptor
   friend class Acceptor;
