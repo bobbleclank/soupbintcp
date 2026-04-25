@@ -41,10 +41,7 @@ void Tcp_connection::read_success(const Read_packet& packet) {
 }
 
 void Tcp_connection::read_aborted() {
-  const auto reason = (pending_reason_ == Disconnect_reason::none)
-                          ? Disconnect_reason::unmanaged_abort
-                          : pending_reason_;
-  terminate(reason);
+  terminate();
 }
 
 void Tcp_connection::read_end_of_file() {
@@ -112,6 +109,12 @@ void Tcp_connection::terminate(Disconnect_reason reason) {
   pending_reason_ = Disconnect_reason::none;
   socket_.close();
   acceptor_->on_disconnect(reason);
+}
+
+void Tcp_connection::terminate() {
+  terminate((pending_reason_ == Disconnect_reason::none)
+                ? Disconnect_reason::unmanaged_abort
+                : pending_reason_);
 }
 
 void Tcp_connection::initiate_disconnect(Disconnect_reason reason) {

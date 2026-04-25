@@ -64,6 +64,7 @@ private:
 
   void handle_connect_failure(asio::error_code, const char*);
   void terminate(Disconnect_reason);
+  void terminate();
   void initiate_disconnect(Disconnect_reason);
 
   // Called by Connection
