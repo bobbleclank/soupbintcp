@@ -137,6 +137,7 @@ Packet_error Tcp_connection::process_login_rejected(const void* data,
   Login_rejected_packet response;
   read(response, data);
   handler_->login_failure(convert(response.reason));
+  initiate_disconnect(Disconnect_reason::access_denied);
   return Packet_error::none;
 }
 
