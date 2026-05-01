@@ -53,6 +53,8 @@ void Tcp_connection::write_failure(asio::error_code) {
 }
 
 void Tcp_connection::write_success(const Write_packet&) {
+  if (state_ == State::disconnecting)
+    terminate();
 }
 
 void Tcp_connection::write_buffer_empty() {
@@ -87,6 +89,7 @@ Packet_error Tcp_connection::process_login_request(const void* data,
       acceptor_->on_login_request(*this, request, port_, handler_);
   if (!result) {
     const Login_rejected_packet& response = result.error();
+    initiate_disconnect(Disconnect_reason::access_denied, true);
     Write_packet packet(response.packet_type, response.payload_size);
     write(response, packet.payload_data());
     // Discard write failure: should not fail since first packet sent
@@ -115,12 +118,14 @@ void Tcp_connection::terminate(Disconnect_reason observed_reason) {
   acceptor_->on_disconnect(reason);
 }
 
-void Tcp_connection::initiate_disconnect(Disconnect_reason reason) {
+void Tcp_connection::initiate_disconnect(Disconnect_reason reason,
+                                         bool graceful) {
   if (is_closing())
     return;
   state_ = State::disconnecting;
   pending_reason_ = reason;
-  socket_.close();
+  if (!graceful)
+    socket_.close();
 }
 
 bool Tcp_connection::is_closing() const {

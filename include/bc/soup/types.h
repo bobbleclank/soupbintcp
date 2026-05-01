@@ -35,6 +35,7 @@ enum class Disconnect_reason {
   user_initiated,
   peer_closed,
   transport_error,
+  access_denied,
   protocol_violation,
   unmanaged_abort
 };

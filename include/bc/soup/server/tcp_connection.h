@@ -63,7 +63,7 @@ private:
   [[nodiscard]] Packet_error process_login_request(const void*, std::size_t);
 
   void terminate(Disconnect_reason = Disconnect_reason::unmanaged_abort);
-  void initiate_disconnect(Disconnect_reason);
+  void initiate_disconnect(Disconnect_reason, bool = false);
   bool is_closing() const;
 
   // Called by Acceptor
