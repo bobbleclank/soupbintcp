@@ -9,6 +9,8 @@
 
 namespace bc::soup::client {
 
+using State = Connection_state::State;
+
 Tcp_connection::Tcp_connection(asio::any_io_executor io_executor,
                                Connection& connection,
                                Connection_handler& handler,
@@ -35,7 +37,7 @@ void Tcp_connection::connect_failure(asio::error_code ec) {
 }
 
 void Tcp_connection::connect_success() {
-  state_ = State::connected;
+  state_.set_state(State::connected);
   const auto local_endpoint = socket_.local_endpoint();
   const auto remote_endpoint = socket_.remote_endpoint();
   handler_->connect_success(local_endpoint, remote_endpoint);
@@ -60,7 +62,7 @@ void Tcp_connection::read_failure(Packet_error) {
 }
 
 void Tcp_connection::read_success(const Read_packet& packet) {
-  if (!is_closing())
+  if (!state_.is_closing())
     process_packet(packet);
   socket_.async_read();
 }
@@ -105,12 +107,12 @@ Packet_error Tcp_connection::process_login_accepted(const void* data,
                                                     std::size_t size) {
   if (size != Login_accepted_packet::payload_size)
     return Packet_error::incorrect_length;
-  if (state_ != State::connected)
+  if (state_.state() != State::connected)
     return Packet_error::unexpected_sequence;
 
   Login_accepted_packet response;
   read(response, data);
-  state_ = State::logged_in;
+  state_.set_state(State::logged_in);
   handler_->login_success(response);
   return Packet_error::none;
 }
@@ -119,7 +121,7 @@ Packet_error Tcp_connection::process_login_rejected(const void* data,
                                                     std::size_t size) {
   if (size != Login_rejected_packet::payload_size)
     return Packet_error::incorrect_length;
-  if (state_ != State::connected)
+  if (state_.state() != State::connected)
     return Packet_error::unexpected_sequence;
 
   auto convert = [](Login_rejected_reason reason) {
@@ -143,34 +145,25 @@ Packet_error Tcp_connection::process_login_rejected(const void* data,
 
 void Tcp_connection::handle_connect_failure(asio::error_code ec,
                                             const char* phase) {
-  state_ = State::disconnected;
+  state_.set_state(State::disconnected);
   socket_.close();
   handler_->connect_failure(ec, phase);
   connection_->on_connect_failure();
 }
 
 void Tcp_connection::terminate(Disconnect_reason observed_reason) {
-  if (state_ == State::disconnected)
+  const auto reason = state_.terminate(observed_reason);
+  if (reason == Disconnect_reason::none)
     return;
-  state_ = State::disconnected;
-  const auto reason = (pending_reason_ == Disconnect_reason::none)
-                          ? observed_reason
-                          : pending_reason_;
-  pending_reason_ = Disconnect_reason::none;
   socket_.close();
   handler_->disconnect(reason);
 }
 
 void Tcp_connection::initiate_disconnect(Disconnect_reason reason) {
-  if (is_closing())
+  const auto state_changed = state_.initiate_disconnect(reason);
+  if (!state_changed)
     return;
-  state_ = State::disconnecting;
-  pending_reason_ = reason;
   socket_.close();
-}
-
-bool Tcp_connection::is_closing() const {
-  return state_ == State::disconnecting || state_ == State::disconnected;
 }
 
 void Tcp_connection::close() {

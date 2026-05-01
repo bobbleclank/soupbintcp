@@ -1,6 +1,7 @@
 #ifndef INCLUDE_BC_SOUP_CLIENT_TCP_CONNECTION_H
 #define INCLUDE_BC_SOUP_CLIENT_TCP_CONNECTION_H
 
+#include "bc/soup/connection_state.h"
 #include "bc/soup/socket.h"
 #include "bc/soup/types.h"
 
@@ -44,19 +45,10 @@ public:
   void write_buffer_empty() override;
 
 private:
-  enum class State {
-    connecting,
-    connected,
-    logged_in,
-    disconnecting,
-    disconnected
-  };
-
   Connection* connection_ = nullptr;
   Connection_handler* handler_ = nullptr;
   Socket socket_;
-  State state_ = State::connecting;
-  Disconnect_reason pending_reason_ = Disconnect_reason::none;
+  Connection_state state_;
 
   void process_packet(const Read_packet&);
 
@@ -66,7 +58,6 @@ private:
   void handle_connect_failure(asio::error_code, const char*);
   void terminate(Disconnect_reason = Disconnect_reason::unmanaged_abort);
   void initiate_disconnect(Disconnect_reason);
-  bool is_closing() const;
 
   // Called by Connection
   friend class Connection;

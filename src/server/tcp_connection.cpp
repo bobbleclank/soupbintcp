@@ -11,10 +11,13 @@
 
 namespace bc::soup::server {
 
+using State = Connection_state::State;
+
 Tcp_connection::Tcp_connection(asio::any_io_executor, Socket&& socket,
                                Acceptor& acceptor)
     : acceptor_(&acceptor), socket_(std::move(socket)) {
 
+  state_.set_state(State::connected);
   socket_.set_handler(*this);
   socket_.async_read();
 }
@@ -36,7 +39,7 @@ void Tcp_connection::read_failure(Packet_error) {
 }
 
 void Tcp_connection::read_success(const Read_packet& packet) {
-  if (!is_closing())
+  if (!state_.is_closing())
     process_packet(packet);
   socket_.async_read();
 }
@@ -53,7 +56,7 @@ void Tcp_connection::write_failure(asio::error_code) {
 }
 
 void Tcp_connection::write_success(const Write_packet&) {
-  if (state_ == State::disconnecting)
+  if (state_.state() == State::disconnecting)
     terminate();
 }
 
@@ -80,7 +83,7 @@ Packet_error Tcp_connection::process_login_request(const void* data,
                                                    std::size_t size) {
   if (size != Login_request_packet::payload_size)
     return Packet_error::incorrect_length;
-  if (state_ != State::connected)
+  if (state_.state() != State::connected)
     return Packet_error::unexpected_sequence;
 
   Login_request_packet request;
@@ -96,7 +99,7 @@ Packet_error Tcp_connection::process_login_request(const void* data,
     (void)socket_.async_write(std::move(packet));
   } else {
     const Login_accepted_packet& response = *result;
-    state_ = State::logged_in;
+    state_.set_state(State::logged_in);
     Write_packet packet(response.packet_type, response.payload_size);
     write(response, packet.payload_data());
     // Discard write failure: should not fail since first packet sent
@@ -107,29 +110,19 @@ Packet_error Tcp_connection::process_login_request(const void* data,
 }
 
 void Tcp_connection::terminate(Disconnect_reason observed_reason) {
-  if (state_ == State::disconnected)
+  const auto reason = state_.terminate(observed_reason);
+  if (reason == Disconnect_reason::none)
     return;
-  state_ = State::disconnected;
-  const auto reason = (pending_reason_ == Disconnect_reason::none)
-                          ? observed_reason
-                          : pending_reason_;
-  pending_reason_ = Disconnect_reason::none;
   socket_.close();
   acceptor_->on_disconnect(reason);
 }
 
 void Tcp_connection::initiate_disconnect(Disconnect_reason reason,
                                          bool graceful) {
-  if (is_closing())
+  const auto state_changed = state_.initiate_disconnect(reason);
+  if (!state_changed || graceful)
     return;
-  state_ = State::disconnecting;
-  pending_reason_ = reason;
-  if (!graceful)
-    socket_.close();
-}
-
-bool Tcp_connection::is_closing() const {
-  return state_ == State::disconnecting || state_ == State::disconnected;
+  socket_.close();
 }
 
 void Tcp_connection::close() {

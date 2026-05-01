@@ -7,6 +7,7 @@ target_sources(bcsoup
       bc/soup/client/handler.h
       bc/soup/client/message.h
       bc/soup/client/tcp_connection.h
+      bc/soup/connection_state.h
       bc/soup/constants.h
       bc/soup/error.h
       bc/soup/expected.h
