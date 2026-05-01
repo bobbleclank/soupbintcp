@@ -148,19 +148,20 @@ void Tcp_connection::handle_connect_failure(asio::error_code ec,
   connection_->on_connect_failure();
 }
 
-void Tcp_connection::terminate(Disconnect_reason reason) {
+void Tcp_connection::terminate(Disconnect_reason observed_reason) {
   if (state_ == State::disconnected)
     return;
   state_ = State::disconnected;
+  const auto reason = (pending_reason_ == Disconnect_reason::none)
+                          ? observed_reason
+                          : pending_reason_;
   pending_reason_ = Disconnect_reason::none;
   socket_.close();
   handler_->disconnect(reason);
 }
 
 void Tcp_connection::terminate() {
-  terminate((pending_reason_ == Disconnect_reason::none)
-                ? Disconnect_reason::unmanaged_abort
-                : pending_reason_);
+  terminate(Disconnect_reason::unmanaged_abort);
 }
 
 void Tcp_connection::initiate_disconnect(Disconnect_reason reason) {
