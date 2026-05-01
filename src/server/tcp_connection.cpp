@@ -115,10 +115,6 @@ void Tcp_connection::terminate(Disconnect_reason observed_reason) {
   acceptor_->on_disconnect(reason);
 }
 
-void Tcp_connection::terminate() {
-  terminate(Disconnect_reason::unmanaged_abort);
-}
-
 void Tcp_connection::initiate_disconnect(Disconnect_reason reason) {
   if (is_closing())
     return;

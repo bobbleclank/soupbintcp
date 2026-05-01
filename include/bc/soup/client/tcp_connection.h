@@ -64,8 +64,7 @@ private:
   [[nodiscard]] Packet_error process_login_rejected(const void*, std::size_t);
 
   void handle_connect_failure(asio::error_code, const char*);
-  void terminate(Disconnect_reason);
-  void terminate();
+  void terminate(Disconnect_reason = Disconnect_reason::unmanaged_abort);
   void initiate_disconnect(Disconnect_reason);
   bool is_closing() const;
 
