@@ -42,8 +42,7 @@ void Tcp_connection::connect_success() {
   const auto remote_endpoint = socket_.remote_endpoint();
   handler_->connect_success(local_endpoint, remote_endpoint);
 
-  Login_request_packet request;
-  connection_->on_connect_success(request);
+  const Login_request_packet request = connection_->on_connect_success();
   handler_->logging_in(request);
   socket_.async_read();
   Write_packet packet(request.packet_type, request.payload_size);

@@ -56,7 +56,7 @@ private:
   // Called by Tcp_connection
   friend class Tcp_connection;
   void on_connect_failure();
-  void on_connect_success(Login_request_packet&);
+  Login_request_packet on_connect_success();
   void on_login_success(const Login_accepted_packet&);
 };
 

@@ -58,10 +58,8 @@ void Connection::disconnect() {
 void Connection::on_connect_failure() {
 }
 
-void Connection::on_connect_success(Login_request_packet& request) {
-  request.username = username_;
-  request.password = password_;
-  request.session = session_;
+Login_request_packet Connection::on_connect_success() {
+  return Login_request_packet(username_, password_, session_, 0);
 }
 
 void Connection::on_login_success(const Login_accepted_packet& response) {
