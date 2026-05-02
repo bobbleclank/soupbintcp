@@ -113,8 +113,8 @@ void Tcp_connection::terminate(Disconnect_reason observed_reason) {
   const auto reason = state_.terminate(observed_reason);
   if (reason == Disconnect_reason::none)
     return;
-  socket_.close();
   acceptor_->on_disconnect(reason);
+  socket_.close();
 }
 
 void Tcp_connection::initiate_disconnect(Disconnect_reason reason,

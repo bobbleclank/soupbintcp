@@ -42,11 +42,10 @@ void Tcp_connection::connect_success() {
   const auto remote_endpoint = socket_.remote_endpoint();
   handler_->connect_success(local_endpoint, remote_endpoint);
 
-  socket_.async_read();
-
   Login_request_packet request;
   connection_->on_connect_success(request);
   handler_->logging_in(request);
+  socket_.async_read();
   Write_packet packet(request.packet_type, request.payload_size);
   write(request, packet.payload_data());
   // Discard write failure: should not fail since first packet sent
@@ -146,17 +145,17 @@ Packet_error Tcp_connection::process_login_rejected(const void* data,
 void Tcp_connection::handle_connect_failure(asio::error_code ec,
                                             const char* phase) {
   state_.set_state(State::disconnected);
-  socket_.close();
   handler_->connect_failure(ec, phase);
   connection_->on_connect_failure();
+  socket_.close();
 }
 
 void Tcp_connection::terminate(Disconnect_reason observed_reason) {
   const auto reason = state_.terminate(observed_reason);
   if (reason == Disconnect_reason::none)
     return;
-  socket_.close();
   handler_->disconnect(reason);
+  socket_.close();
 }
 
 void Tcp_connection::initiate_disconnect(Disconnect_reason reason) {
