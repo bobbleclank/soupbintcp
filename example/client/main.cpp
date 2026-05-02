@@ -28,13 +28,15 @@ using namespace std::chrono_literals;
 class Connection final : public soup::client::Connection_handler {
 public:
   Connection(soup::client::Connection* connection, std::string_view username,
-             std::string_view password)
+             std::string_view password, std::string_view session)
       : connection_(connection) {
     connection_->set_handler(*this);
     if (const auto ec = connection_->set_username(username))
       throw std::system_error(ec, "set username");
     if (const auto ec = connection_->set_password(password))
       throw std::system_error(ec, "set password");
+    if (const auto ec = connection_->set_session(session))
+      throw std::system_error(ec, "set session");
   }
 
   void connecting(const asio::ip::tcp::endpoint& ep) override {
@@ -85,14 +87,15 @@ public:
     client_.set_handler(*this);
   }
 
-  void initialize(std::string_view username, std::string_view password) {
+  void initialize(std::string_view username, std::string_view password,
+                  std::string_view session) {
     const auto address = asio::ip::make_address("127.0.0.1");
     const unsigned short port = 5050;
     const asio::ip::tcp::endpoint ep(address, port);
     const auto result = client_.add_connection(ep);
     if (!result)
       throw std::system_error(result.error(), "add connection");
-    connection_.emplace(*result, username, password);
+    connection_.emplace(*result, username, password, session);
   }
 
   void start() {
@@ -107,13 +110,14 @@ private:
   std::optional<Connection> connection_;
 };
 
-void run(std::string_view username, std::string_view password, int time) {
+void run(std::string_view username, std::string_view password,
+         std::string_view session, int time) {
   asio::io_context io_context;
   Io_context_runner io_runner(io_context);
   std::atomic<bool> keep_going = true;
   io_runner.set_signal_handler([&keep_going] { keep_going = false; });
   Client client(io_context);
-  client.initialize(username, password);
+  client.initialize(username, password, session);
 
   io_runner.start();
   std::this_thread::sleep_for(1s);
@@ -138,6 +142,7 @@ void display_usage() {
              "options:\n"
              "  -h  help\n"
              "  -p  password [pass]\n"
+             "  -s  session [sess]\n"
              "  -t  running time (seconds) [15]\n"
              "  -u  username [user]\n"
              "  -v  version\n");
@@ -150,19 +155,23 @@ void display_version() {
 int main(int argc, char** argv) {
   const char* username = "user";
   const char* password = "pass";
+  const char* session = "sess";
 
   constexpr int default_time = 15;
   int time = default_time;
 
   try {
     int opt = 0;
-    while ((opt = getopt(argc, argv, ":hp:t:u:v")) != -1) {
+    while ((opt = getopt(argc, argv, ":hp:s:t:u:v")) != -1) {
       switch (opt) {
       case 'h':
         display_usage();
         return EXIT_SUCCESS;
       case 'p':
         password = optarg;
+        break;
+      case 's':
+        session = optarg;
         break;
       case 't':
         time = to_int(optarg, optopt);
@@ -186,7 +195,7 @@ int main(int argc, char** argv) {
   }
 
   try {
-    run(username, password, time);
+    run(username, password, session, time);
   } catch (const std::system_error& e) {
     std::println("system error: {}:{} {}", e.code().category().name(),
                  e.code().value(), e.what());

@@ -34,6 +34,13 @@ std::error_code Connection::set_password(std::string_view password) {
   return {};
 }
 
+std::error_code Connection::set_session(std::string_view session) {
+  if (!is_valid_session(session))
+    return std::make_error_code(std::errc::invalid_argument);
+  session_ = session;
+  return {};
+}
+
 bool Connection::is_handler_set() const {
   return handler_ != nullptr;
 }
@@ -54,6 +61,11 @@ void Connection::on_connect_failure() {
 void Connection::on_connect_success(Login_request_packet& request) {
   request.username = username_;
   request.password = password_;
+  request.session = session_;
+}
+
+void Connection::on_login_success(const Login_accepted_packet& response) {
+  session_ = response.session;
 }
 
 } // namespace bc::soup::client

@@ -112,6 +112,7 @@ Packet_error Tcp_connection::process_login_accepted(const void* data,
   Login_accepted_packet response;
   read(response, data);
   state_.set_state(State::logged_in);
+  connection_->on_login_success(response);
   handler_->login_success(response);
   return Packet_error::none;
 }
@@ -128,7 +129,7 @@ Packet_error Tcp_connection::process_login_rejected(const void* data,
     case Login_rejected_reason::not_authorized:
       return Login_reject_reason::not_authorized;
     case Login_rejected_reason::session_not_available:
-      break;
+      return Login_reject_reason::session_not_available;
     case Login_rejected_reason::sequence_number_too_high:
       break;
     }

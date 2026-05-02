@@ -11,8 +11,9 @@
 #include <system_error>
 
 namespace bc::soup {
+struct Login_accepted_packet;
 struct Login_request_packet;
-}
+} // namespace bc::soup
 
 namespace bc::soup::client {
 
@@ -28,11 +29,13 @@ public:
 
   [[nodiscard]] std::error_code set_username(std::string_view);
   [[nodiscard]] std::error_code set_password(std::string_view);
+  [[nodiscard]] std::error_code set_session(std::string_view);
 
   const asio::ip::tcp::endpoint& endpoint() const { return endpoint_; }
 
   std::string_view username() const { return username_; }
   std::string_view password() const { return password_; }
+  std::string_view session() const { return session_; }
 
 private:
   Client* client_ = nullptr;
@@ -41,6 +44,7 @@ private:
   asio::ip::tcp::endpoint endpoint_;
   std::string username_;
   std::string password_;
+  std::string session_;
   std::optional<Tcp_connection> connection_;
 
   // Called by Client
@@ -53,6 +57,7 @@ private:
   friend class Tcp_connection;
   void on_connect_failure();
   void on_connect_success(Login_request_packet&);
+  void on_login_success(const Login_accepted_packet&);
 };
 
 } // namespace bc::soup::client
