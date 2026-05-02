@@ -19,6 +19,7 @@ Tcp_connection::Tcp_connection(asio::any_io_executor io_executor,
       handler_(&handler),
       socket_(io_executor, *this) {
 
+  handler_->connecting(connection_->endpoint());
   socket_.set_write_packets_limit(write_packets_limit);
   if (const auto ec = socket_.open()) {
     handle_connect_failure(ec, "open");
@@ -28,7 +29,6 @@ Tcp_connection::Tcp_connection(asio::any_io_executor io_executor,
     handle_connect_failure(ec, "set no delay");
     return;
   }
-  handler_->connecting(connection_->endpoint());
   socket_.async_connect(connection_->endpoint());
 }
 
