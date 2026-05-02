@@ -1,8 +1,17 @@
 #include "bc/soup/server/server.h"
 
+#include "bc/soup/validate.h"
+
 namespace bc::soup::server {
 
 Server::Server(asio::any_io_executor io_executor) : io_executor_(io_executor) {
+}
+
+std::error_code Server::set_session(std::string_view session) {
+  if (!is_valid_session(session))
+    return std::make_error_code(std::errc::invalid_argument);
+  session_ = session;
+  return {};
 }
 
 expected<Acceptor*, std::error_code>

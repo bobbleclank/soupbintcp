@@ -37,7 +37,7 @@ private:
   bool is_handler_set() const;
   [[nodiscard]] expected<Login_accepted_packet, Login_rejected_packet>
   on_login_request(Tcp_connection&, const Login_request_packet&,
-                   Port_handler*&);
+                   std::string_view, Port_handler*&);
 };
 
 } // namespace bc::soup::server

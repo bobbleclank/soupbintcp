@@ -127,7 +127,8 @@ Acceptor::on_login_request(Tcp_connection& connection,
         Login_rejected_packet(Login_rejected_reason::not_authorized));
   }
   port = &*iter;
-  return port->on_login_request(connection, request, handler);
+  return port->on_login_request(connection, request, server_->session(),
+                                handler);
 }
 
 void Acceptor::on_disconnect(Disconnect_reason reason) {

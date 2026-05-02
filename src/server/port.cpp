@@ -23,7 +23,7 @@ bool Port::is_handler_set() const {
 expected<Login_accepted_packet, Login_rejected_packet>
 Port::on_login_request(Tcp_connection& connection,
                        const Login_request_packet& request,
-                       Port_handler*& handler) {
+                       std::string_view session, Port_handler*& handler) {
   handler = handler_;
   connection_ = &connection;
 
@@ -32,8 +32,13 @@ Port::on_login_request(Tcp_connection& connection,
     return unexpected(
         Login_rejected_packet(Login_rejected_reason::not_authorized));
   }
+  if (!request.session.empty() && request.session != session) {
+    handler_->login_failure(Login_reject_reason::session_not_available);
+    return unexpected(
+        Login_rejected_packet(Login_rejected_reason::session_not_available));
+  }
 
-  const Login_accepted_packet response;
+  const Login_accepted_packet response(session, 1);
   handler_->login_success(response);
   return response;
 }

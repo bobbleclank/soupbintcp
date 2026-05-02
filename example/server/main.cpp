@@ -106,7 +106,10 @@ public:
   explicit Server(asio::io_context& io_context)
       : server_(io_context.get_executor()) {}
 
-  void initialize(std::string_view username, std::string_view password) {
+  void initialize(std::string_view username, std::string_view password,
+                  std::string_view session) {
+    if (const auto ec = server_.set_session(session))
+      throw std::system_error(ec, "set session");
     const unsigned short port = 5050;
     const asio::ip::tcp::endpoint ep(asio::ip::tcp::v4(), port);
     const auto result = server_.add_acceptor(ep);
@@ -128,13 +131,14 @@ private:
   std::optional<Acceptor> acceptor_;
 };
 
-void run(std::string_view username, std::string_view password, int time) {
+void run(std::string_view username, std::string_view password,
+         std::string_view session, int time) {
   asio::io_context io_context;
   Io_context_runner io_runner(io_context);
   std::atomic<bool> keep_going = true;
   io_runner.set_signal_handler([&keep_going] { keep_going = false; });
   Server server(io_context);
-  server.initialize(username, password);
+  server.initialize(username, password, session);
 
   io_runner.start();
   std::this_thread::sleep_for(1s);
@@ -159,6 +163,7 @@ void display_usage() {
              "options:\n"
              "  -h  help\n"
              "  -p  password [pass]\n"
+             "  -s  session [sess]\n"
              "  -t  running time (seconds) [30]\n"
              "  -u  username [user]\n"
              "  -v  version\n");
@@ -171,19 +176,23 @@ void display_version() {
 int main(int argc, char** argv) {
   const char* username = "user";
   const char* password = "pass";
+  const char* session = "sess";
 
   constexpr int default_time = 30;
   int time = default_time;
 
   try {
     int opt = 0;
-    while ((opt = getopt(argc, argv, ":hp:t:u:v")) != -1) {
+    while ((opt = getopt(argc, argv, ":hp:s:t:u:v")) != -1) {
       switch (opt) {
       case 'h':
         display_usage();
         return EXIT_SUCCESS;
       case 'p':
         password = optarg;
+        break;
+      case 's':
+        session = optarg;
         break;
       case 't':
         time = to_int(optarg, optopt);
@@ -207,7 +216,7 @@ int main(int argc, char** argv) {
   }
 
   try {
-    run(username, password, time);
+    run(username, password, session, time);
   } catch (const std::system_error& e) {
     std::println("system error: {}:{} {}", e.code().category().name(),
                  e.code().value(), e.what());
