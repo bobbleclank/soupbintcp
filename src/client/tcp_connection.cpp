@@ -145,8 +145,8 @@ Packet_error Tcp_connection::process_login_rejected(const void* data,
 void Tcp_connection::handle_connect_failure(asio::error_code ec,
                                             const char* phase) {
   state_.set_state(State::disconnected);
-  handler_->connect_failure(ec, phase);
   connection_->on_connect_failure();
+  handler_->connect_failure(ec, phase);
   socket_.close();
 }
 
