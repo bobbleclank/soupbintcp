@@ -66,4 +66,11 @@ void Connection::on_login_success(const Login_accepted_packet& response) {
   session_ = response.session;
 }
 
+void Connection::on_end_of_session() {
+  if (has_session_ended_)
+    return;
+  has_session_ended_ = true;
+  client_->on_end_of_session();
+}
+
 } // namespace bc::soup::client

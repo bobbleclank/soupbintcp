@@ -98,6 +98,8 @@ public:
     connection_.emplace(*result, username, password, session);
   }
 
+  void end_of_session() override { std::println("end of session"); }
+
   void start() {
     if (const auto ec = client_.start())
       throw std::system_error(ec, "client start");

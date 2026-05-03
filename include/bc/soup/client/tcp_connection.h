@@ -54,6 +54,7 @@ private:
 
   [[nodiscard]] Packet_error process_login_accepted(const void*, std::size_t);
   [[nodiscard]] Packet_error process_login_rejected(const void*, std::size_t);
+  [[nodiscard]] Packet_error process_end_of_session(std::size_t);
 
   void handle_connect_failure(asio::error_code, const char*);
   void terminate(Disconnect_reason = Disconnect_reason::unmanaged_abort);

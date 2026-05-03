@@ -37,6 +37,8 @@ public:
   std::string_view password() const { return password_; }
   std::string_view session() const { return session_; }
 
+  bool has_session_ended() const { return has_session_ended_; }
+
 private:
   Client* client_ = nullptr;
   Connection_handler* handler_ = nullptr;
@@ -45,6 +47,7 @@ private:
   std::string username_;
   std::string password_;
   std::string session_;
+  bool has_session_ended_ = false;
   std::optional<Tcp_connection> connection_;
 
   // Called by Client
@@ -58,6 +61,7 @@ private:
   void on_connect_failure();
   Login_request_packet on_connect_success();
   void on_login_success(const Login_accepted_packet&);
+  void on_end_of_session();
 };
 
 } // namespace bc::soup::client

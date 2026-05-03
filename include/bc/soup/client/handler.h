@@ -14,6 +14,8 @@ namespace bc::soup::client {
 
 class Client_handler {
 public:
+  virtual void end_of_session() = 0;
+
 protected:
   Client_handler() = default;
   ~Client_handler() = default;

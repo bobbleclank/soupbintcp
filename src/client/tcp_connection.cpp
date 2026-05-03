@@ -93,6 +93,9 @@ void Tcp_connection::process_packet(const Read_packet& packet) {
   case Login_rejected_packet::packet_type:
     error = process_login_rejected(data, size);
     break;
+  case End_of_session_packet::packet_type:
+    error = process_end_of_session(size);
+    break;
   default:
     error = Packet_error::invalid_message_type;
     break;
@@ -139,6 +142,16 @@ Packet_error Tcp_connection::process_login_rejected(const void* data,
   read(response, data);
   handler_->login_failure(convert(response.reason));
   initiate_disconnect(Disconnect_reason::access_denied);
+  return Packet_error::none;
+}
+
+Packet_error Tcp_connection::process_end_of_session(std::size_t size) {
+  if (size != End_of_session_packet::payload_size)
+    return Packet_error::incorrect_length;
+  if (state_.state() != State::logged_in)
+    return Packet_error::unexpected_sequence;
+
+  connection_->on_end_of_session();
   return Packet_error::none;
 }
 
