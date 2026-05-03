@@ -43,6 +43,16 @@ std::error_code Server::start() {
   return {};
 }
 
+void Server::end_session() {
+  asio::post(io_executor_, [this] {
+    if (!started_)
+      return;
+
+    for (auto& acceptor : acceptors_)
+      acceptor.end_session();
+  });
+}
+
 void Server::stop() {
   asio::post(io_executor_, [this] {
     if (!started_)

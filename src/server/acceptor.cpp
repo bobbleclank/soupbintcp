@@ -105,6 +105,11 @@ void Acceptor::start() {
   acceptor_.async_accept();
 }
 
+void Acceptor::end_session() {
+  for (auto& port : ports_)
+    port.end_session();
+}
+
 void Acceptor::stop() {
   acceptor_.close();
   for (auto& connection : connections_)

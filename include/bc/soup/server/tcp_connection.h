@@ -61,6 +61,10 @@ private:
   // Called by Acceptor
   friend class Acceptor;
   void close();
+
+  // Called by Port
+  friend class Port;
+  void send_end_of_session();
 };
 
 } // namespace bc::soup::server

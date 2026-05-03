@@ -124,6 +124,8 @@ public:
       throw std::system_error(ec, "server start");
   }
 
+  void end_session() { server_.end_session(); }
+
   void stop() { server_.stop(); }
 
 private:
@@ -153,6 +155,8 @@ void run(std::string_view username, std::string_view password,
     std::this_thread::sleep_for(1s);
   }
 
+  server.end_session();
+  std::this_thread::sleep_for(1s);
   server.stop();
   std::this_thread::sleep_for(1s);
   io_runner.stop();

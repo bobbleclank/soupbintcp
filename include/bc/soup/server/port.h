@@ -30,6 +30,7 @@ private:
   Port_handler* handler_ = nullptr;
   std::string username_;
   std::string password_;
+  bool has_session_ended_ = false;
   Tcp_connection* connection_ = nullptr;
 
   // Called by Acceptor
@@ -38,6 +39,7 @@ private:
   [[nodiscard]] expected<Login_accepted_packet, Login_rejected_packet>
   on_login_request(Tcp_connection&, const Login_request_packet&,
                    std::string_view, Port_handler*&);
+  void end_session();
 };
 
 } // namespace bc::soup::server

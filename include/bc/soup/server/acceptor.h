@@ -63,6 +63,7 @@ private:
   friend class Server;
   bool is_handler_set() const;
   void start();
+  void end_session();
   void stop();
 
   // Called by Tcp_connection

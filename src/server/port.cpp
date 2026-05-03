@@ -43,4 +43,12 @@ Port::on_login_request(Tcp_connection& connection,
   return response;
 }
 
+void Port::end_session() {
+  if (has_session_ended_)
+    return;
+  has_session_ended_ = true;
+  if (connection_)
+    connection_->send_end_of_session();
+}
+
 } // namespace bc::soup::server

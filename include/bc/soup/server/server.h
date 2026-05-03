@@ -30,6 +30,7 @@ public:
   std::string_view session() const { return session_; }
 
   [[nodiscard]] std::error_code start();
+  void end_session();
   void stop();
 
 private:
