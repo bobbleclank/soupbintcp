@@ -7,13 +7,11 @@
 #include "bc/soup/types.h"
 #include "bc_soup_config.h"
 #include "io_context_runner.h"
-#include "option_convert.h"
 #include "option_error.h"
 
 #include <asio.hpp>
 
 #include <atomic>
-#include <chrono>
 #include <cstdlib>
 #include <optional>
 #include <print>
@@ -134,7 +132,7 @@ private:
 };
 
 void run(std::string_view username, std::string_view password,
-         std::string_view session, int time) {
+         std::string_view session) {
   asio::io_context io_context;
   Io_context_runner io_runner(io_context);
   std::atomic<bool> keep_going = true;
@@ -146,12 +144,7 @@ void run(std::string_view username, std::string_view password,
   std::this_thread::sleep_for(1s);
   server.start();
 
-  const auto start = std::chrono::steady_clock::now();
-  const auto end = start + std::chrono::seconds(time);
   while (keep_going) {
-    const auto now = std::chrono::steady_clock::now();
-    if (now >= end)
-      break;
     std::this_thread::sleep_for(1s);
   }
 
@@ -168,7 +161,6 @@ void display_usage() {
              "  -h  help\n"
              "  -p  password [pass]\n"
              "  -s  session [sess]\n"
-             "  -t  running time (seconds) [30]\n"
              "  -u  username [user]\n"
              "  -v  version\n");
 }
@@ -182,12 +174,9 @@ int main(int argc, char** argv) {
   const char* password = "pass";
   const char* session = "sess";
 
-  constexpr int default_time = 30;
-  int time = default_time;
-
   try {
     int opt = 0;
-    while ((opt = getopt(argc, argv, ":hp:s:t:u:v")) != -1) {
+    while ((opt = getopt(argc, argv, ":hp:s:u:v")) != -1) {
       switch (opt) {
       case 'h':
         display_usage();
@@ -197,9 +186,6 @@ int main(int argc, char** argv) {
         break;
       case 's':
         session = optarg;
-        break;
-      case 't':
-        time = to_int(optarg, optopt);
         break;
       case 'u':
         username = optarg;
@@ -220,7 +206,7 @@ int main(int argc, char** argv) {
   }
 
   try {
-    run(username, password, session, time);
+    run(username, password, session);
   } catch (const std::system_error& e) {
     std::println("system error: {}:{} {}", e.code().category().name(),
                  e.code().value(), e.what());
