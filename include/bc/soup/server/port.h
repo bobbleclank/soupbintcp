@@ -49,6 +49,10 @@ private:
   on_login_request(Tcp_connection&, const Login_request_packet&,
                    std::string_view, Port_handler*&);
   void end_session();
+
+  // Called by Tcp_connection
+  friend class Tcp_connection;
+  void on_unsequenced_data(const void*, std::size_t);
 };
 
 } // namespace bc::soup::server

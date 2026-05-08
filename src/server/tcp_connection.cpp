@@ -71,6 +71,9 @@ void Tcp_connection::process_packet(const Read_packet& packet) {
   case Login_request_packet::packet_type:
     error = process_login_request(data, size);
     break;
+  case Unsequenced_data_packet::packet_type:
+    error = process_unsequenced_data(data, size);
+    break;
   default:
     error = Packet_error::invalid_message_type;
     break;
@@ -106,6 +109,15 @@ Packet_error Tcp_connection::process_login_request(const void* data,
     (void)socket_.async_write(std::move(packet));
   }
 
+  return Packet_error::none;
+}
+
+Packet_error Tcp_connection::process_unsequenced_data(const void* data,
+                                                      std::size_t size) {
+  if (state_.state() != State::logged_in)
+    return Packet_error::unexpected_sequence;
+
+  port_->on_unsequenced_data(data, size);
   return Packet_error::none;
 }
 

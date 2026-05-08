@@ -84,4 +84,10 @@ void Port::end_session() {
     connection_->send_end_of_session();
 }
 
+void Port::on_unsequenced_data(const void* data, std::size_t size) {
+  if (has_session_ended_)
+    return;
+  handler_->unsequenced_data(data, size);
+}
+
 } // namespace bc::soup::server

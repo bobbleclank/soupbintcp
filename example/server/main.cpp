@@ -12,6 +12,7 @@
 #include <asio.hpp>
 
 #include <atomic>
+#include <cstddef>
 #include <cstdlib>
 #include <iostream>
 #include <optional>
@@ -39,6 +40,11 @@ public:
   void login_success(const soup::Login_accepted_packet& p) override {
     std::println("login success: session = {}, next sequence number = {}",
                  p.session, p.next_sequence_number);
+  }
+
+  void unsequenced_data(const void* data, std::size_t size) override {
+    const std::string_view message(static_cast<const char*>(data), size);
+    std::println("unsequenced data: data = {}, size = {}", message, size);
   }
 
   void send_message() {
