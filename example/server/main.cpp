@@ -13,8 +13,10 @@
 
 #include <atomic>
 #include <cstdlib>
+#include <iostream>
 #include <optional>
 #include <print>
+#include <string>
 #include <string_view>
 #include <system_error>
 #include <thread>
@@ -37,6 +39,13 @@ public:
   void login_success(const soup::Login_accepted_packet& p) override {
     std::println("login success: session = {}, next sequence number = {}",
                  p.session, p.next_sequence_number);
+  }
+
+  void send_message() {
+    static constexpr std::string_view message = "hello client";
+    const auto error = port_->send_message(message.data(), message.size());
+    if (error != soup::Write_error::none)
+      std::println("send message: error = {}", to_string(error));
   }
 
 private:
@@ -94,6 +103,8 @@ public:
     std::println("disconnect: reason = {}", to_string(reason));
   }
 
+  void send_message() { port_->send_message(); }
+
 private:
   soup::server::Acceptor* acceptor_ = nullptr;
   std::optional<Port> port_;
@@ -122,6 +133,8 @@ public:
       throw std::system_error(ec, "server start");
   }
 
+  void send_message() { acceptor_->send_message(); }
+
   void end_session() { server_.end_session(); }
 
   void stop() { server_.stop(); }
@@ -144,8 +157,12 @@ void run(std::string_view username, std::string_view password,
   std::this_thread::sleep_for(1s);
   server.start();
 
-  while (keep_going) {
-    std::this_thread::sleep_for(1s);
+  std::println("press enter to send a message, q to quit");
+  std::string line;
+  while (keep_going && std::getline(std::cin, line)) {
+    if (line == "q")
+      break;
+    asio::post(io_context, [&server] { server.send_message(); });
   }
 
   server.end_session();
