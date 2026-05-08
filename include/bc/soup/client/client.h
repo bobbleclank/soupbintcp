@@ -3,6 +3,7 @@
 
 #include "bc/soup/client/connection.h"
 #include "bc/soup/expected.h"
+#include "bc/soup/types.h"
 
 #include <asio.hpp>
 
@@ -10,10 +11,15 @@
 #include <list>
 #include <system_error>
 
+namespace bc::soup {
+class Write_packet;
+}
+
 namespace bc::soup::client {
 
 class Client_handler;
 class Connection_handler;
+class Message;
 
 class Client {
 public:
@@ -34,6 +40,9 @@ public:
   [[nodiscard]] std::error_code start();
   void stop();
 
+  [[nodiscard]] Write_error send_message(const void*, std::size_t);
+  [[nodiscard]] Write_error send_message(Message&&);
+
 private:
   static constexpr std::size_t default_write_packets_limit = 100;
 
@@ -46,6 +55,11 @@ private:
 
   [[nodiscard]] expected<Connection*, std::error_code>
   add_connection(const asio::ip::tcp::endpoint&, Connection_handler*);
+
+  [[nodiscard]] Write_error send_packet(Write_packet&&);
+  [[nodiscard]] Write_error send_one(Write_packet&&);
+  [[nodiscard]] Write_error send_two(Write_packet&&);
+  [[nodiscard]] Write_error send_multiple(Write_packet&&);
 
   // Called by Connection
   friend class Connection;
