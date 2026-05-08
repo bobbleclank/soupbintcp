@@ -13,8 +13,10 @@
 #include <atomic>
 #include <cstddef>
 #include <cstdlib>
+#include <iostream>
 #include <optional>
 #include <print>
+#include <string>
 #include <string_view>
 #include <system_error>
 #include <thread>
@@ -75,6 +77,14 @@ public:
     std::println("disconnect: reason = {}", to_string(reason));
   }
 
+  void send_message() {
+    static constexpr std::string_view message = "hello server";
+    const auto error =
+        connection_->send_message(message.data(), message.size());
+    if (error != soup::Write_error::none)
+      std::println("send message: error = {}", to_string(error));
+  }
+
 private:
   soup::client::Connection* connection_ = nullptr;
 };
@@ -109,6 +119,8 @@ public:
       throw std::system_error(ec, "client start");
   }
 
+  void send_message() { connection_->send_message(); }
+
   void stop() { client_.stop(); }
 
 private:
@@ -129,8 +141,12 @@ void run(std::string_view username, std::string_view password,
   std::this_thread::sleep_for(1s);
   client.start();
 
-  while (keep_going) {
-    std::this_thread::sleep_for(1s);
+  std::println("press enter to send a message, q to quit");
+  std::string line;
+  while (keep_going && std::getline(std::cin, line)) {
+    if (line == "q")
+      break;
+    asio::post(io_context, [&client] { client.send_message(); });
   }
 
   client.stop();
