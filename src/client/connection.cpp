@@ -66,6 +66,13 @@ void Connection::on_login_success(const Login_accepted_packet& response) {
   session_ = response.session;
 }
 
+Packet_error Connection::on_sequenced_data(const void* data, std::size_t size) {
+  if (has_session_ended_)
+    return Packet_error::unexpected_sequence;
+  client_->on_sequenced_data(data, size);
+  return Packet_error::none;
+}
+
 void Connection::on_end_of_session() {
   if (has_session_ended_)
     return;

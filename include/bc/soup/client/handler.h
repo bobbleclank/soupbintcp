@@ -5,6 +5,8 @@
 
 #include <asio.hpp>
 
+#include <cstddef>
+
 namespace bc::soup {
 struct Login_accepted_packet;
 struct Login_request_packet;
@@ -14,6 +16,7 @@ namespace bc::soup::client {
 
 class Client_handler {
 public:
+  virtual void sequenced_data(const void*, std::size_t) = 0;
   virtual void end_of_session() = 0;
 
 protected:

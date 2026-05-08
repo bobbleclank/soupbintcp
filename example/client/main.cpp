@@ -13,6 +13,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <cstddef>
 #include <cstdlib>
 #include <optional>
 #include <print>
@@ -96,6 +97,11 @@ public:
     if (!result)
       throw std::system_error(result.error(), "add connection");
     connection_.emplace(*result, username, password, session);
+  }
+
+  void sequenced_data(const void* data, std::size_t size) override {
+    const std::string_view message(static_cast<const char*>(data), size);
+    std::println("sequenced data: data = {}, size = {}", message, size);
   }
 
   void end_of_session() override { std::println("end of session"); }

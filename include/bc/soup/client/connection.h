@@ -2,9 +2,11 @@
 #define INCLUDE_BC_SOUP_CLIENT_CONNECTION_H
 
 #include "bc/soup/client/tcp_connection.h"
+#include "bc/soup/types.h"
 
 #include <asio.hpp>
 
+#include <cstddef>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -61,6 +63,7 @@ private:
   void on_connect_failure();
   Login_request_packet on_connect_success();
   void on_login_success(const Login_accepted_packet&);
+  [[nodiscard]] Packet_error on_sequenced_data(const void*, std::size_t);
   void on_end_of_session();
 };
 

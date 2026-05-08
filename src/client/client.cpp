@@ -71,6 +71,10 @@ Client::add_connection(const asio::ip::tcp::endpoint& endpoint,
   return &connections_.emplace_back(io_executor_, endpoint, *this, handler);
 }
 
+void Client::on_sequenced_data(const void* data, std::size_t size) {
+  handler_->sequenced_data(data, size);
+}
+
 void Client::on_end_of_session() {
   if (has_session_ended_)
     return;

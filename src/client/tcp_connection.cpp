@@ -93,6 +93,9 @@ void Tcp_connection::process_packet(const Read_packet& packet) {
   case Login_rejected_packet::packet_type:
     error = process_login_rejected(data, size);
     break;
+  case Sequenced_data_packet::packet_type:
+    error = process_sequenced_data(data, size);
+    break;
   case End_of_session_packet::packet_type:
     error = process_end_of_session(size);
     break;
@@ -143,6 +146,14 @@ Packet_error Tcp_connection::process_login_rejected(const void* data,
   handler_->login_failure(convert(response.reason));
   initiate_disconnect(Disconnect_reason::access_denied);
   return Packet_error::none;
+}
+
+Packet_error Tcp_connection::process_sequenced_data(const void* data,
+                                                    std::size_t size) {
+  if (state_.state() != State::logged_in)
+    return Packet_error::unexpected_sequence;
+
+  return connection_->on_sequenced_data(data, size);
 }
 
 Packet_error Tcp_connection::process_end_of_session(std::size_t size) {
