@@ -64,6 +64,7 @@ private:
 
   // Called by Port
   friend class Port;
+  [[nodiscard]] Write_error send_packet(Write_packet&&);
   void send_end_of_session();
 };
 

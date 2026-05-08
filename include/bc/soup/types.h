@@ -26,6 +26,11 @@ const char* to_string(Login_reject_reason);
 
 enum class Write_error {
   none = 0,
+  empty_buffer,
+  null_buffer,
+  session_ended,
+  disconnected,
+  not_logged_in,
   buffer_full
 };
 

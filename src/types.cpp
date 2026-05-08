@@ -40,6 +40,16 @@ const char* to_string(Write_error error) {
   switch (error) {
   case Write_error::none:
     return "none";
+  case Write_error::empty_buffer:
+    return "empty buffer";
+  case Write_error::null_buffer:
+    return "null buffer";
+  case Write_error::session_ended:
+    return "session ended";
+  case Write_error::disconnected:
+    return "disconnected";
+  case Write_error::not_logged_in:
+    return "not logged in";
   case Write_error::buffer_full:
     return "buffer full";
   }
