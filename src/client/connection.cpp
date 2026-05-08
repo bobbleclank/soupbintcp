@@ -2,8 +2,12 @@
 
 #include "bc/soup/client/client.h"
 #include "bc/soup/client/handler.h"
+#include "bc/soup/client/message.h"
 #include "bc/soup/logical_packets.h"
+#include "bc/soup/rw_packets.h"
 #include "bc/soup/validate.h"
+
+#include <utility>
 
 namespace bc::soup::client {
 
@@ -39,6 +43,36 @@ std::error_code Connection::set_session(std::string_view session) {
     return std::make_error_code(std::errc::invalid_argument);
   session_ = session;
   return {};
+}
+
+Write_error Connection::send_message(const void* data, std::size_t size) {
+  if (size == 0)
+    return Write_error::empty_buffer;
+  if (!data)
+    return Write_error::null_buffer;
+
+  Write_packet packet(Unsequenced_data_packet::packet_type, data, size);
+  return send_packet(std::move(packet));
+}
+
+// NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Moved via release_packet
+Write_error Connection::send_message(Message&& message) {
+  if (message.payload_size() == 0)
+    return Write_error::empty_buffer;
+  if (!message.payload_data())
+    return Write_error::null_buffer;
+
+  auto packet = message.release_packet();
+  return send_packet(std::move(packet));
+}
+
+Write_error Connection::send_packet(Write_packet&& packet) {
+  if (has_session_ended_)
+    return Write_error::session_ended;
+  if (!connection_)
+    return Write_error::disconnected;
+
+  return connection_->send_packet(std::move(packet));
 }
 
 bool Connection::is_handler_set() const {

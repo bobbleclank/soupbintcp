@@ -189,6 +189,12 @@ void Tcp_connection::initiate_disconnect(Disconnect_reason reason) {
   socket_.close();
 }
 
+Write_error Tcp_connection::send_packet(Write_packet&& packet) {
+  if (state_.state() != State::logged_in)
+    return Write_error::not_logged_in;
+  return socket_.async_write(std::move(packet));
+}
+
 void Tcp_connection::close() {
   initiate_disconnect(Disconnect_reason::user_initiated);
 }

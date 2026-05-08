@@ -15,12 +15,14 @@
 namespace bc::soup {
 struct Login_accepted_packet;
 struct Login_request_packet;
+class Write_packet;
 } // namespace bc::soup
 
 namespace bc::soup::client {
 
 class Client;
 class Connection_handler;
+class Message;
 
 class Connection {
 public:
@@ -41,6 +43,9 @@ public:
 
   bool has_session_ended() const { return has_session_ended_; }
 
+  [[nodiscard]] Write_error send_message(const void*, std::size_t);
+  [[nodiscard]] Write_error send_message(Message&&);
+
 private:
   Client* client_ = nullptr;
   Connection_handler* handler_ = nullptr;
@@ -51,6 +56,8 @@ private:
   std::string session_;
   bool has_session_ended_ = false;
   std::optional<Tcp_connection> connection_;
+
+  [[nodiscard]] Write_error send_packet(Write_packet&&);
 
   // Called by Client
   friend class Client;
