@@ -45,6 +45,21 @@ Hierarchy: `Server` → `Acceptor` → `Port` → `Tcp_connection`
 | Logical connections | One (redundant physicals) | One `Port` per username |
 | Multiple sessions | Create multiple `Client` instances | Not applicable |
 
+## Send message (client)
+
+- `Client::send_message` sends to **all** connections. Returns `Write_error::none` if any connection succeeds.
+- `Write_error` priority when all connections fail: `none` > `buffer_full` > `not_logged_in` > `disconnected`. `buffer_full` is transient (retry); others indicate the connection cannot currently be used.
+- `Write_packet` copy constructor is deleted to prevent accidental copies. A named `clone()` helper is planned for the explicit copy needed when sending to multiple connections.
+- `Client` dispatches to `send_one`, `send_two`, or `send_multiple` based on connection count. `send_one` and `send_two` are fast paths for the common cases (1 or 2 redundant connections).
+
+## Stop at Connection layer (unresolved)
+
+`Connection` currently has no `stop()`. Since connections are individually accessible and redundant, a per-connection hard close would be useful (e.g. a misbehaving connection). Deferred until after logout is implemented.
+
+## Handler call layer conventions (server side — unresolved)
+
+Both `server::Tcp_connection` and `server::Port` hold handler pointers. The intended pattern (handler calls belong in the upper layer, not `Tcp_connection`) is not yet consistently applied. A style review is deferred until all message types are implemented.
+
 ## Coding conventions
 
 - Async calls (socket_.async_*) go after all state changes and callbacks.
