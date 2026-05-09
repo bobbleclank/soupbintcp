@@ -84,7 +84,7 @@ void Connection::connect() {
                       client_->write_packets_limit());
 }
 
-void Connection::disconnect() {
+void Connection::close() {
   if (connection_)
     connection_->close();
 }

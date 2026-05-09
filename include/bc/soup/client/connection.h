@@ -63,7 +63,7 @@ private:
   friend class Client;
   bool is_handler_set() const;
   void connect();
-  void disconnect();
+  void close();
 
   // Called by Tcp_connection
   friend class Tcp_connection;

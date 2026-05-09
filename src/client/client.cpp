@@ -67,7 +67,7 @@ void Client::stop() {
     started_ = false;
 
     for (auto& connection : connections_)
-      connection.disconnect();
+      connection.close();
   });
 }
 
