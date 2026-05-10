@@ -60,9 +60,8 @@ asio::error_code Socket::set_no_delay() {
 
 void Socket::async_connect(const asio::ip::tcp::endpoint& endpoint) {
   socket_.async_connect(endpoint, [this](asio::error_code ec) {
-    if (ec == asio::error::operation_aborted) {
+    if (ec == asio::error::operation_aborted)
       return;
-    }
     if (ec) {
       handler_->connect_failure(ec);
       return;
@@ -191,9 +190,8 @@ void Socket::write_packet() {
 }
 
 void Socket::packet_sent(asio::error_code ec, std::size_t n) {
-  if (ec == asio::error::operation_aborted) {
+  if (ec == asio::error::operation_aborted)
     return;
-  }
   if (ec) {
     handler_->write_failure(ec);
     return;
