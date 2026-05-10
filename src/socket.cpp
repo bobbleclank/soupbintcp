@@ -60,10 +60,9 @@ asio::error_code Socket::set_no_delay() {
 
 void Socket::async_connect(const asio::ip::tcp::endpoint& endpoint) {
   socket_.async_connect(endpoint, [this](asio::error_code ec) {
-    if (ec == asio::error::operation_aborted)
-      return;
     if (ec) {
-      handler_->connect_failure(ec);
+      if (ec != asio::error::operation_aborted)
+        handler_->connect_failure(ec);
       return;
     }
     handler_->connect_success();
@@ -116,16 +115,13 @@ void Socket::read_header() {
 }
 
 void Socket::header_received(asio::error_code ec, std::size_t n) {
-  if (ec == asio::error::operation_aborted) {
-    handler_->read_aborted();
-    return;
-  }
-  if (ec == asio::error::eof) {
-    handler_->read_end_of_file();
-    return;
-  }
   if (ec) {
-    handler_->read_failure(ec);
+    if (ec == asio::error::operation_aborted)
+      handler_->read_aborted();
+    else if (ec == asio::error::eof)
+      handler_->read_end_of_file();
+    else
+      handler_->read_failure(ec);
     return;
   }
   if (n != read_packet_.header_size()) { // Needed? Error code should be set.
@@ -160,16 +156,13 @@ void Socket::read_payload() {
 }
 
 void Socket::payload_received(asio::error_code ec, std::size_t n) {
-  if (ec == asio::error::operation_aborted) {
-    handler_->read_aborted();
-    return;
-  }
-  if (ec == asio::error::eof) {
-    handler_->read_end_of_file();
-    return;
-  }
   if (ec) {
-    handler_->read_failure(ec);
+    if (ec == asio::error::operation_aborted)
+      handler_->read_aborted();
+    else if (ec == asio::error::eof)
+      handler_->read_end_of_file();
+    else
+      handler_->read_failure(ec);
     return;
   }
   if (n != read_packet_.payload_size()) { // Needed? Error code should be set.
@@ -190,10 +183,9 @@ void Socket::write_packet() {
 }
 
 void Socket::packet_sent(asio::error_code ec, std::size_t n) {
-  if (ec == asio::error::operation_aborted)
-    return;
   if (ec) {
-    handler_->write_failure(ec);
+    if (ec != asio::error::operation_aborted)
+      handler_->write_failure(ec);
     return;
   }
   const auto& packet = write_packets_.front();

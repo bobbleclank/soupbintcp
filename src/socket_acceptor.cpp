@@ -62,10 +62,9 @@ asio::error_code Socket_acceptor::set_no_delay() {
 void Socket_acceptor::async_accept() {
   socket_.emplace(acceptor_.get_executor());
   acceptor_.async_accept(*socket_, [this](asio::error_code ec) {
-    if (ec == asio::error::operation_aborted)
-      return;
     if (ec) {
-      handler_->accept_failure(ec);
+      if (ec != asio::error::operation_aborted)
+        handler_->accept_failure(ec);
       return;
     }
     handler_->accept_success(std::move(*socket_));
