@@ -65,9 +65,9 @@ void Socket_acceptor::async_accept() {
     if (ec) {
       if (ec != asio::error::operation_aborted)
         handler_->accept_failure(ec);
-      return;
+    } else {
+      handler_->accept_success(std::move(*socket_));
     }
-    handler_->accept_success(std::move(*socket_));
   });
 }
 

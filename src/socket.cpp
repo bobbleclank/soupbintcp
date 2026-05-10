@@ -63,9 +63,9 @@ void Socket::async_connect(const asio::ip::tcp::endpoint& endpoint) {
     if (ec) {
       if (ec != asio::error::operation_aborted)
         handler_->connect_failure(ec);
-      return;
+    } else {
+      handler_->connect_success();
     }
-    handler_->connect_success();
   });
 }
 
