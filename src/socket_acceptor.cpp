@@ -37,12 +37,12 @@ asio::error_code Socket_acceptor::listen() {
 }
 
 void Socket_acceptor::close(asio::error_code* error) {
-  if (!acceptor_.is_open())
-    return;
-  asio::error_code ec;
-  acceptor_.close(ec);
-  if (error)
-    *error = ec;
+  if (acceptor_.is_open()) {
+    asio::error_code ec;
+    acceptor_.close(ec);
+    if (error)
+      *error = ec;
+  }
 }
 
 asio::error_code Socket_acceptor::set_reuse_address() {
