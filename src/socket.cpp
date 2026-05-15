@@ -109,9 +109,12 @@ asio::ip::tcp::socket::executor_type Socket::get_executor() {
 void Socket::read_header() {
   auto& packet = read_packet_;
   const auto buffer = asio::buffer(packet.header_data(), packet.header_size());
-  asio::async_read(socket_, buffer, [this](asio::error_code ec, std::size_t n) {
+
+  auto on_completion = [this](asio::error_code ec, std::size_t n) {
     header_received(ec, n);
-  });
+  };
+
+  asio::async_read(socket_, buffer, std::move(on_completion));
 }
 
 void Socket::header_received(asio::error_code ec, std::size_t n) {
@@ -150,9 +153,12 @@ void Socket::read_payload() {
   auto& packet = read_packet_;
   const auto buffer =
       asio::buffer(packet.payload_data(), packet.payload_size());
-  asio::async_read(socket_, buffer, [this](asio::error_code ec, std::size_t n) {
+
+  auto on_completion = [this](asio::error_code ec, std::size_t n) {
     payload_received(ec, n);
-  });
+  };
+
+  asio::async_read(socket_, buffer, std::move(on_completion));
 }
 
 void Socket::payload_received(asio::error_code ec, std::size_t n) {
@@ -177,9 +183,12 @@ void Socket::payload_received(asio::error_code ec, std::size_t n) {
 void Socket::write_packet() {
   const auto& packet = write_packets_.front();
   const auto buffer = asio::buffer(packet.data(), packet.size());
-  asio::async_write(
-      socket_, buffer,
-      [this](asio::error_code ec, std::size_t n) { packet_sent(ec, n); });
+
+  auto on_completion = [this](asio::error_code ec, std::size_t n) {
+    packet_sent(ec, n);
+  };
+
+  asio::async_write(socket_, buffer, std::move(on_completion));
 }
 
 void Socket::packet_sent(asio::error_code ec, std::size_t n) {
