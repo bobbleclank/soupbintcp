@@ -104,7 +104,7 @@ void Tcp_connection::process_packet(const Read_packet& packet) {
     break;
   }
   if (error != Packet_error::none)
-    initiate_disconnect(Disconnect_reason::protocol_violation);
+    terminate(Disconnect_reason::protocol_violation);
 }
 
 Packet_error Tcp_connection::process_login_accepted(const void* data,
