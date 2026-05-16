@@ -43,12 +43,14 @@ void Socket::shutdown(asio::error_code* error) {
 }
 
 void Socket::close(asio::error_code* error) {
+  closing_ = true;
   if (socket_.is_open()) {
     asio::error_code ec;
     socket_.close(ec);
     if (error)
       *error = ec;
   }
+  maybe_signal_closed();
 }
 
 asio::error_code Socket::set_no_delay() {
@@ -59,22 +61,31 @@ asio::error_code Socket::set_no_delay() {
 }
 
 void Socket::async_connect(const asio::ip::tcp::endpoint& endpoint) {
+  if (closing_)
+    return;
+  connect_pending_ = true;
   socket_.async_connect(endpoint, [this](asio::error_code ec) {
+    connect_pending_ = false;
     if (ec) {
       if (ec != asio::error::operation_aborted)
         handler_->connect_failure(ec);
     } else {
       handler_->connect_success();
     }
+    maybe_signal_closed();
   });
 }
 
 void Socket::async_read() {
+  if (closing_)
+    return;
   read_packet_ = Read_packet();
   read_header();
 }
 
 Write_error Socket::async_write(Write_packet&& packet) {
+  if (closing_)
+    return Write_error::disconnected;
   const auto size = write_packets_.size();
   if (size == write_packets_limit_) {
     write_buffer_was_full_ = true;
@@ -110,8 +121,11 @@ void Socket::read_header() {
   auto& packet = read_packet_;
   const auto buffer = asio::buffer(packet.header_data(), packet.header_size());
 
+  read_pending_ = true;
   auto on_completion = [this](asio::error_code ec, std::size_t n) {
+    read_pending_ = false;
     header_received(ec, n);
+    maybe_signal_closed();
   };
 
   asio::async_read(socket_, buffer, std::move(on_completion));
@@ -154,8 +168,11 @@ void Socket::read_payload() {
   const auto buffer =
       asio::buffer(packet.payload_data(), packet.payload_size());
 
+  read_pending_ = true;
   auto on_completion = [this](asio::error_code ec, std::size_t n) {
+    read_pending_ = false;
     payload_received(ec, n);
+    maybe_signal_closed();
   };
 
   asio::async_read(socket_, buffer, std::move(on_completion));
@@ -184,8 +201,11 @@ void Socket::write_packet() {
   const auto& packet = write_packets_.front();
   const auto buffer = asio::buffer(packet.data(), packet.size());
 
+  write_pending_ = true;
   auto on_completion = [this](asio::error_code ec, std::size_t n) {
+    write_pending_ = false;
     packet_sent(ec, n);
+    maybe_signal_closed();
   };
 
   asio::async_write(socket_, buffer, std::move(on_completion));
@@ -210,6 +230,17 @@ void Socket::packet_sent(asio::error_code ec, std::size_t n) {
   else if (write_buffer_was_full_) {
     write_buffer_was_full_ = false;
     handler_->write_buffer_empty();
+  }
+}
+
+bool Socket::is_idle() const {
+  return !connect_pending_ && !read_pending_ && !write_pending_;
+}
+
+void Socket::maybe_signal_closed() {
+  if (closing_ && !closed_signaled_ && is_idle()) {
+    closed_signaled_ = true;
+    asio::post(socket_.get_executor(), [this] { handler_->closed(); });
   }
 }
 

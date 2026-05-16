@@ -44,6 +44,8 @@ public:
   void write_success(const Write_packet&) override;
   void write_buffer_empty() override;
 
+  void closed() override;
+
 private:
   Connection* connection_ = nullptr;
   Connection_handler* handler_ = nullptr;

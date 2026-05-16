@@ -66,6 +66,9 @@ void Tcp_connection::write_success(const Write_packet&) {
 void Tcp_connection::write_buffer_empty() {
 }
 
+void Tcp_connection::closed() {
+}
+
 Packet_error Tcp_connection::process_packet(const Read_packet& packet) {
   const auto* data = packet.payload_data();
   const auto size = packet.payload_size();

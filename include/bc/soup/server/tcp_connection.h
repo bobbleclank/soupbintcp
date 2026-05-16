@@ -44,6 +44,8 @@ public:
   void write_success(const Write_packet&) override;
   void write_buffer_empty() override;
 
+  void closed() override;
+
 private:
   Acceptor* acceptor_ = nullptr;
   Port* port_ = nullptr;

@@ -28,6 +28,8 @@ public:
     virtual void write_success(const Write_packet&) = 0;
     virtual void write_buffer_empty() = 0;
 
+    virtual void closed() = 0;
+
   protected:
     Handler() = default;
     ~Handler() = default;
@@ -78,6 +80,11 @@ private:
   // NOLINTNEXTLINE(*-avoid-magic-numbers): Default value
   std::size_t write_packets_limit_ = 100;
   bool write_buffer_was_full_ = false;
+  bool connect_pending_ = false;
+  bool read_pending_ = false;
+  bool write_pending_ = false;
+  bool closing_ = false;
+  bool closed_signaled_ = false;
 
   void read_header();
   void header_received(asio::error_code, std::size_t);
@@ -85,6 +92,9 @@ private:
   void payload_received(asio::error_code, std::size_t);
   void write_packet();
   void packet_sent(asio::error_code, std::size_t);
+
+  bool is_idle() const;
+  void maybe_signal_closed();
 };
 
 } // namespace bc::soup
