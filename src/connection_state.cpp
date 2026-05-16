@@ -14,7 +14,7 @@ bool Connection_state::initiate_disconnect(Disconnect_reason pending_reason) {
   return true;
 }
 
-bool Connection_state::terminate(Disconnect_reason observed_reason) {
+bool Connection_state::disconnect(Disconnect_reason observed_reason) {
   if (state_ == State::disconnected)
     return false;
   state_ = State::disconnected;

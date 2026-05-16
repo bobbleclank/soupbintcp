@@ -174,7 +174,7 @@ void Tcp_connection::handle_connect_failure(asio::error_code ec,
 }
 
 void Tcp_connection::terminate(Disconnect_reason reason) {
-  const auto state_changed = state_.terminate(reason);
+  const auto state_changed = state_.disconnect(reason);
   if (!state_changed)
     return;
   socket_.close();

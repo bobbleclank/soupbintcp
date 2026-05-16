@@ -25,7 +25,7 @@ public:
   }
 
   [[nodiscard]] bool initiate_disconnect(Disconnect_reason);
-  [[nodiscard]] bool terminate(Disconnect_reason);
+  [[nodiscard]] bool disconnect(Disconnect_reason);
 
 private:
   State state_ = State::connecting;
