@@ -58,7 +58,7 @@ private:
   [[nodiscard]] Packet_error process_login_request(const void*, std::size_t);
   [[nodiscard]] Packet_error process_unsequenced_data(const void*, std::size_t);
 
-  void terminate(Disconnect_reason = Disconnect_reason::unmanaged_abort);
+  void disconnect(Disconnect_reason = Disconnect_reason::unmanaged_abort);
   void initiate_disconnect(Disconnect_reason, bool = false);
 
   // Called by Acceptor

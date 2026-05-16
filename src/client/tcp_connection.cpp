@@ -52,28 +52,28 @@ void Tcp_connection::connect_success() {
 }
 
 void Tcp_connection::read_failure(asio::error_code) {
-  terminate(Disconnect_reason::transport_error);
+  disconnect(Disconnect_reason::transport_error);
 }
 
 void Tcp_connection::read_failure(Packet_error) {
-  terminate(Disconnect_reason::protocol_violation);
+  disconnect(Disconnect_reason::protocol_violation);
 }
 
 void Tcp_connection::read_success(const Read_packet& packet) {
   if (!state_.is_closing()) {
     const auto error = process_packet(packet);
     if (error != Packet_error::none)
-      terminate(Disconnect_reason::protocol_violation);
+      disconnect(Disconnect_reason::protocol_violation);
   }
   socket_.async_read();
 }
 
 void Tcp_connection::read_aborted() {
-  terminate();
+  disconnect();
 }
 
 void Tcp_connection::read_end_of_file() {
-  terminate(Disconnect_reason::peer_closed);
+  disconnect(Disconnect_reason::peer_closed);
 }
 
 void Tcp_connection::write_failure(asio::error_code) {
@@ -143,7 +143,7 @@ Packet_error Tcp_connection::process_login_rejected(const void* data,
   Login_rejected_packet response;
   read(response, data);
   handler_->login_failure(convert(response.reason));
-  terminate(Disconnect_reason::access_denied);
+  disconnect(Disconnect_reason::access_denied);
   return Packet_error::none;
 }
 
@@ -173,7 +173,7 @@ void Tcp_connection::handle_connect_failure(asio::error_code ec,
   socket_.close();
 }
 
-void Tcp_connection::terminate(Disconnect_reason reason) {
+void Tcp_connection::disconnect(Disconnect_reason reason) {
   const auto state_changed = state_.disconnect(reason);
   if (!state_changed)
     return;
