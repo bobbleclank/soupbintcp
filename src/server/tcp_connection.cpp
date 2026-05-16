@@ -67,6 +67,9 @@ void Tcp_connection::write_buffer_empty() {
 }
 
 void Tcp_connection::closed() {
+  if (port_)
+    port_->on_closed();
+  acceptor_->on_closed(*this);
 }
 
 Packet_error Tcp_connection::process_packet(const Read_packet& packet) {

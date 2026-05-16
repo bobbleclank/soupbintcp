@@ -72,6 +72,7 @@ private:
   on_login_request(Tcp_connection&, const Login_request_packet&, Port*&,
                    Port_handler*&);
   void on_disconnect(Disconnect_reason);
+  void on_closed(Tcp_connection&);
 };
 
 } // namespace bc::soup::server

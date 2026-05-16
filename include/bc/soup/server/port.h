@@ -53,6 +53,7 @@ private:
   // Called by Tcp_connection
   friend class Tcp_connection;
   void on_unsequenced_data(const void*, std::size_t);
+  void on_closed();
 };
 
 } // namespace bc::soup::server

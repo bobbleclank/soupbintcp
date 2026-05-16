@@ -90,4 +90,8 @@ void Port::on_unsequenced_data(const void* data, std::size_t size) {
   handler_->unsequenced_data(data, size);
 }
 
+void Port::on_closed() {
+  connection_ = nullptr;
+}
+
 } // namespace bc::soup::server

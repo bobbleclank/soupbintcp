@@ -72,6 +72,7 @@ private:
   void on_login_success(const Login_accepted_packet&);
   [[nodiscard]] Packet_error on_sequenced_data(const void*, std::size_t);
   void on_end_of_session();
+  void on_closed();
 };
 
 } // namespace bc::soup::client

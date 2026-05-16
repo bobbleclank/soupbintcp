@@ -140,4 +140,9 @@ void Acceptor::on_disconnect(Disconnect_reason reason) {
   handler_->disconnect(reason);
 }
 
+void Acceptor::on_closed(Tcp_connection& connection) {
+  connections_.remove_if(
+      [&connection](const auto& element) { return &connection == &element; });
+}
+
 } // namespace bc::soup::server

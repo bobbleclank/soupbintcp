@@ -114,4 +114,8 @@ void Connection::on_end_of_session() {
   client_->on_end_of_session();
 }
 
+void Connection::on_closed() {
+  connection_.reset();
+}
+
 } // namespace bc::soup::client
