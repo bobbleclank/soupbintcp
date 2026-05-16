@@ -51,7 +51,7 @@ private:
   Socket socket_;
   Connection_state state_;
 
-  void process_packet(const Read_packet&);
+  [[nodiscard]] Packet_error process_packet(const Read_packet&);
 
   [[nodiscard]] Packet_error process_login_request(const void*, std::size_t);
   [[nodiscard]] Packet_error process_unsequenced_data(const void*, std::size_t);

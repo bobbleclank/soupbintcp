@@ -50,7 +50,7 @@ private:
   Socket socket_;
   Connection_state state_;
 
-  void process_packet(const Read_packet&);
+  [[nodiscard]] Packet_error process_packet(const Read_packet&);
 
   [[nodiscard]] Packet_error process_login_accepted(const void*, std::size_t);
   [[nodiscard]] Packet_error process_login_rejected(const void*, std::size_t);

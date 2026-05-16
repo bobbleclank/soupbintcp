@@ -39,8 +39,11 @@ void Tcp_connection::read_failure(Packet_error) {
 }
 
 void Tcp_connection::read_success(const Read_packet& packet) {
-  if (!state_.is_closing())
-    process_packet(packet);
+  if (!state_.is_closing()) {
+    const auto error = process_packet(packet);
+    if (error != Packet_error::none)
+      terminate(Disconnect_reason::protocol_violation);
+  }
   socket_.async_read();
 }
 
@@ -63,23 +66,17 @@ void Tcp_connection::write_success(const Write_packet&) {
 void Tcp_connection::write_buffer_empty() {
 }
 
-void Tcp_connection::process_packet(const Read_packet& packet) {
+Packet_error Tcp_connection::process_packet(const Read_packet& packet) {
   const auto* data = packet.payload_data();
   const auto size = packet.payload_size();
-  auto error = Packet_error::none;
   switch (packet.packet_type()) {
   case Login_request_packet::packet_type:
-    error = process_login_request(data, size);
-    break;
+    return process_login_request(data, size);
   case Unsequenced_data_packet::packet_type:
-    error = process_unsequenced_data(data, size);
-    break;
+    return process_unsequenced_data(data, size);
   default:
-    error = Packet_error::invalid_message_type;
-    break;
+    return Packet_error::invalid_message_type;
   }
-  if (error != Packet_error::none)
-    terminate(Disconnect_reason::protocol_violation);
 }
 
 Packet_error Tcp_connection::process_login_request(const void* data,
