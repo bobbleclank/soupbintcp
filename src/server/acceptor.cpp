@@ -136,13 +136,10 @@ Acceptor::on_login_request(Tcp_connection& connection,
                                 handler);
 }
 
-void Acceptor::on_disconnect(Disconnect_reason reason) {
-  handler_->disconnect(reason);
-}
-
-void Acceptor::on_closed(Tcp_connection& connection) {
+void Acceptor::on_closed(Tcp_connection& connection, Disconnect_reason reason) {
   connections_.remove_if(
       [&connection](const auto& element) { return &connection == &element; });
+  handler_->disconnect(reason);
 }
 
 } // namespace bc::soup::server

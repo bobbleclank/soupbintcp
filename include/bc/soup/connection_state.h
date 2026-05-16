@@ -18,17 +18,18 @@ public:
   void set_state(State);
 
   State state() const { return state_; }
+  Disconnect_reason reason() const { return reason_; }
 
   bool is_closing() const {
     return state_ == State::disconnecting || state_ == State::disconnected;
   }
 
   [[nodiscard]] bool initiate_disconnect(Disconnect_reason);
-  [[nodiscard]] Disconnect_reason terminate(Disconnect_reason);
+  [[nodiscard]] bool terminate(Disconnect_reason);
 
 private:
   State state_ = State::connecting;
-  Disconnect_reason pending_reason_ = Disconnect_reason::none;
+  Disconnect_reason reason_ = Disconnect_reason::none;
 };
 
 } // namespace bc::soup

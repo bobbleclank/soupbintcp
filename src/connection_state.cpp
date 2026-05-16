@@ -6,24 +6,21 @@ void Connection_state::set_state(State state) {
   state_ = state;
 }
 
-bool Connection_state::initiate_disconnect(Disconnect_reason reason) {
+bool Connection_state::initiate_disconnect(Disconnect_reason pending_reason) {
   if (is_closing())
     return false;
   state_ = State::disconnecting;
-  pending_reason_ = reason;
+  reason_ = pending_reason;
   return true;
 }
 
-Disconnect_reason
-Connection_state::terminate(Disconnect_reason observed_reason) {
+bool Connection_state::terminate(Disconnect_reason observed_reason) {
   if (state_ == State::disconnected)
-    return Disconnect_reason::none;
+    return false;
   state_ = State::disconnected;
-  const auto reason = (pending_reason_ == Disconnect_reason::none)
-                          ? observed_reason
-                          : pending_reason_;
-  pending_reason_ = Disconnect_reason::none;
-  return reason;
+  if (reason_ == Disconnect_reason::none)
+    reason_ = observed_reason;
+  return true;
 }
 
 } // namespace bc::soup

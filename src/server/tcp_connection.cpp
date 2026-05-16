@@ -69,7 +69,7 @@ void Tcp_connection::write_buffer_empty() {
 void Tcp_connection::closed() {
   if (port_)
     port_->on_closed();
-  acceptor_->on_closed(*this);
+  acceptor_->on_closed(*this, state_.reason());
 }
 
 Packet_error Tcp_connection::process_packet(const Read_packet& packet) {
@@ -124,11 +124,10 @@ Packet_error Tcp_connection::process_unsequenced_data(const void* data,
   return Packet_error::none;
 }
 
-void Tcp_connection::terminate(Disconnect_reason observed_reason) {
-  const auto reason = state_.terminate(observed_reason);
-  if (reason == Disconnect_reason::none)
+void Tcp_connection::terminate(Disconnect_reason reason) {
+  const auto state_changed = state_.terminate(reason);
+  if (!state_changed)
     return;
-  acceptor_->on_disconnect(reason);
   socket_.close();
 }
 
