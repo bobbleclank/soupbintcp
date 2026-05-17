@@ -71,7 +71,7 @@ private:
   [[nodiscard]] expected<Login_accepted_packet, Login_rejected_packet>
   on_login_request(Tcp_connection&, const Login_request_packet&, Port*&,
                    Port_handler*&);
-  void on_closed(Tcp_connection&, Disconnect_reason);
+  void on_closed(Tcp_connection&, Port_handler*, Disconnect_reason);
 };
 
 } // namespace bc::soup::server

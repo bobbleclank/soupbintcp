@@ -46,6 +46,8 @@ public:
 
   virtual void unsequenced_data(const void*, std::size_t) = 0;
 
+  virtual void disconnect(Disconnect_reason) = 0;
+
 protected:
   Port_handler() = default;
   ~Port_handler() = default;

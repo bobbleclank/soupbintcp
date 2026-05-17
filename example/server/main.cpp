@@ -47,6 +47,10 @@ public:
     std::println("unsequenced data: data = {}, size = {}", message, size);
   }
 
+  void disconnect(soup::Disconnect_reason reason) override {
+    std::println("disconnect: reason = {}", to_string(reason));
+  }
+
   void send_message() {
     static constexpr std::string_view message = "hello client";
     const auto error = port_->send_message(message.data(), message.size());
