@@ -27,6 +27,10 @@ void Client::set_write_packets_limit(std::size_t write_packets_limit) {
   write_packets_limit_ = write_packets_limit;
 }
 
+void Client::set_next_sequence_number(std::uint64_t next_sequence_number) {
+  next_sequence_number_ = next_sequence_number;
+}
+
 expected<Connection*, std::error_code>
 Client::add_connection(const asio::ip::tcp::endpoint& endpoint) {
   return add_connection(endpoint, nullptr);
@@ -172,8 +176,13 @@ Write_error Client::send_multiple(Write_packet&& packet) {
   return priority_error(errors);
 }
 
-void Client::on_sequenced_data(const void* data, std::size_t size) {
-  handler_->sequenced_data(data, size);
+void Client::on_sequenced_data(std::uint64_t sequence_number, const void* data,
+                               std::size_t size) {
+  if (sequence_number < next_sequence_number_)
+    return;
+  assert(sequence_number == next_sequence_number_);
+  next_sequence_number_ = sequence_number + 1;
+  handler_->sequenced_data(sequence_number, data, size);
 }
 
 void Client::on_end_of_session() {

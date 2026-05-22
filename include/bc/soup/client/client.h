@@ -8,6 +8,7 @@
 #include <asio.hpp>
 
 #include <cstddef>
+#include <cstdint>
 #include <list>
 #include <system_error>
 
@@ -29,12 +30,15 @@ public:
   void set_handler(Client_handler&);
   void set_write_packets_limit(std::size_t);
 
+  void set_next_sequence_number(std::uint64_t);
+
   [[nodiscard]] expected<Connection*, std::error_code>
   add_connection(const asio::ip::tcp::endpoint&);
 
   [[nodiscard]] expected<Connection*, std::error_code>
   add_connection(const asio::ip::tcp::endpoint&, Connection_handler&);
 
+  std::uint64_t next_sequence_number() const { return next_sequence_number_; }
   bool has_session_ended() const { return has_session_ended_; }
 
   [[nodiscard]] std::error_code start();
@@ -52,6 +56,7 @@ private:
   asio::any_io_executor io_executor_;
   std::size_t write_packets_limit_ = default_write_packets_limit;
   std::list<Connection> connections_;
+  std::uint64_t next_sequence_number_ = 1;
   bool has_session_ended_ = false;
   bool started_ = false;
 
@@ -67,7 +72,7 @@ private:
   friend class Connection;
   std::size_t write_packets_limit() const { return write_packets_limit_; }
   bool started() const { return started_; }
-  void on_sequenced_data(const void*, std::size_t);
+  void on_sequenced_data(std::uint64_t, const void*, std::size_t);
   void on_end_of_session();
 };
 

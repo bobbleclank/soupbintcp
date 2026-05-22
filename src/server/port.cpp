@@ -18,6 +18,10 @@ void Port::set_handler(Port_handler& handler) {
   handler_ = &handler;
 }
 
+void Port::set_next_sequence_number(std::uint64_t next_sequence_number) {
+  next_sequence_number_ = next_sequence_number;
+}
+
 Write_error Port::send_message(const void* data, std::size_t size) {
   if (size == 0)
     return Write_error::empty_buffer;
@@ -25,7 +29,10 @@ Write_error Port::send_message(const void* data, std::size_t size) {
     return Write_error::null_buffer;
 
   Write_packet packet(Sequenced_data_packet::packet_type, data, size);
-  return send_packet(std::move(packet));
+  const auto error = send_packet(std::move(packet));
+  if (error == Write_error::none)
+    ++next_sequence_number_;
+  return error;
 }
 
 // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Moved via release_packet
@@ -36,7 +43,10 @@ Write_error Port::send_message(Message&& message) {
     return Write_error::null_buffer;
 
   auto packet = message.release_packet();
-  return send_packet(std::move(packet));
+  const auto error = send_packet(std::move(packet));
+  if (error == Write_error::none)
+    ++next_sequence_number_;
+  return error;
 }
 
 Write_error Port::send_packet(Write_packet&& packet) {
@@ -70,7 +80,11 @@ Port::on_login_request(Tcp_connection& connection,
         Login_rejected_packet(Login_rejected_reason::session_not_available));
   }
 
-  const Login_accepted_packet response(session, 1);
+  if (request.next_sequence_number != 0 &&
+      request.next_sequence_number < next_sequence_number_) {
+    next_sequence_number_ = request.next_sequence_number;
+  }
+  const Login_accepted_packet response(session, next_sequence_number_);
   handler_->login_success(response);
   return response;
 }

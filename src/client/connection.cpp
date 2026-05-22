@@ -103,17 +103,38 @@ bool Connection::is_handler_set() const {
 void Connection::on_connect_failure() {}
 
 Login_request_packet Connection::on_connect_success() {
-  return Login_request_packet(username_, password_, session_, 0);
+  next_sequence_number_ = client_->next_sequence_number();
+  return Login_request_packet(username_, password_, session_,
+                              next_sequence_number_);
 }
 
-void Connection::on_login_success(const Login_accepted_packet& response) {
+Disconnect_reason
+Connection::on_login_success(const Login_accepted_packet& response) {
+  if (response.next_sequence_number == 0)
+    return Disconnect_reason::protocol_violation;
+
+  if (next_sequence_number_ != 0) {
+    if (response.next_sequence_number < next_sequence_number_)
+      return Disconnect_reason::sequence_number_too_low;
+    if (response.next_sequence_number > next_sequence_number_)
+      return Disconnect_reason::sequence_number_too_high;
+  } else if (client_->next_sequence_number() == 0) {
+    client_->set_next_sequence_number(response.next_sequence_number);
+  } else if (response.next_sequence_number > client_->next_sequence_number()) {
+    return Disconnect_reason::sequence_number_ahead_of_session;
+  }
+
   session_ = response.session;
+  next_sequence_number_ = response.next_sequence_number;
+  return Disconnect_reason::none;
 }
 
 Packet_error Connection::on_sequenced_data(const void* data, std::size_t size) {
   if (has_session_ended_)
     return Packet_error::unexpected_sequence;
-  client_->on_sequenced_data(data, size);
+  const auto sequence_number = next_sequence_number_;
+  ++next_sequence_number_;
+  client_->on_sequenced_data(sequence_number, data, size);
   return Packet_error::none;
 }
 

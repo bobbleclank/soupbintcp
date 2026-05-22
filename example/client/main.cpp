@@ -12,6 +12,7 @@
 
 #include <atomic>
 #include <cstddef>
+#include <cstdint>
 #include <cstdlib>
 #include <iostream>
 #include <optional>
@@ -109,9 +110,11 @@ public:
     connection_.emplace(*result, username, password, session);
   }
 
-  void sequenced_data(const void* data, std::size_t size) override {
+  void sequenced_data(std::uint64_t sequence_number, const void* data,
+                      std::size_t size) override {
     const std::string_view message(static_cast<const char*>(data), size);
-    std::println("sequenced data: data = {}, size = {}", message, size);
+    std::println("sequenced data: sequence number = {}, data = {}, size = {}",
+                 sequence_number, message, size);
   }
 
   void end_of_session() override { std::println("end of session"); }

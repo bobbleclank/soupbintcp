@@ -7,6 +7,7 @@
 #include <asio.hpp>
 
 #include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -41,6 +42,7 @@ public:
   std::string_view password() const { return password_; }
   std::string_view session() const { return session_; }
 
+  std::uint64_t next_sequence_number() const { return next_sequence_number_; }
   bool has_session_ended() const { return has_session_ended_; }
 
   void connect();
@@ -59,6 +61,7 @@ private:
   std::string username_;
   std::string password_;
   std::string session_;
+  std::uint64_t next_sequence_number_ = 1;
   bool has_session_ended_ = false;
   std::optional<Tcp_connection> connection_;
 
@@ -72,7 +75,8 @@ private:
   friend class Tcp_connection;
   void on_connect_failure();
   Login_request_packet on_connect_success();
-  void on_login_success(const Login_accepted_packet&);
+  [[nodiscard]] Disconnect_reason
+  on_login_success(const Login_accepted_packet&);
   [[nodiscard]] Packet_error on_sequenced_data(const void*, std::size_t);
   void on_end_of_session();
   void on_closed(Disconnect_reason);

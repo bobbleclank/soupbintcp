@@ -5,6 +5,7 @@
 #include "bc/soup/types.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <string>
 #include <string_view>
 
@@ -27,9 +28,12 @@ public:
 
   void set_handler(Port_handler&);
 
+  void set_next_sequence_number(std::uint64_t);
+
   std::string_view username() const { return username_; }
   std::string_view password() const { return password_; }
 
+  std::uint64_t next_sequence_number() const { return next_sequence_number_; }
   bool has_session_ended() const { return has_session_ended_; }
 
   [[nodiscard]] Write_error send_message(const void*, std::size_t);
@@ -39,6 +43,7 @@ private:
   Port_handler* handler_ = nullptr;
   std::string username_;
   std::string password_;
+  std::uint64_t next_sequence_number_ = 1;
   bool has_session_ended_ = false;
   Tcp_connection* connection_ = nullptr;
 
