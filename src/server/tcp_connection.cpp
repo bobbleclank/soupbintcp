@@ -100,7 +100,7 @@ Packet_error Tcp_connection::process_login_request(const void* data,
       acceptor_->on_login_request(*this, request, port_, handler_);
   if (!result) {
     const Login_rejected_packet& response = result.error();
-    initiate_disconnect(Disconnect_reason::access_denied, true);
+    prepare_graceful_disconnect(Disconnect_reason::access_denied);
     Write_packet packet(response.packet_type, response.payload_size);
     write(response, packet.payload_data());
     // Discard write failure: should not fail since first packet sent
@@ -133,16 +133,12 @@ void Tcp_connection::disconnect(Disconnect_reason reason) {
   socket_.close();
 }
 
-void Tcp_connection::initiate_disconnect(Disconnect_reason reason,
-                                         bool graceful) {
-  const auto state_changed = state_.initiate_disconnect(reason);
-  if (!state_changed || graceful)
-    return;
-  socket_.close();
+void Tcp_connection::prepare_graceful_disconnect(Disconnect_reason reason) {
+  state_.initiate_disconnect(reason);
 }
 
 void Tcp_connection::close() {
-  initiate_disconnect(Disconnect_reason::user_initiated);
+  disconnect(Disconnect_reason::user_initiated);
 }
 
 Write_error Tcp_connection::send_packet(Write_packet&& packet) {

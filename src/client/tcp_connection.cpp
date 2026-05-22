@@ -182,13 +182,6 @@ void Tcp_connection::disconnect(Disconnect_reason reason) {
   socket_.close();
 }
 
-void Tcp_connection::initiate_disconnect(Disconnect_reason reason) {
-  const auto state_changed = state_.initiate_disconnect(reason);
-  if (!state_changed)
-    return;
-  socket_.close();
-}
-
 Write_error Tcp_connection::send_packet(Write_packet&& packet) {
   if (state_.state() != State::logged_in)
     return Write_error::not_logged_in;
@@ -196,7 +189,7 @@ Write_error Tcp_connection::send_packet(Write_packet&& packet) {
 }
 
 void Tcp_connection::close() {
-  initiate_disconnect(Disconnect_reason::user_initiated);
+  disconnect(Disconnect_reason::user_initiated);
 }
 
 } // namespace bc::soup::client

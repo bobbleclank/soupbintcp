@@ -59,7 +59,7 @@ private:
   [[nodiscard]] Packet_error process_unsequenced_data(const void*, std::size_t);
 
   void disconnect(Disconnect_reason = Disconnect_reason::unmanaged_abort);
-  void initiate_disconnect(Disconnect_reason, bool = false);
+  void prepare_graceful_disconnect(Disconnect_reason);
 
   // Called by Acceptor
   friend class Acceptor;
