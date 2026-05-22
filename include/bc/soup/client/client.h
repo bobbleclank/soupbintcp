@@ -43,6 +43,8 @@ public:
   [[nodiscard]] Write_error send_message(const void*, std::size_t);
   [[nodiscard]] Write_error send_message(Message&&);
 
+  void send_logout_request();
+
 private:
   static constexpr std::size_t default_write_packets_limit = 100;
 

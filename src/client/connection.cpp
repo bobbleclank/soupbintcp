@@ -80,6 +80,13 @@ Write_error Connection::send_message(Message&& message) {
   return send_packet(std::move(packet));
 }
 
+Write_error Connection::send_logout_request() {
+  if (!connection_)
+    return Write_error::disconnected;
+
+  return connection_->send_logout_request();
+}
+
 Write_error Connection::send_packet(Write_packet&& packet) {
   if (has_session_ended_)
     return Write_error::session_ended;

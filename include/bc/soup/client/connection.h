@@ -49,6 +49,8 @@ public:
   [[nodiscard]] Write_error send_message(const void*, std::size_t);
   [[nodiscard]] Write_error send_message(Message&&);
 
+  [[nodiscard]] Write_error send_logout_request();
+
 private:
   Client* client_ = nullptr;
   Connection_handler* handler_ = nullptr;

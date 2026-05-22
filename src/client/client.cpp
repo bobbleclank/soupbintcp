@@ -92,6 +92,11 @@ Write_error Client::send_message(Message&& message) {
   return send_packet(std::move(packet));
 }
 
+void Client::send_logout_request() {
+  for (auto& connection : connections_)
+    (void)connection.send_logout_request();
+}
+
 expected<Connection*, std::error_code>
 Client::add_connection(const asio::ip::tcp::endpoint& endpoint,
                        Connection_handler* handler) {

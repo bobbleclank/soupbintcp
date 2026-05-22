@@ -121,6 +121,8 @@ public:
 
   void send_message() { connection_->send_message(); }
 
+  void send_logout_request() { client_.send_logout_request(); }
+
   void stop() { client_.stop(); }
 
 private:
@@ -149,6 +151,8 @@ void run(std::string_view username, std::string_view password,
     asio::post(io_context, [&client] { client.send_message(); });
   }
 
+  client.send_logout_request();
+  std::this_thread::sleep_for(1s);
   client.stop();
   std::this_thread::sleep_for(1s);
   io_runner.stop();
