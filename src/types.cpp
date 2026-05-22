@@ -62,6 +62,8 @@ const char* to_string(Disconnect_reason reason) {
     return "none";
   case Disconnect_reason::user_initiated:
     return "user initiated";
+  case Disconnect_reason::logout_request:
+    return "logout request";
   case Disconnect_reason::peer_closed:
     return "peer closed";
   case Disconnect_reason::transport_error:

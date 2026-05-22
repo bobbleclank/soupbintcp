@@ -47,6 +47,8 @@ public:
     std::println("unsequenced data: data = {}, size = {}", message, size);
   }
 
+  void logout_request() override { std::println("logout request"); }
+
   void disconnect(soup::Disconnect_reason reason) override {
     std::println("disconnect: reason = {}", to_string(reason));
   }

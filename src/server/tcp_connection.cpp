@@ -82,6 +82,8 @@ Packet_error Tcp_connection::process_packet(const Read_packet& packet) {
     return process_login_request(data, size);
   case Unsequenced_data_packet::packet_type:
     return process_unsequenced_data(data, size);
+  case Logout_request_packet::packet_type:
+    return process_logout_request(size);
   default:
     return Packet_error::invalid_message_type;
   }
@@ -123,6 +125,17 @@ Packet_error Tcp_connection::process_unsequenced_data(const void* data,
     return Packet_error::unexpected_sequence;
 
   port_->on_unsequenced_data(data, size);
+  return Packet_error::none;
+}
+
+Packet_error Tcp_connection::process_logout_request(std::size_t size) {
+  if (size != Logout_request_packet::payload_size)
+    return Packet_error::incorrect_length;
+  if (state_.state() != State::logged_in)
+    return Packet_error::unexpected_sequence;
+
+  handler_->logout_request();
+  disconnect(Disconnect_reason::logout_request);
   return Packet_error::none;
 }
 
