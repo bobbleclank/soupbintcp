@@ -2,6 +2,6 @@ BasedOnStyle: LLVM
 PointerAlignment: Left
 
 AllowShortEnumsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: InlineOnly
+AllowShortFunctionsOnASingleLine: Inline
 AlwaysBreakTemplateDeclarations: Yes
 PackConstructorInitializers: NextLine
