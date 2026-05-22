@@ -45,6 +45,16 @@ std::error_code Connection::set_session(std::string_view session) {
   return {};
 }
 
+void Connection::connect() {
+  connection_.emplace(io_executor_, *this, *handler_,
+                      client_->write_packets_limit());
+}
+
+void Connection::close() {
+  if (connection_)
+    connection_->close();
+}
+
 Write_error Connection::send_message(const void* data, std::size_t size) {
   if (size == 0)
     return Write_error::empty_buffer;
@@ -77,16 +87,6 @@ Write_error Connection::send_packet(Write_packet&& packet) {
 
 bool Connection::is_handler_set() const {
   return handler_ != nullptr;
-}
-
-void Connection::connect() {
-  connection_.emplace(io_executor_, *this, *handler_,
-                      client_->write_packets_limit());
-}
-
-void Connection::close() {
-  if (connection_)
-    connection_->close();
 }
 
 void Connection::on_connect_failure() {

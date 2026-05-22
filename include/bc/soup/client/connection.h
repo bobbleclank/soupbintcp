@@ -43,6 +43,9 @@ public:
 
   bool has_session_ended() const { return has_session_ended_; }
 
+  void connect();
+  void close();
+
   [[nodiscard]] Write_error send_message(const void*, std::size_t);
   [[nodiscard]] Write_error send_message(Message&&);
 
@@ -62,8 +65,6 @@ private:
   // Called by Client
   friend class Client;
   bool is_handler_set() const;
-  void connect();
-  void close();
 
   // Called by Tcp_connection
   friend class Tcp_connection;
