@@ -41,6 +41,8 @@ public:
   virtual void login_failure(Login_reject_reason) = 0;
   virtual void login_success(const Login_accepted_packet&) = 0;
 
+  virtual void write_buffer_empty() = 0;
+
   virtual void disconnect(Disconnect_reason) = 0;
 
 protected:

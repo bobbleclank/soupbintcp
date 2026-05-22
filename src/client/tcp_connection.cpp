@@ -86,6 +86,7 @@ void Tcp_connection::write_success(const Write_packet&) {
 }
 
 void Tcp_connection::write_buffer_empty() {
+  handler_->write_buffer_empty();
 }
 
 void Tcp_connection::closed() {

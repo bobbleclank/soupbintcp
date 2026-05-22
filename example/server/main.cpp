@@ -49,6 +49,8 @@ public:
 
   void logout_request() override { std::println("logout request"); }
 
+  void write_buffer_empty() override { std::println("write buffer empty"); }
+
   void disconnect(soup::Disconnect_reason reason) override {
     std::println("disconnect: reason = {}", to_string(reason));
   }

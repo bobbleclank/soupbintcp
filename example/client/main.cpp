@@ -73,6 +73,8 @@ public:
                  p.session, p.next_sequence_number);
   }
 
+  void write_buffer_empty() override { std::println("write buffer empty"); }
+
   void disconnect(soup::Disconnect_reason reason) override {
     std::println("disconnect: reason = {}", to_string(reason));
   }

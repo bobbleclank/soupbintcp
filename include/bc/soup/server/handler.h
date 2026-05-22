@@ -47,6 +47,8 @@ public:
   virtual void unsequenced_data(const void*, std::size_t) = 0;
   virtual void logout_request() = 0;
 
+  virtual void write_buffer_empty() = 0;
+
   virtual void disconnect(Disconnect_reason) = 0;
 
 protected:
