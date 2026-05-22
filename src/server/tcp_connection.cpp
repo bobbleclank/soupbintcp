@@ -147,9 +147,10 @@ Write_error Tcp_connection::send_packet(Write_packet&& packet) {
   return socket_.async_write(std::move(packet));
 }
 
-void Tcp_connection::send_end_of_session() {
-  // Discard write failure: not critical
-  (void)socket_.async_write(Write_packet(End_of_session_packet::packet_type));
+Write_error Tcp_connection::send_end_of_session() {
+  if (state_.state() != State::logged_in)
+    return Write_error::not_logged_in;
+  return socket_.async_write(Write_packet(End_of_session_packet::packet_type));
 }
 
 } // namespace bc::soup::server
