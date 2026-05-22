@@ -9,8 +9,7 @@ namespace bc::soup {
 
 Buffer::Buffer(std::size_t size)
     // NOLINTNEXTLINE(*-avoid-c-arrays): Dynamically-allocated array
-    : data_(std::make_unique<std::byte[]>(size)), size_(size) {
-}
+    : data_(std::make_unique<std::byte[]>(size)), size_(size) {}
 
 Buffer::Buffer(Buffer&& other) noexcept
     : data_(std::move(other.data_)), size_(other.size_) {
@@ -58,8 +57,7 @@ Read_packet::Resize_result Read_packet::resize_payload() {
   return Resize_result::resized;
 }
 
-Write_packet::Write_packet(char packet_type) : Write_packet(packet_type, 0) {
-}
+Write_packet::Write_packet(char packet_type) : Write_packet(packet_type, 0) {}
 
 Write_packet::Write_packet(char packet_type, std::uint16_t payload_size)
     : packet_(packet_header_length + payload_size) {

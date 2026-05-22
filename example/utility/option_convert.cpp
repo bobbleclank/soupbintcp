@@ -29,12 +29,10 @@ long to_long(std::string_view arg, int opt) {
   return i;
 }
 
-Endpoint::Endpoint(int port_) : port(port_) {
-}
+Endpoint::Endpoint(int port_) : port(port_) {}
 
 Endpoint::Endpoint(std::string_view address_, int port_)
-    : address(address_), port(port_) {
-}
+    : address(address_), port(port_) {}
 
 Endpoint to_endpoint(std::string_view arg, int opt) {
   const auto pos = arg.find(':');

@@ -17,8 +17,7 @@ Acceptor::Acceptor(asio::any_io_executor io_executor,
     : server_(&server),
       handler_(handler),
       endpoint_(endpoint),
-      acceptor_(io_executor, *this) {
-}
+      acceptor_(io_executor, *this) {}
 
 void Acceptor::accept_failure(asio::error_code ec) {
   handler_->accept_failure(ec);

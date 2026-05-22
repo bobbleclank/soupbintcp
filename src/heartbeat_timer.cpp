@@ -6,8 +6,7 @@ namespace bc::soup {
 
 Heartbeat_timer::Heartbeat_timer(asio::steady_timer& timer, Handler& handler,
                                  std::chrono::seconds timeout)
-    : handler_(&handler), timer_(&timer), timeout_(timeout) {
-}
+    : handler_(&handler), timer_(&timer), timeout_(timeout) {}
 
 void Heartbeat_timer::start() {
   if (started_)

@@ -14,12 +14,10 @@
 
 namespace bc::soup::client {
 
-Client::Client(asio::any_io_executor io_executor) : io_executor_(io_executor) {
-}
+Client::Client(asio::any_io_executor io_executor) : io_executor_(io_executor) {}
 
 Client::Client(asio::any_io_executor io_executor, Client_handler& handler)
-    : handler_(&handler), io_executor_(io_executor) {
-}
+    : handler_(&handler), io_executor_(io_executor) {}
 
 void Client::set_handler(Client_handler& handler) {
   handler_ = &handler;

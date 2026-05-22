@@ -9,8 +9,7 @@ namespace bc::soup {
 
 Login_accepted_packet::Login_accepted_packet(
     std::string_view session_, std::uint64_t next_sequence_number_)
-    : session(session_), next_sequence_number(next_sequence_number_) {
-}
+    : session(session_), next_sequence_number(next_sequence_number_) {}
 
 void read(Login_accepted_packet& packet, const void* data) {
   constexpr auto size = Login_accepted_packet::payload_size;
@@ -33,8 +32,8 @@ void write(const Login_accepted_packet& packet, void* data) {
   assert((iter += sequence_number_length) == s.end());
 }
 
-Login_rejected_packet::Login_rejected_packet(Reason reason_) : reason(reason_) {
-}
+Login_rejected_packet::Login_rejected_packet(Reason reason_)
+    : reason(reason_) {}
 
 void read(Login_rejected_packet& packet, const void* data) {
   constexpr auto size = Login_rejected_packet::payload_size;
@@ -60,8 +59,7 @@ Login_request_packet::Login_request_packet(std::string_view username_,
     : username(username_),
       password(password_),
       session(session_),
-      next_sequence_number(next_sequence_number_) {
-}
+      next_sequence_number(next_sequence_number_) {}
 
 void read(Login_request_packet& packet, const void* data) {
   constexpr auto size = Login_request_packet::payload_size;

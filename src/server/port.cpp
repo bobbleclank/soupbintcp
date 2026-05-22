@@ -12,8 +12,7 @@ namespace bc::soup::server {
 
 Port::Port(std::string_view username, std::string_view password,
            Port_handler* handler)
-    : handler_(handler), username_(username), password_(password) {
-}
+    : handler_(handler), username_(username), password_(password) {}
 
 void Port::set_handler(Port_handler& handler) {
   handler_ = &handler;

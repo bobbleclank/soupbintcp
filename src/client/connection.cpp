@@ -17,8 +17,7 @@ Connection::Connection(asio::any_io_executor io_executor,
     : client_(&client),
       handler_(handler),
       io_executor_(io_executor),
-      endpoint_(endpoint) {
-}
+      endpoint_(endpoint) {}
 
 void Connection::set_handler(Connection_handler& handler) {
   handler_ = &handler;
@@ -100,8 +99,7 @@ bool Connection::is_handler_set() const {
   return handler_ != nullptr;
 }
 
-void Connection::on_connect_failure() {
-}
+void Connection::on_connect_failure() {}
 
 Login_request_packet Connection::on_connect_success() {
   return Login_request_packet(username_, password_, session_, 0);
