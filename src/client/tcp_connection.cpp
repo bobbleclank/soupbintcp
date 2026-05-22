@@ -60,11 +60,11 @@ void Tcp_connection::read_failure(Packet_error) {
 }
 
 void Tcp_connection::read_success(const Read_packet& packet) {
-  if (!state_.is_closing()) {
-    const auto error = process_packet(packet);
-    if (error != Packet_error::none)
-      disconnect(Disconnect_reason::protocol_violation);
-  }
+  if (state_.is_closing())
+    return;
+  const auto error = process_packet(packet);
+  if (error != Packet_error::none)
+    disconnect(Disconnect_reason::protocol_violation);
   if (state_.is_closing())
     return;
   socket_.async_read();
