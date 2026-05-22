@@ -79,6 +79,7 @@ void Tcp_connection::read_end_of_file() {
 }
 
 void Tcp_connection::write_failure(asio::error_code) {
+  disconnect(Disconnect_reason::transport_error);
 }
 
 void Tcp_connection::write_success(const Write_packet&) {
