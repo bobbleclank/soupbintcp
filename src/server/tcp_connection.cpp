@@ -44,6 +44,8 @@ void Tcp_connection::read_success(const Read_packet& packet) {
     if (error != Packet_error::none)
       disconnect(Disconnect_reason::protocol_violation);
   }
+  if (state_.is_closing())
+    return;
   socket_.async_read();
 }
 
