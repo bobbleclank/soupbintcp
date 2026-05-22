@@ -15,8 +15,8 @@ example/                  - example client and server programs
 
 ## Key shared components
 
-- `Connection_state` — pure state machine (no side effects) tracking `State` and `pending_reason_`. Used by both client and server `Tcp_connection`. Returns values; callers handle socket close and callbacks.
-- `Socket` — wraps Asio TCP socket, calls back into a `Socket::Handler`.
+- `Connection_state` — pure state machine (no side effects) tracking `State` and `reason_`. Used by both client and server `Tcp_connection`. Functions: `initiate_disconnect` (state → disconnecting), `disconnect` (state → disconnected). Both return whether the state changed; callers handle socket close and callbacks.
+- `Socket` — wraps Asio TCP socket, calls back into a `Socket::Handler`. Tracks pending async ops (`connect_pending_`, `read_pending_`, `write_pending_`) and signals `closed()` on the Handler once all ops have drained after `close()`. Async ops are no-ops when `closing_` is set.
 - `types.h` — shared enums: `Disconnect_reason`, `Packet_error`, `Login_reject_reason`, `Write_error`. `Disconnect_reason::none` and similar `none` enumerators serve as sentinels (no value / success), avoiding `std::optional`.
 
 ## Client side
@@ -52,9 +52,31 @@ Hierarchy: `Server` → `Acceptor` → `Port` → `Tcp_connection`
 - `Write_packet` copy constructor is deleted to prevent accidental copies. A named `clone()` helper is planned for the explicit copy needed when sending to multiple connections.
 - `Client` dispatches to `send_one`, `send_two`, or `send_multiple` based on connection count. `send_one` and `send_two` are fast paths for the common cases (1 or 2 redundant connections).
 
-## Stop at Connection layer (unresolved)
+## Send logout request (client)
 
-`Connection` currently has no `stop()`. Since connections are individually accessible and redundant, a per-connection hard close would be useful (e.g. a misbehaving connection). Deferred until after logout is implemented.
+- Three layers like `send_message`. `Tcp_connection::send_logout_request` checks `logged_in` state and sends the packet. `Connection::send_logout_request` checks `connection_` and delegates. `Client::send_logout_request` iterates all connections.
+- No `has_session_ended_` guard at `Connection` — logout is a transport-level action; the `logged_in` state check at `Tcp_connection` is the meaningful gate.
+- `Client::send_logout_request` returns `void` (user is closing anyway; per-connection error handling available via `Connection` layer if needed).
+- No `asio::post` — same contract as `send_message` (user's responsibility to be on the io thread).
+
+## Connection lifecycle and destruction
+
+The closed cascade enables value-owned `Tcp_connection` without `shared_ptr`:
+
+1. `socket_.close()` sets `closing_=true`, cancels pending ops, calls `maybe_signal_closed`.
+2. `maybe_signal_closed` posts `Handler::closed()` once all `*_pending_` flags drain (via `asio::post`, never inline).
+3. `Tcp_connection::closed()` fires the user's disconnect callback (post-drain) and triggers destruction:
+   - Client: `Connection::on_closed(reason)` resets the `std::optional<Tcp_connection>` and fires disconnect on `Connection_handler`.
+   - Server: `Acceptor::on_closed(connection, port_handler, reason)` removes from `connections_` list and fires disconnect on the appropriate handler — `Port_handler` if logged in, `Acceptor_handler` otherwise.
+4. Synchronous destruction inside `closed()` is safe because `closed` always arrives from a posted dispatch, so the socket handlers have already unwound.
+
+Disconnect callback timing: fires **from the closed cascade** (post-drain), not from `Tcp_connection::disconnect`. The state machine's transition to `disconnected` is decoupled from the user notification.
+
+## Public connect/close (client `Connection`)
+
+`Connection::connect()` and `Connection::close()` are public. Users can individually manage a redundant physical connection (e.g. close a misbehaving one without affecting others).
+- `connect()` guarded with `!client_->started()` and `connection_` (already connected) — bails as no-op.
+- `close()` has no started guard — `connection_` null check is the meaningful gate, and a started guard would interfere with `Client::stop` iterating.
 
 ## Handler call layer conventions (server side — unresolved)
 
@@ -63,8 +85,10 @@ Both `server::Tcp_connection` and `server::Port` hold handler pointers. The inte
 ## Coding conventions
 
 - Async calls (socket_.async_*) go after all state changes and callbacks.
-- `socket_.close()` goes after callbacks (terminate, connect failure).
+- `socket_.close()` goes after callbacks (disconnect, connect failure).
 - State changes before callbacks; upper-layer calls before handler callbacks.
-- `[[nodiscard]]` used on functions where ignoring the return is a bug: currently `initiate_disconnect` (returns whether state changed) and `terminate` (returns reason or none).
-- `Connection_state::initiate_disconnect` return stored as `state_changed`; not inlined into if-condition since the function has side effects.
-- No default parameter on `Connection_state::terminate` — callers always pass an explicit reason; the no-arg `Tcp_connection::terminate()` exists to handle `read_aborted` (socket closed from our side, pending reason always set).
+- `[[nodiscard]]` reserved for error types or `expected` (error-bearing returns). State machine bool returns are not marked nodiscard — they're informational/optimizational, ignoring is not a bug.
+- `Connection_state` return stored as `state_changed`; not inlined into if-condition since the function has side effects.
+- No default parameter on `Connection_state::disconnect` — callers always pass an explicit reason. The no-arg `Tcp_connection::disconnect()` exists for `read_aborted` (socket closed from our side, `reason_` always set).
+- `initiate_disconnect` is server-only now, narrowed to the graceful login-rejected path and renamed `prepare_graceful_disconnect` at `Tcp_connection`. Non-graceful paths transition straight to disconnected via `disconnect()`.
+- Re-arm of `socket_.async_read()` in `read_success` is guarded with `!state_.is_closing()` — early returns when closing so no reads are queued after the close decision.
