@@ -59,6 +59,13 @@ Hierarchy: `Server` → `Acceptor` → `Port` → `Tcp_connection`
 - `Client::send_logout_request` returns `void` (user is closing anyway; per-connection error handling available via `Connection` layer if needed).
 - No `asio::post` — same contract as `send_message` (user's responsibility to be on the io thread).
 
+## Process logout request (server)
+
+- `Tcp_connection::process_logout_request` validates payload size and `logged_in` state, fires `handler_->logout_request()`, then `disconnect(Disconnect_reason::logout_request)`.
+- No `has_session_ended_` guard on the logout notification — logout is real intent during the post-session-end tail (replay, pre-shutdown). Differs from `on_unsequenced_data` which suppresses delivery after session end.
+- `handler_->logout_request()` called directly from `Tcp_connection`, not via `port_->on_logout_request()` — no Port-state gate to apply. Parked under "Handler call conventions" for the broader review.
+- User sees two notifications per logout: `logout_request()` at packet receipt, then the disconnect callback with `Disconnect_reason::logout_request` from the closed cascade.
+
 ## Connection lifecycle and destruction
 
 The closed cascade enables value-owned `Tcp_connection` without `shared_ptr`:
@@ -78,9 +85,18 @@ Disconnect callback timing: fires **from the closed cascade** (post-drain), not 
 - `connect()` guarded with `!client_->started()` and `connection_` (already connected) — bails as no-op.
 - `close()` has no started guard — `connection_` null check is the meaningful gate, and a started guard would interfere with `Client::stop` iterating.
 
-## Handler call layer conventions (server side — unresolved)
+## Handler call conventions (unresolved)
 
-Both `server::Tcp_connection` and `server::Port` hold handler pointers. The intended pattern (handler calls belong in the upper layer, not `Tcp_connection`) is not yet consistently applied. A style review is deferred until all message types are implemented.
+Two related questions are deferred to a single review, once all message types are implemented:
+
+1. **Layer.** Handler calls are made from both `Tcp_connection` and the upper layer (`Connection` on the client side, `Port` / `Acceptor` on the server side). No firm convention has been chosen — examples of both patterns exist on both sides, and some `Tcp_connection`-level handler calls are placed there deliberately. To be decided as part of the review.
+
+2. **Order.** The rule is handler call after state change. Currently violated in:
+   - **Server login (accept and reject):** `Port::on_login_request` fires `handler_->login_success` / `handler_->login_failure` before `Tcp_connection::process_login_request` performs the post-decision state transition (`set_state(logged_in)` or `prepare_graceful_disconnect`).
+   - **Client login rejected:** `Tcp_connection::process_login_rejected` fires `handler_->login_failure` before calling `disconnect(Disconnect_reason::access_denied)`.
+   - **Server logout request:** `Tcp_connection::process_logout_request` fires `handler_->logout_request` before calling `disconnect(Disconnect_reason::logout_request)`.
+
+Resolving (2) on the server side may interact with (1) — if handler calls remain in the upper layer, that layer would need to drive the state transition (e.g., calling back into `Tcp_connection` to set state before firing the handler).
 
 ## Coding conventions
 
