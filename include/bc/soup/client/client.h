@@ -64,6 +64,7 @@ private:
   // Called by Connection
   friend class Connection;
   std::size_t write_packets_limit() const { return write_packets_limit_; }
+  bool started() const { return started_; }
   void on_sequenced_data(const void*, std::size_t);
   void on_end_of_session();
 };

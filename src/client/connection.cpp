@@ -46,6 +46,10 @@ std::error_code Connection::set_session(std::string_view session) {
 }
 
 void Connection::connect() {
+  if (!client_->started())
+    return;
+  if (connection_)
+    return;
   connection_.emplace(io_executor_, *this, *handler_,
                       client_->write_packets_limit());
 }
