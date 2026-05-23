@@ -83,7 +83,8 @@ Write_error Connection::send_logout_request() {
   if (!connection_)
     return Write_error::disconnected;
 
-  return connection_->send_logout_request();
+  return connection_->send_packet(
+      Write_packet(Logout_request_packet::packet_type));
 }
 
 Write_error Connection::send_packet(Write_packet&& packet) {

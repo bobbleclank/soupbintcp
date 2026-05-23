@@ -69,7 +69,6 @@ private:
   // Called by Port
   friend class Port;
   [[nodiscard]] Write_error send_packet(Write_packet&&);
-  [[nodiscard]] Write_error send_end_of_session();
 };
 
 } // namespace bc::soup::server

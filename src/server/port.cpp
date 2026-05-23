@@ -81,7 +81,8 @@ void Port::end_session() {
   has_session_ended_ = true;
   if (connection_)
     // Discard write failure: not critical
-    (void)connection_->send_end_of_session();
+    (void)connection_->send_packet(
+        Write_packet(End_of_session_packet::packet_type));
 }
 
 void Port::on_unsequenced_data(const void* data, std::size_t size) {

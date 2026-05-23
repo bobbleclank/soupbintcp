@@ -65,7 +65,6 @@ private:
   // Called by Connection
   friend class Connection;
   [[nodiscard]] Write_error send_packet(Write_packet&&);
-  [[nodiscard]] Write_error send_logout_request();
   void close();
 };
 

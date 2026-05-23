@@ -189,12 +189,6 @@ Write_error Tcp_connection::send_packet(Write_packet&& packet) {
   return socket_.async_write(std::move(packet));
 }
 
-Write_error Tcp_connection::send_logout_request() {
-  if (state_.state() != State::logged_in)
-    return Write_error::not_logged_in;
-  return socket_.async_write(Write_packet(Logout_request_packet::packet_type));
-}
-
 void Tcp_connection::close() {
   disconnect(Disconnect_reason::user_initiated);
 }
