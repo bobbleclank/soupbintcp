@@ -66,6 +66,21 @@ Hierarchy: `Server` → `Acceptor` → `Port` → `Tcp_connection`
 - `handler_->logout_request()` called directly from `Tcp_connection`, not via `port_->on_logout_request()` — no Port-state gate to apply. Parked under "Handler call conventions" for the broader review.
 - User sees two notifications per logout: `logout_request()` at packet receipt, then the disconnect callback with `Disconnect_reason::logout_request` from the closed cascade.
 
+## Sequence number tracking (client)
+
+- `Client::next_sequence_number_` (default 1, settable via `set_next_sequence_number`) is the canonical counter. Each `Connection` holds its own `next_sequence_number_` for per-physical accounting.
+- On `on_connect_success`, Connection pulls Client's current value and sends it in `Login_request_packet`. On `on_login_success`, validates `response.next_sequence_number`: non-0 request requires exact match (`sequence_number_too_low`/`too_high`); 0 request bootstraps Client's counter on the first response and requires `<= Client::next` on subsequent (else `sequence_number_ahead_of_session`); `response == 0` is `protocol_violation`.
+- `Connection::on_sequenced_data` labels each incoming packet with its current counter then bumps, delivers `(seq, data, size)` to `Client`. `Client::on_sequenced_data` drops `seq < next`, otherwise advances `next = seq + 1` and forwards.
+- **Invariant:** `Connection::next_ <= Client::next` always — enforced by login validation, preserved by lockstep advancement. Makes `seq > Client::next` provably unreachable; the assert in `Client::on_sequenced_data` documents this.
+
+## Sequence number tracking (server)
+
+- `Port::next_sequence_number_` (default 1, settable via `set_next_sequence_number`) is the per-port counter.
+- `Port::send_message` bumps the counter on `send_packet` success (`Write_error::none` only — `buffer_full` does not bump). The counter is the message's implicit sequence number; it isn't carried in the packet payload.
+- `Port::on_login_request`: if `request.next_sequence_number != 0 && < current`, rewinds the counter to the requested value (replay scenario). Otherwise leaves it alone. Response always carries the (possibly rewound) counter value.
+- **No library-side message store.** The user holds payloads keyed by sequence number and feeds them via `send_message`. For replay, the user observes `login_accepted.next_sequence_number` and feeds messages until caught up to their canonical, then resumes live.
+- Counter commits eagerly at send (not at write-completion). Messages assigned a sequence number via `send_message` keep that number even if the connection dies before flush; recovery is via replay on the next connection.
+
 ## Connection lifecycle and destruction
 
 The closed cascade enables value-owned `Tcp_connection` without `shared_ptr`:
