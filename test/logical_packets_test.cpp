@@ -24,8 +24,6 @@ TEST(logical_packets, packet_type) {
 }
 
 TEST(logical_packets, payload_size) {
-  ASSERT_EQ(Debug_packet::payload_size, 0u);
-
   ASSERT_EQ(Login_accepted_packet::payload_size, 30u);
   ASSERT_EQ(Login_rejected_packet::payload_size, 1u);
   ASSERT_EQ(Server_heartbeat_packet::payload_size, 0u);

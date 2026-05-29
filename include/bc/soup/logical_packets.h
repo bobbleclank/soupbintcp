@@ -12,7 +12,6 @@ namespace bc::soup {
 
 struct Debug_packet {
   static constexpr char packet_type = '+';
-  static constexpr std::size_t payload_size = 0;
 };
 
 // Logical packets sent by the server.
