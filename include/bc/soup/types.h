@@ -43,6 +43,7 @@ enum class Disconnect_reason {
   peer_closed,
   transport_error,
   access_denied,
+  session_mismatch,
   sequence_number_ahead_of_session,
   sequence_number_too_low,
   sequence_number_too_high,

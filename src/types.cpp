@@ -70,6 +70,8 @@ const char* to_string(Disconnect_reason reason) {
     return "transport error";
   case Disconnect_reason::access_denied:
     return "access denied";
+  case Disconnect_reason::session_mismatch:
+    return "session mismatch";
   case Disconnect_reason::sequence_number_ahead_of_session:
     return "sequence number ahead of session";
   case Disconnect_reason::sequence_number_too_low:
