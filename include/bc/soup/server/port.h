@@ -30,6 +30,8 @@ public:
   std::string_view username() const { return username_; }
   std::string_view password() const { return password_; }
 
+  bool has_session_ended() const { return has_session_ended_; }
+
   [[nodiscard]] Write_error send_message(const void*, std::size_t);
   [[nodiscard]] Write_error send_message(Message&&);
 
