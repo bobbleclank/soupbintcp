@@ -137,8 +137,6 @@ Packet_error Tcp_connection::process_login_rejected(const void* data,
       return Login_reject_reason::not_authorized;
     case Login_rejected_reason::session_not_available:
       return Login_reject_reason::session_not_available;
-    case Login_rejected_reason::sequence_number_too_high:
-      break;
     }
     return Login_reject_reason::invalid_reject_reason;
   };

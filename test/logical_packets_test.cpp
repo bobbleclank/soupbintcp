@@ -40,7 +40,6 @@ TEST(logical_packets, login_rejected_reason) {
   using Reason = Login_rejected_packet::Reason;
   ASSERT_EQ(static_cast<char>(Reason::not_authorized), 'A');
   ASSERT_EQ(static_cast<char>(Reason::session_not_available), 'S');
-  ASSERT_EQ(static_cast<char>(Reason::sequence_number_too_high), 'N');
 }
 
 TEST(logical_packets, Login_accepted_packet) {

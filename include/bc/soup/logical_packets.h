@@ -34,8 +34,7 @@ void write(const Login_accepted_packet&, void*);
 
 enum class Login_rejected_reason : char {
   not_authorized = 'A',
-  session_not_available = 'S',
-  sequence_number_too_high = 'N'
+  session_not_available = 'S'
 };
 
 struct Login_rejected_packet {
