@@ -81,6 +81,13 @@ Hierarchy: `Server` → `Acceptor` → `Port` → `Tcp_connection`
 - **No library-side message store.** The user holds payloads keyed by sequence number and feeds them via `send_message`. For replay, the user observes `login_accepted.next_sequence_number` and feeds messages until caught up to their canonical, then resumes live.
 - Counter commits eagerly at send (not at write-completion). Messages assigned a sequence number via `send_message` keep that number even if the connection dies before flush; recovery is via replay on the next connection.
 
+## Session validation (client)
+
+- `Connection::on_login_success` validates `response.session` against `session_`: if `session_` is non-empty and they differ, disconnect with `Disconnect_reason::session_mismatch`. Empty `session_` accepts any value and locks it in for future reconnects.
+- One predicate covers three cases: first login with a specific session requested (must match), first login with empty session (accept anything, lock in), reconnect after a successful login (must match the previously-locked-in value).
+- Checked before sequence number validation — session identity is more fundamental than sequence positioning, so fail-fast at the session level before doing sequence math.
+- No rollover handling. If the server changes the session, the client disconnects with `session_mismatch` rather than attempting a transition. Revisit if rollover ever becomes a real use case.
+
 ## Connection lifecycle and destruction
 
 The closed cascade enables value-owned `Tcp_connection` without `shared_ptr`:
