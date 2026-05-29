@@ -102,16 +102,16 @@ Packet_error Tcp_connection::process_login_request(const void* data,
   read(request, data);
   const auto result =
       acceptor_->on_login_request(*this, request, port_, handler_);
-  if (!result) {
-    const Login_rejected_packet& response = result.error();
-    prepare_graceful_disconnect(Disconnect_reason::access_denied);
+  if (result) {
+    const Login_accepted_packet& response = *result;
+    state_.set_state(State::logged_in);
     Write_packet packet(response.packet_type, response.payload_size);
     write(response, packet.payload_data());
     // Discard write failure: should not fail since first packet sent
     (void)socket_.async_write(std::move(packet));
   } else {
-    const Login_accepted_packet& response = *result;
-    state_.set_state(State::logged_in);
+    const Login_rejected_packet& response = result.error();
+    prepare_graceful_disconnect(Disconnect_reason::access_denied);
     Write_packet packet(response.packet_type, response.payload_size);
     write(response, packet.payload_data());
     // Discard write failure: should not fail since first packet sent
