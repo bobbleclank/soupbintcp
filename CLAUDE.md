@@ -54,8 +54,8 @@ Hierarchy: `Server` → `Acceptor` → `Port` → `Tcp_connection`
 
 ## Send logout request (client)
 
-- Three layers like `send_message`. `Tcp_connection::send_logout_request` checks `logged_in` state and sends the packet. `Connection::send_logout_request` checks `connection_` and delegates. `Client::send_logout_request` iterates all connections.
-- No `has_session_ended_` guard at `Connection` — logout is a transport-level action; the `logged_in` state check at `Tcp_connection` is the meaningful gate.
+- Two layers. `Connection::send_logout_request` checks `connection_` then delegates to `Tcp_connection::send_packet` — the single state-gated entry point for fire-and-forget protocol packets. `Client::send_logout_request` iterates all connections. (Server-side `Port::end_session` follows the same shape for `End_of_session_packet`.)
+- No `has_session_ended_` guard at `Connection` — logout is a transport-level action; the `logged_in` state check inside `send_packet` is the meaningful gate.
 - `Client::send_logout_request` returns `void` (user is closing anyway; per-connection error handling available via `Connection` layer if needed).
 - No `asio::post` — same contract as `send_message` (user's responsibility to be on the io thread).
 
