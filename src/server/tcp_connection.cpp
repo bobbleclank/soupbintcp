@@ -80,6 +80,9 @@ Packet_error Tcp_connection::process_packet(const Read_packet& packet) {
   const auto* data = packet.payload_data();
   const auto size = packet.payload_size();
   switch (packet.packet_type()) {
+  case Debug_packet::packet_type:
+    process_debug(data, size);
+    return Packet_error::none;
   case Login_request_packet::packet_type:
     return process_login_request(data, size);
   case Unsequenced_data_packet::packet_type:
@@ -89,6 +92,14 @@ Packet_error Tcp_connection::process_packet(const Read_packet& packet) {
   default:
     return Packet_error::invalid_message_type;
   }
+}
+
+void Tcp_connection::process_debug(const void* data, std::size_t size) {
+  const std::string_view text(static_cast<const char*>(data), size);
+  if (handler_)
+    handler_->debug(text);
+  else
+    acceptor_->on_debug(text);
 }
 
 Packet_error Tcp_connection::process_login_request(const void* data,

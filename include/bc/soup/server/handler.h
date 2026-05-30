@@ -6,6 +6,7 @@
 #include <asio.hpp>
 
 #include <cstddef>
+#include <string_view>
 
 namespace bc::soup {
 struct Login_accepted_packet;
@@ -25,6 +26,8 @@ public:
 
   virtual void login_request(const Login_request_packet&) = 0;
   virtual void login_failure(Login_reject_reason) = 0;
+
+  virtual void debug(std::string_view) = 0;
 
   virtual void disconnect(Disconnect_reason) = 0;
 
@@ -48,6 +51,8 @@ public:
   virtual void logout_request() = 0;
 
   virtual void write_buffer_empty() = 0;
+
+  virtual void debug(std::string_view) = 0;
 
   virtual void disconnect(Disconnect_reason) = 0;
 

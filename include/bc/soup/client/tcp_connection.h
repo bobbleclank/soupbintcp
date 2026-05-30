@@ -54,6 +54,8 @@ private:
 
   [[nodiscard]] Packet_error process_packet(const Read_packet&);
 
+  void process_debug(const void*, std::size_t);
+
   [[nodiscard]] Packet_error process_login_accepted(const void*, std::size_t);
   [[nodiscard]] Packet_error process_login_rejected(const void*, std::size_t);
   [[nodiscard]] Packet_error process_sequenced_data(const void*, std::size_t);

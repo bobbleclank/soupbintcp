@@ -68,6 +68,7 @@ private:
 
   // Called by Tcp_connection
   friend class Tcp_connection;
+  void on_debug(std::string_view);
   [[nodiscard]] expected<Login_accepted_packet, Login_rejected_packet>
   on_login_request(Tcp_connection&, const Login_request_packet&, Port*&,
                    Port_handler*&);

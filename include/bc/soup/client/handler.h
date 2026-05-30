@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string_view>
 
 namespace bc::soup {
 struct Login_accepted_packet;
@@ -43,6 +44,8 @@ public:
   virtual void login_success(const Login_accepted_packet&) = 0;
 
   virtual void write_buffer_empty() = 0;
+
+  virtual void debug(std::string_view) = 0;
 
   virtual void disconnect(Disconnect_reason) = 0;
 

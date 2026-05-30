@@ -115,6 +115,10 @@ void Acceptor::stop() {
     connection.close();
 }
 
+void Acceptor::on_debug(std::string_view text) {
+  handler_->debug(text);
+}
+
 expected<Login_accepted_packet, Login_rejected_packet>
 Acceptor::on_login_request(Tcp_connection& connection,
                            const Login_request_packet& request, Port*& port,

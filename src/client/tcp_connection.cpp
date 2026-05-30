@@ -96,6 +96,9 @@ Packet_error Tcp_connection::process_packet(const Read_packet& packet) {
   const auto* data = packet.payload_data();
   const auto size = packet.payload_size();
   switch (packet.packet_type()) {
+  case Debug_packet::packet_type:
+    process_debug(data, size);
+    return Packet_error::none;
   case Login_accepted_packet::packet_type:
     return process_login_accepted(data, size);
   case Login_rejected_packet::packet_type:
@@ -107,6 +110,10 @@ Packet_error Tcp_connection::process_packet(const Read_packet& packet) {
   default:
     return Packet_error::invalid_message_type;
   }
+}
+
+void Tcp_connection::process_debug(const void* data, std::size_t size) {
+  handler_->debug(std::string_view(static_cast<const char*>(data), size));
 }
 
 Packet_error Tcp_connection::process_login_accepted(const void* data,

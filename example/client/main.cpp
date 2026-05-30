@@ -76,6 +76,10 @@ public:
 
   void write_buffer_empty() override { std::println("write buffer empty"); }
 
+  void debug(std::string_view text) override {
+    std::println("debug: text = {}", text);
+  }
+
   void disconnect(soup::Disconnect_reason reason) override {
     std::println("disconnect: reason = {}", to_string(reason));
   }
