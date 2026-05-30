@@ -99,6 +99,11 @@ void Client::send_logout_request() {
     (void)connection.send_logout_request();
 }
 
+void Client::send_debug(std::string_view text) {
+  for (auto& connection : connections_)
+    (void)connection.send_debug(text);
+}
+
 expected<Connection*, std::error_code>
 Client::add_connection(const asio::ip::tcp::endpoint& endpoint,
                        Connection_handler* handler) {

@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <list>
+#include <string_view>
 #include <system_error>
 
 namespace bc::soup {
@@ -48,6 +49,7 @@ public:
   [[nodiscard]] Write_error send_message(Message&&);
 
   void send_logout_request();
+  void send_debug(std::string_view);
 
 private:
   static constexpr std::size_t default_write_packets_limit = 100;

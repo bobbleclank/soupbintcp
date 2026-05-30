@@ -52,6 +52,7 @@ public:
   [[nodiscard]] Write_error send_message(Message&&);
 
   [[nodiscard]] Write_error send_logout_request();
+  [[nodiscard]] Write_error send_debug(std::string_view);
 
 private:
   Client* client_ = nullptr;

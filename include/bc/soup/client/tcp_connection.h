@@ -8,6 +8,7 @@
 #include <asio.hpp>
 
 #include <cstddef>
+#include <string_view>
 
 namespace bc::soup {
 class Read_packet;
@@ -67,6 +68,7 @@ private:
   // Called by Connection
   friend class Connection;
   [[nodiscard]] Write_error send_packet(Write_packet&&);
+  [[nodiscard]] Write_error send_debug_packet(std::string_view);
   void close();
 };
 
