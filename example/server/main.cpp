@@ -74,6 +74,7 @@ class Acceptor final : public soup::server::Acceptor_handler {
 public:
   explicit Acceptor(soup::server::Acceptor* acceptor) : acceptor_(acceptor) {
     acceptor_->set_handler(*this);
+    acceptor_->set_debug_banner("hello from acceptor");
   }
 
   void initialize(std::string_view username, std::string_view password) {
