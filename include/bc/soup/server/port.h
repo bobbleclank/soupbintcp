@@ -39,6 +39,8 @@ public:
   [[nodiscard]] Write_error send_message(const void*, std::size_t);
   [[nodiscard]] Write_error send_message(Message&&);
 
+  [[nodiscard]] Write_error send_debug(std::string_view);
+
 private:
   Port_handler* handler_ = nullptr;
   std::string username_;

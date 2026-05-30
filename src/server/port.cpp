@@ -49,6 +49,15 @@ Write_error Port::send_message(Message&& message) {
   return error;
 }
 
+Write_error Port::send_debug(std::string_view text) {
+  if (text.empty())
+    return Write_error::empty_buffer;
+  if (!connection_)
+    return Write_error::disconnected;
+
+  return connection_->send_debug_packet(text);
+}
+
 Write_error Port::send_packet(Write_packet&& packet) {
   if (has_session_ended_)
     return Write_error::session_ended;

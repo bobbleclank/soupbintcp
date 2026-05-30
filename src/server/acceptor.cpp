@@ -30,7 +30,10 @@ void Acceptor::accept_success(asio::ip::tcp::socket&& s) {
   const auto local_endpoint = socket.local_endpoint();
   const auto remote_endpoint = socket.remote_endpoint();
   handler_->accept_success(local_endpoint, remote_endpoint);
-  connections_.emplace_back(acceptor_.get_executor(), std::move(socket), *this);
+  auto& connection = connections_.emplace_back(acceptor_.get_executor(),
+                                               std::move(socket), *this);
+  if (!debug_banner_.empty())
+    (void)connection.send_debug_packet(debug_banner_);
   acceptor_.async_accept();
 }
 
@@ -40,6 +43,10 @@ void Acceptor::set_handler(Acceptor_handler& handler) {
 
 void Acceptor::set_write_packets_limit(std::size_t write_packets_limit) {
   write_packets_limit_ = write_packets_limit;
+}
+
+void Acceptor::set_debug_banner(std::string_view debug_banner) {
+  debug_banner_ = debug_banner;
 }
 
 expected<Port*, std::error_code> Acceptor::add_port(std::string_view username,

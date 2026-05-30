@@ -173,4 +173,11 @@ Write_error Tcp_connection::send_packet(Write_packet&& packet) {
   return socket_.async_write(std::move(packet));
 }
 
+Write_error Tcp_connection::send_debug_packet(std::string_view text) {
+  if (state_.state() == State::connecting || state_.is_closing())
+    return Write_error::disconnected;
+  return socket_.async_write(
+      Write_packet(Debug_packet::packet_type, text.data(), text.size()));
+}
+
 } // namespace bc::soup::server

@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <list>
+#include <string>
 #include <string_view>
 #include <system_error>
 
@@ -36,6 +37,7 @@ public:
 
   void set_handler(Acceptor_handler&);
   void set_write_packets_limit(std::size_t);
+  void set_debug_banner(std::string_view);
 
   [[nodiscard]] expected<Port*, std::error_code> add_port(std::string_view,
                                                           std::string_view);
@@ -54,6 +56,7 @@ private:
   Socket_acceptor acceptor_;
   std::list<Port> ports_;
   std::size_t write_packets_limit_ = default_write_packets_limit;
+  std::string debug_banner_;
   std::list<Tcp_connection> connections_;
 
   [[nodiscard]] expected<Port*, std::error_code>
