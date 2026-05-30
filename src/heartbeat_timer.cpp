@@ -44,10 +44,9 @@ void Heartbeat_timer::cancel() {
 }
 
 void Heartbeat_timer::on_expiry(asio::error_code ec) {
-  if (ec == asio::error::operation_aborted)
-    return;
   if (ec) {
-    handler_->heartbeat_timer_error({ec, "async_wait"});
+    if (ec != asio::error::operation_aborted)
+      handler_->heartbeat_timer_error({ec, "async_wait"});
     return;
   }
   if (!started_)
