@@ -1,5 +1,6 @@
 #include "bc/soup/server/tcp_connection.h"
 
+#include "bc/soup/constants.h"
 #include "bc/soup/logical_packets.h"
 #include "bc/soup/rw_packets.h"
 #include "bc/soup/server/acceptor.h"
@@ -13,9 +14,12 @@ namespace bc::soup::server {
 
 using State = Connection_state::State;
 
-Tcp_connection::Tcp_connection(asio::any_io_executor, Socket&& socket,
-                               Acceptor& acceptor)
-    : acceptor_(&acceptor), socket_(std::move(socket)) {
+Tcp_connection::Tcp_connection(asio::any_io_executor io_executor,
+                               Socket&& socket, Acceptor& acceptor)
+    : acceptor_(&acceptor),
+      socket_(std::move(socket)),
+      timer_(io_executor),
+      heartbeat_(timer_, *this, client_heartbeat_timeout) {
 
   state_.set_state(State::connected);
   socket_.set_handler(*this);
@@ -61,7 +65,9 @@ void Tcp_connection::write_failure(asio::error_code) {
   disconnect(Disconnect_reason::transport_error);
 }
 
-void Tcp_connection::write_success(const Write_packet&) {
+void Tcp_connection::write_success(const Write_packet& packet) {
+  if (packet.packet_type() == Sequenced_data_packet::packet_type)
+    heartbeat_.increment_send_count();
   if (state_.state() == State::disconnecting)
     disconnect();
 }
@@ -71,9 +77,26 @@ void Tcp_connection::write_buffer_empty() {
 }
 
 void Tcp_connection::closed() {
-  if (port_)
-    port_->on_closed();
-  acceptor_->on_closed(*this, handler_, state_.reason());
+  socket_closed_ = true;
+  maybe_signal_closed();
+}
+
+void Tcp_connection::heartbeat_timer_error(const asio::system_error&) {
+  disconnect(Disconnect_reason::transport_error);
+}
+
+void Tcp_connection::heartbeat_send_due() {
+  // Discard write failure: best effort
+  (void)socket_.async_write(Write_packet(Server_heartbeat_packet::packet_type));
+}
+
+void Tcp_connection::heartbeat_receive_timeout() {
+  disconnect(Disconnect_reason::heartbeat_timeout);
+}
+
+void Tcp_connection::heartbeat_stopped() {
+  timer_stopped_ = true;
+  maybe_signal_closed();
 }
 
 Packet_error Tcp_connection::process_packet(const Read_packet& packet) {
@@ -87,6 +110,8 @@ Packet_error Tcp_connection::process_packet(const Read_packet& packet) {
     return process_login_request(data, size);
   case Unsequenced_data_packet::packet_type:
     return process_unsequenced_data(data, size);
+  case Client_heartbeat_packet::packet_type:
+    return process_client_heartbeat(size);
   case Logout_request_packet::packet_type:
     return process_logout_request(size);
   default:
@@ -120,6 +145,8 @@ Packet_error Tcp_connection::process_login_request(const void* data,
     write(response, packet.payload_data());
     // Discard write failure: should not fail since first packet sent
     (void)socket_.async_write(std::move(packet));
+    timer_stopped_ = false;
+    heartbeat_.start();
   } else {
     const Login_rejected_packet& response = result.error();
     prepare_graceful_disconnect(Disconnect_reason::access_denied);
@@ -137,7 +164,18 @@ Packet_error Tcp_connection::process_unsequenced_data(const void* data,
   if (state_.state() != State::logged_in)
     return Packet_error::unexpected_sequence;
 
+  heartbeat_.increment_receive_count();
   port_->on_unsequenced_data(data, size);
+  return Packet_error::none;
+}
+
+Packet_error Tcp_connection::process_client_heartbeat(std::size_t size) {
+  if (size != Client_heartbeat_packet::payload_size)
+    return Packet_error::incorrect_length;
+  if (state_.state() != State::logged_in)
+    return Packet_error::unexpected_sequence;
+
+  heartbeat_.increment_receive_count();
   return Packet_error::none;
 }
 
@@ -157,6 +195,15 @@ void Tcp_connection::disconnect(Disconnect_reason reason) {
   if (!state_changed)
     return;
   socket_.close();
+  heartbeat_.stop();
+}
+
+void Tcp_connection::maybe_signal_closed() {
+  if (!socket_closed_ || !timer_stopped_)
+    return;
+  if (port_)
+    port_->on_closed();
+  acceptor_->on_closed(*this, handler_, state_.reason());
 }
 
 void Tcp_connection::prepare_graceful_disconnect(Disconnect_reason reason) {
