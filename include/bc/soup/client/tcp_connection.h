@@ -2,6 +2,7 @@
 #define INCLUDE_BC_SOUP_CLIENT_TCP_CONNECTION_H
 
 #include "bc/soup/connection_state.h"
+#include "bc/soup/heartbeat_timer.h"
 #include "bc/soup/socket.h"
 #include "bc/soup/types.h"
 
@@ -20,7 +21,8 @@ namespace bc::soup::client {
 class Connection;
 class Connection_handler;
 
-class Tcp_connection final : public Socket::Handler {
+class Tcp_connection final : public Socket::Handler,
+                             public Heartbeat_timer::Handler {
 public:
   Tcp_connection(asio::any_io_executor, Connection&, Connection_handler&,
                  std::size_t);
@@ -47,11 +49,20 @@ public:
 
   void closed() override;
 
+  void heartbeat_timer_error(const asio::system_error&) override;
+  void heartbeat_send_due() override;
+  void heartbeat_receive_timeout() override;
+  void heartbeat_stopped() override;
+
 private:
   Connection* connection_ = nullptr;
   Connection_handler* handler_ = nullptr;
   Socket socket_;
   Connection_state state_;
+  asio::steady_timer timer_;
+  Heartbeat_timer heartbeat_;
+  bool socket_closed_ = false;
+  bool timer_stopped_ = true;
 
   [[nodiscard]] Packet_error process_packet(const Read_packet&);
 
@@ -60,10 +71,12 @@ private:
   [[nodiscard]] Packet_error process_login_accepted(const void*, std::size_t);
   [[nodiscard]] Packet_error process_login_rejected(const void*, std::size_t);
   [[nodiscard]] Packet_error process_sequenced_data(const void*, std::size_t);
+  [[nodiscard]] Packet_error process_server_heartbeat(std::size_t);
   [[nodiscard]] Packet_error process_end_of_session(std::size_t);
 
   void handle_connect_failure(asio::error_code, const char*);
   void disconnect(Disconnect_reason = Disconnect_reason::unmanaged_abort);
+  void maybe_signal_closed();
 
   // Called by Connection
   friend class Connection;

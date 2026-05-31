@@ -2,6 +2,7 @@
 
 #include "bc/soup/client/connection.h"
 #include "bc/soup/client/handler.h"
+#include "bc/soup/constants.h"
 #include "bc/soup/logical_packets.h"
 #include "bc/soup/rw_packets.h"
 
@@ -17,7 +18,9 @@ Tcp_connection::Tcp_connection(asio::any_io_executor io_executor,
                                std::size_t write_packets_limit)
     : connection_(&connection),
       handler_(&handler),
-      socket_(io_executor, *this) {
+      socket_(io_executor, *this),
+      timer_(io_executor),
+      heartbeat_(timer_, *this, server_heartbeat_timeout) {
 
   handler_->connecting(connection_->endpoint());
   socket_.set_write_packets_limit(write_packets_limit);
@@ -82,14 +85,36 @@ void Tcp_connection::write_failure(asio::error_code) {
   disconnect(Disconnect_reason::transport_error);
 }
 
-void Tcp_connection::write_success(const Write_packet&) {}
+void Tcp_connection::write_success(const Write_packet& packet) {
+  if (packet.packet_type() == Unsequenced_data_packet::packet_type)
+    heartbeat_.increment_send_count();
+}
 
 void Tcp_connection::write_buffer_empty() {
   handler_->write_buffer_empty();
 }
 
 void Tcp_connection::closed() {
-  connection_->on_closed(state_.reason());
+  socket_closed_ = true;
+  maybe_signal_closed();
+}
+
+void Tcp_connection::heartbeat_timer_error(const asio::system_error&) {
+  disconnect(Disconnect_reason::transport_error);
+}
+
+void Tcp_connection::heartbeat_send_due() {
+  // Discard write failure: best effort
+  (void)socket_.async_write(Write_packet(Client_heartbeat_packet::packet_type));
+}
+
+void Tcp_connection::heartbeat_receive_timeout() {
+  disconnect(Disconnect_reason::heartbeat_timeout);
+}
+
+void Tcp_connection::heartbeat_stopped() {
+  timer_stopped_ = true;
+  maybe_signal_closed();
 }
 
 Packet_error Tcp_connection::process_packet(const Read_packet& packet) {
@@ -105,6 +130,8 @@ Packet_error Tcp_connection::process_packet(const Read_packet& packet) {
     return process_login_rejected(data, size);
   case Sequenced_data_packet::packet_type:
     return process_sequenced_data(data, size);
+  case Server_heartbeat_packet::packet_type:
+    return process_server_heartbeat(size);
   case End_of_session_packet::packet_type:
     return process_end_of_session(size);
   default:
@@ -127,10 +154,13 @@ Packet_error Tcp_connection::process_login_accepted(const void* data,
   read(response, data);
   state_.set_state(State::logged_in);
   const auto reason = connection_->on_login_success(response);
-  if (reason == Disconnect_reason::none)
+  if (reason == Disconnect_reason::none) {
     handler_->login_success(response);
-  else
+    timer_stopped_ = false;
+    heartbeat_.start();
+  } else {
     disconnect(reason);
+  }
   return Packet_error::none;
 }
 
@@ -163,7 +193,18 @@ Packet_error Tcp_connection::process_sequenced_data(const void* data,
   if (state_.state() != State::logged_in)
     return Packet_error::unexpected_sequence;
 
+  heartbeat_.increment_receive_count();
   return connection_->on_sequenced_data(data, size);
+}
+
+Packet_error Tcp_connection::process_server_heartbeat(std::size_t size) {
+  if (size != Server_heartbeat_packet::payload_size)
+    return Packet_error::incorrect_length;
+  if (state_.state() != State::logged_in)
+    return Packet_error::unexpected_sequence;
+
+  heartbeat_.increment_receive_count();
+  return Packet_error::none;
 }
 
 Packet_error Tcp_connection::process_end_of_session(std::size_t size) {
@@ -172,6 +213,7 @@ Packet_error Tcp_connection::process_end_of_session(std::size_t size) {
   if (state_.state() != State::logged_in)
     return Packet_error::unexpected_sequence;
 
+  heartbeat_.increment_receive_count();
   connection_->on_end_of_session();
   return Packet_error::none;
 }
@@ -189,6 +231,13 @@ void Tcp_connection::disconnect(Disconnect_reason reason) {
   if (!state_changed)
     return;
   socket_.close();
+  heartbeat_.stop();
+}
+
+void Tcp_connection::maybe_signal_closed() {
+  if (!socket_closed_ || !timer_stopped_)
+    return;
+  connection_->on_closed(state_.reason());
 }
 
 Write_error Tcp_connection::send_packet(Write_packet&& packet) {
