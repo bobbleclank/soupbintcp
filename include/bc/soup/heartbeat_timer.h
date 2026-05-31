@@ -15,6 +15,7 @@ public:
     virtual void heartbeat_timer_error(const asio::system_error&) = 0;
     virtual void heartbeat_send_due() = 0;
     virtual void heartbeat_receive_timeout() = 0;
+    virtual void heartbeat_stopped() = 0;
 
   protected:
     Handler() = default;
@@ -43,10 +44,14 @@ private:
   std::uint32_t receive_count_ = 0;
   std::uint32_t send_count_ = 0;
   bool started_ = false;
+  bool wait_pending_ = false;
+  bool stopping_ = false;
+  bool stopped_signaled_ = false;
 
   void schedule();
   void cancel();
   void on_expiry(asio::error_code);
+  void maybe_signal_stopped();
 };
 
 } // namespace bc::soup
