@@ -103,7 +103,7 @@ void Port::end_session() {
     return;
   has_session_ended_ = true;
   if (connection_)
-    // Discard write failure: not critical
+    // Discard write failure: best effort
     (void)connection_->send_packet(
         Write_packet(End_of_session_packet::packet_type));
 }
