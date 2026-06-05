@@ -84,7 +84,7 @@ void Heartbeat_timer::maybe_signal_stopped() {
   if (stopping_ && !stopped_signaled_ && !wait_pending_) {
     stopped_signaled_ = true;
     asio::post(timer_->get_executor(),
-               [this] { handler_->heartbeat_stopped(); });
+               [this] { handler_->heartbeat_timer_stopped(); });
   }
 }
 

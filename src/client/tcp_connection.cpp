@@ -112,7 +112,7 @@ void Tcp_connection::heartbeat_receive_timeout() {
   disconnect(Disconnect_reason::heartbeat_timeout);
 }
 
-void Tcp_connection::heartbeat_stopped() {
+void Tcp_connection::heartbeat_timer_stopped() {
   timer_stopped_ = true;
   maybe_signal_closed();
 }

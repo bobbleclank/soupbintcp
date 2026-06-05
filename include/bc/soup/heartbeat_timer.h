@@ -15,7 +15,7 @@ public:
     virtual void heartbeat_timer_error(const asio::system_error&) = 0;
     virtual void heartbeat_send_due() = 0;
     virtual void heartbeat_receive_timeout() = 0;
-    virtual void heartbeat_stopped() = 0;
+    virtual void heartbeat_timer_stopped() = 0;
 
   protected:
     Handler() = default;

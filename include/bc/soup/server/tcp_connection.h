@@ -52,7 +52,7 @@ public:
   void heartbeat_timer_error(const asio::system_error&) override;
   void heartbeat_send_due() override;
   void heartbeat_receive_timeout() override;
-  void heartbeat_stopped() override;
+  void heartbeat_timer_stopped() override;
 
 private:
   Acceptor* acceptor_ = nullptr;
