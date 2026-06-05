@@ -26,14 +26,13 @@ void Heartbeat_timer::stop() {
   if (!started_)
     return;
   started_ = false;
-  stopping_ = true;
 
   cancel();
   maybe_signal_stopped();
 }
 
 void Heartbeat_timer::schedule() {
-  if (stopping_)
+  if (!started_)
     return;
   try {
     timer_.expires_at(timer_.expiry() + heartbeat_period);
@@ -86,7 +85,7 @@ void Heartbeat_timer::on_expiry(asio::error_code ec) {
 }
 
 void Heartbeat_timer::maybe_signal_stopped() {
-  if (stopping_ && !stopped_signaled_ && !wait_pending_) {
+  if (!started_ && !stopped_signaled_ && !wait_pending_) {
     stopped_signaled_ = true;
     asio::post(timer_.get_executor(),
                [this] { handler_->heartbeat_timer_stopped(); });

@@ -45,7 +45,6 @@ private:
   std::uint32_t send_count_ = 0;
   bool started_ = false;
   bool wait_pending_ = false;
-  bool stopping_ = false;
   bool stopped_signaled_ = false;
 
   void schedule();
