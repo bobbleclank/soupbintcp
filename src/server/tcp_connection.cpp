@@ -141,12 +141,12 @@ Packet_error Tcp_connection::process_login_request(const void* data,
   if (result) {
     const Login_accepted_packet& response = *result;
     state_.set_state(State::logged_in);
+    timer_stopped_ = false;
+    heartbeat_.start();
     Write_packet packet(response.packet_type, response.payload_size);
     write(response, packet.payload_data());
     // Discard write failure: should not fail since first packet sent
     (void)socket_.async_write(std::move(packet));
-    timer_stopped_ = false;
-    heartbeat_.start();
   } else {
     const Login_rejected_packet& response = result.error();
     prepare_graceful_disconnect(Disconnect_reason::access_denied);
