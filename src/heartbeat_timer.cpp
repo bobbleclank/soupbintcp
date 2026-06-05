@@ -32,8 +32,6 @@ void Heartbeat_timer::stop() {
 }
 
 void Heartbeat_timer::schedule() {
-  if (!started_)
-    return;
   try {
     timer_.expires_at(timer_.expiry() + heartbeat_period);
   } catch (const asio::system_error& e) {
@@ -81,6 +79,8 @@ void Heartbeat_timer::on_expiry(asio::error_code ec) {
   else
     send_count_ = 0;
 
+  if (!started_)
+    return;
   schedule();
 }
 
