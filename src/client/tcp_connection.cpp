@@ -19,7 +19,7 @@ Tcp_connection::Tcp_connection(asio::any_io_executor io_executor,
     : connection_(&connection),
       handler_(&handler),
       socket_(io_executor, *this),
-      heartbeat_(io_executor, *this, server_heartbeat_timeout) {
+      heartbeat_timer_(io_executor, *this, server_heartbeat_timeout) {
 
   handler_->connecting(connection_->endpoint());
   socket_.set_write_packets_limit(write_packets_limit);
@@ -86,7 +86,7 @@ void Tcp_connection::write_failure(asio::error_code) {
 
 void Tcp_connection::write_success(const Write_packet& packet) {
   if (packet.packet_type() == Unsequenced_data_packet::packet_type)
-    heartbeat_.increment_send_count();
+    heartbeat_timer_.increment_send_count();
 }
 
 void Tcp_connection::write_buffer_empty() {
@@ -112,7 +112,7 @@ void Tcp_connection::heartbeat_receive_timeout() {
 }
 
 void Tcp_connection::heartbeat_timer_stopped() {
-  timer_stopped_ = true;
+  heartbeat_timer_stopped_ = true;
   maybe_signal_closed();
 }
 
@@ -155,8 +155,8 @@ Packet_error Tcp_connection::process_login_accepted(const void* data,
   const auto reason = connection_->on_login_success(response);
   if (reason == Disconnect_reason::none) {
     handler_->login_success(response);
-    timer_stopped_ = false;
-    heartbeat_.start();
+    heartbeat_timer_stopped_ = false;
+    heartbeat_timer_.start();
   } else {
     disconnect(reason);
   }
@@ -192,7 +192,7 @@ Packet_error Tcp_connection::process_sequenced_data(const void* data,
   if (state_.state() != State::logged_in)
     return Packet_error::unexpected_sequence;
 
-  heartbeat_.increment_receive_count();
+  heartbeat_timer_.increment_receive_count();
   return connection_->on_sequenced_data(data, size);
 }
 
@@ -202,7 +202,7 @@ Packet_error Tcp_connection::process_server_heartbeat(std::size_t size) {
   if (state_.state() != State::logged_in)
     return Packet_error::unexpected_sequence;
 
-  heartbeat_.increment_receive_count();
+  heartbeat_timer_.increment_receive_count();
   return Packet_error::none;
 }
 
@@ -212,7 +212,7 @@ Packet_error Tcp_connection::process_end_of_session(std::size_t size) {
   if (state_.state() != State::logged_in)
     return Packet_error::unexpected_sequence;
 
-  heartbeat_.increment_receive_count();
+  heartbeat_timer_.increment_receive_count();
   connection_->on_end_of_session();
   return Packet_error::none;
 }
@@ -230,11 +230,11 @@ void Tcp_connection::disconnect(Disconnect_reason reason) {
   if (!state_changed)
     return;
   socket_.close();
-  heartbeat_.stop();
+  heartbeat_timer_.stop();
 }
 
 void Tcp_connection::maybe_signal_closed() {
-  if (!socket_closed_ || !timer_stopped_)
+  if (!socket_closed_ || !heartbeat_timer_stopped_)
     return;
   connection_->on_closed(state_.reason());
 }

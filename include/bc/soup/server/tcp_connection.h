@@ -60,9 +60,9 @@ private:
   Port_handler* handler_ = nullptr;
   Socket socket_;
   Connection_state state_;
-  Heartbeat_timer heartbeat_;
+  Heartbeat_timer heartbeat_timer_;
   bool socket_closed_ = false;
-  bool timer_stopped_ = true;
+  bool heartbeat_timer_stopped_ = true;
 
   [[nodiscard]] Packet_error process_packet(const Read_packet&);
 
