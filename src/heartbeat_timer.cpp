@@ -13,7 +13,12 @@ void Heartbeat_timer::start() {
     return;
   started_ = true;
 
-  timer_->expires_at(std::chrono::steady_clock::now());
+  try {
+    timer_->expires_at(std::chrono::steady_clock::now());
+  } catch (const asio::system_error& e) {
+    handler_->heartbeat_timer_error(e);
+    return;
+  }
   schedule();
 }
 
