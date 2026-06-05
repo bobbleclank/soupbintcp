@@ -60,7 +60,6 @@ private:
   Port_handler* handler_ = nullptr;
   Socket socket_;
   Connection_state state_;
-  asio::steady_timer timer_;
   Heartbeat_timer heartbeat_;
   bool socket_closed_ = false;
   bool timer_stopped_ = true;

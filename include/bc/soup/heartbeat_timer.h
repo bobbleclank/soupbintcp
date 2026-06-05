@@ -28,7 +28,7 @@ public:
     Handler& operator=(Handler&&) = default;
   };
 
-  Heartbeat_timer(asio::steady_timer&, Handler&, std::chrono::seconds);
+  Heartbeat_timer(asio::any_io_executor, Handler&, std::chrono::seconds);
 
   void start();
   void stop();
@@ -38,7 +38,7 @@ public:
 
 private:
   Handler* handler_ = nullptr;
-  asio::steady_timer* timer_ = nullptr;
+  asio::steady_timer timer_;
   std::chrono::seconds timeout_ = std::chrono::seconds::zero();
   std::chrono::seconds no_receive_period_ = std::chrono::seconds::zero();
   std::uint32_t receive_count_ = 0;

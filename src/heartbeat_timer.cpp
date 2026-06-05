@@ -4,9 +4,9 @@
 
 namespace bc::soup {
 
-Heartbeat_timer::Heartbeat_timer(asio::steady_timer& timer, Handler& handler,
-                                 std::chrono::seconds timeout)
-    : handler_(&handler), timer_(&timer), timeout_(timeout) {}
+Heartbeat_timer::Heartbeat_timer(asio::any_io_executor io_executor,
+                                 Handler& handler, std::chrono::seconds timeout)
+    : handler_(&handler), timer_(io_executor), timeout_(timeout) {}
 
 void Heartbeat_timer::start() {
   if (started_)
@@ -14,7 +14,7 @@ void Heartbeat_timer::start() {
   started_ = true;
 
   try {
-    timer_->expires_at(std::chrono::steady_clock::now());
+    timer_.expires_at(std::chrono::steady_clock::now());
   } catch (const asio::system_error& e) {
     handler_->heartbeat_timer_error(e);
     return;
@@ -36,13 +36,13 @@ void Heartbeat_timer::schedule() {
   if (stopping_)
     return;
   try {
-    timer_->expires_at(timer_->expiry() + heartbeat_period);
+    timer_.expires_at(timer_.expiry() + heartbeat_period);
   } catch (const asio::system_error& e) {
     handler_->heartbeat_timer_error(e);
     return;
   }
   wait_pending_ = true;
-  timer_->async_wait([this](asio::error_code ec) {
+  timer_.async_wait([this](asio::error_code ec) {
     wait_pending_ = false;
     on_expiry(ec);
     maybe_signal_stopped();
@@ -51,7 +51,7 @@ void Heartbeat_timer::schedule() {
 
 void Heartbeat_timer::cancel() {
   try {
-    timer_->cancel();
+    timer_.cancel();
   } catch (const asio::system_error& e) {
     handler_->heartbeat_timer_error(e);
   }
@@ -88,7 +88,7 @@ void Heartbeat_timer::on_expiry(asio::error_code ec) {
 void Heartbeat_timer::maybe_signal_stopped() {
   if (stopping_ && !stopped_signaled_ && !wait_pending_) {
     stopped_signaled_ = true;
-    asio::post(timer_->get_executor(),
+    asio::post(timer_.get_executor(),
                [this] { handler_->heartbeat_timer_stopped(); });
   }
 }

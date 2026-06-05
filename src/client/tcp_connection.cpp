@@ -19,8 +19,7 @@ Tcp_connection::Tcp_connection(asio::any_io_executor io_executor,
     : connection_(&connection),
       handler_(&handler),
       socket_(io_executor, *this),
-      timer_(io_executor),
-      heartbeat_(timer_, *this, server_heartbeat_timeout) {
+      heartbeat_(io_executor, *this, server_heartbeat_timeout) {
 
   handler_->connecting(connection_->endpoint());
   socket_.set_write_packets_limit(write_packets_limit);

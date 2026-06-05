@@ -18,8 +18,7 @@ Tcp_connection::Tcp_connection(asio::any_io_executor io_executor,
                                Socket&& socket, Acceptor& acceptor)
     : acceptor_(&acceptor),
       socket_(std::move(socket)),
-      timer_(io_executor),
-      heartbeat_(timer_, *this, client_heartbeat_timeout) {
+      heartbeat_(io_executor, *this, client_heartbeat_timeout) {
 
   state_.set_state(State::connected);
   socket_.set_handler(*this);
