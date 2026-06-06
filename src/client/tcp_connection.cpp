@@ -151,6 +151,8 @@ Packet_error Tcp_connection::process_login_accepted(const void* data,
 
   Login_accepted_packet response;
   read(response, data);
+  if (response.next_sequence_number == 0)
+    return Packet_error::invalid_field_value;
   state_.set_state(State::logged_in);
   const auto reason = connection_->on_login_success(response);
   if (reason == Disconnect_reason::none) {

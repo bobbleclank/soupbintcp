@@ -8,6 +8,7 @@ enum class Packet_error {
   malformed_header,
   invalid_message_type,
   incorrect_length,
+  invalid_field_value,
   unexpected_sequence
 };
 

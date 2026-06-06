@@ -119,9 +119,6 @@ Login_request_packet Connection::on_connect_success() {
 
 Disconnect_reason
 Connection::on_login_success(const Login_accepted_packet& response) {
-  if (response.next_sequence_number == 0)
-    return Disconnect_reason::protocol_violation;
-
   if (!session_.empty() && response.session != session_)
     return Disconnect_reason::session_mismatch;
 

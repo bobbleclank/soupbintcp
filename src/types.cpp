@@ -12,6 +12,8 @@ const char* to_string(Packet_error error) {
     return "invalid message type";
   case Packet_error::incorrect_length:
     return "incorrect length";
+  case Packet_error::invalid_field_value:
+    return "invalid field value";
   case Packet_error::unexpected_sequence:
     return "unexpected sequence";
   }
