@@ -191,9 +191,12 @@ Packet_error Tcp_connection::process_sequenced_data(const void* data,
                                                     std::size_t size) {
   if (state_.state() != State::logged_in)
     return Packet_error::unexpected_sequence;
+  if (connection_->has_session_ended())
+    return Packet_error::unexpected_sequence;
 
   heartbeat_timer_.increment_receive_count();
-  return connection_->on_sequenced_data(data, size);
+  connection_->on_sequenced_data(data, size);
+  return Packet_error::none;
 }
 
 Packet_error Tcp_connection::process_server_heartbeat(std::size_t size) {

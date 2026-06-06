@@ -78,7 +78,7 @@ private:
   Login_request_packet on_connect_success();
   [[nodiscard]] Disconnect_reason
   on_login_success(const Login_accepted_packet&);
-  [[nodiscard]] Packet_error on_sequenced_data(const void*, std::size_t);
+  void on_sequenced_data(const void*, std::size_t);
   void on_end_of_session();
   void on_closed(Disconnect_reason);
 };

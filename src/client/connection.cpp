@@ -141,13 +141,10 @@ Connection::on_login_success(const Login_accepted_packet& response) {
   return Disconnect_reason::none;
 }
 
-Packet_error Connection::on_sequenced_data(const void* data, std::size_t size) {
-  if (has_session_ended_)
-    return Packet_error::unexpected_sequence;
+void Connection::on_sequenced_data(const void* data, std::size_t size) {
   const auto sequence_number = next_sequence_number_;
   ++next_sequence_number_;
   client_->on_sequenced_data(sequence_number, data, size);
-  return Packet_error::none;
 }
 
 void Connection::on_end_of_session() {
