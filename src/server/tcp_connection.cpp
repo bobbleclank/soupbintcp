@@ -135,6 +135,7 @@ Packet_error Tcp_connection::process_login_request(const void* data,
 
   Login_request_packet request;
   read(request, data);
+
   const auto result =
       acceptor_->on_login_request(*this, request, port_, handler_);
   if (result) {

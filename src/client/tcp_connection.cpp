@@ -153,6 +153,7 @@ Packet_error Tcp_connection::process_login_accepted(const void* data,
   read(response, data);
   if (response.next_sequence_number == 0)
     return Packet_error::invalid_field_value;
+
   state_.set_state(State::logged_in);
   const auto reason = connection_->on_login_success(response);
   if (reason == Disconnect_reason::none) {
@@ -172,6 +173,9 @@ Packet_error Tcp_connection::process_login_rejected(const void* data,
   if (state_.state() != State::connected)
     return Packet_error::unexpected_sequence;
 
+  Login_rejected_packet response;
+  read(response, data);
+
   auto convert = [](Login_rejected_reason reason) {
     switch (reason) {
     case Login_rejected_reason::not_authorized:
@@ -182,8 +186,6 @@ Packet_error Tcp_connection::process_login_rejected(const void* data,
     return Login_reject_reason::invalid_reject_reason;
   };
 
-  Login_rejected_packet response;
-  read(response, data);
   handler_->login_failure(convert(response.reason));
   disconnect(Disconnect_reason::access_denied);
   return Packet_error::none;
