@@ -9,6 +9,7 @@ target_sources(bcsoup
     file_store.cpp
     heartbeat_timer.cpp
     logical_packets.cpp
+    login_timer.cpp
     packing.cpp
     rw_packets.cpp
     server/acceptor.cpp
