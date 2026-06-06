@@ -20,7 +20,6 @@ Tcp_connection::Tcp_connection(asio::any_io_executor io_executor,
       socket_(std::move(socket)),
       heartbeat_timer_(io_executor, *this, client_heartbeat_timeout) {
 
-  state_.set_state(State::connected);
   socket_.set_handler(*this);
   socket_.async_read();
 }

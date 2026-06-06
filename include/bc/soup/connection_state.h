@@ -15,6 +15,9 @@ public:
     disconnected
   };
 
+  Connection_state() = default;
+  explicit Connection_state(State);
+
   void set_state(State);
 
   State state() const { return state_; }

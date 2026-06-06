@@ -59,7 +59,7 @@ private:
   Port* port_ = nullptr;
   Port_handler* handler_ = nullptr;
   Socket socket_;
-  Connection_state state_;
+  Connection_state state_{Connection_state::State::connected};
   Heartbeat_timer heartbeat_timer_;
   bool socket_closed_ = false;
   bool heartbeat_timer_stopped_ = true;

@@ -2,6 +2,8 @@
 
 namespace bc::soup {
 
+Connection_state::Connection_state(State state) : state_(state) {}
+
 void Connection_state::set_state(State state) {
   state_ = state;
 }
