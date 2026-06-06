@@ -18,9 +18,13 @@ Tcp_connection::Tcp_connection(asio::any_io_executor io_executor,
                                Socket&& socket, Acceptor& acceptor)
     : acceptor_(&acceptor),
       socket_(std::move(socket)),
+      login_timer_(io_executor, *this, login_request_timeout),
       heartbeat_timer_(io_executor, *this, client_heartbeat_timeout) {
 
   socket_.set_handler(*this);
+  // NOLINTNEXTLINE(*-prefer-member-initializer): co-located with timer start
+  login_timer_stopped_ = false;
+  login_timer_.start();
   socket_.async_read();
 }
 
@@ -76,6 +80,19 @@ void Tcp_connection::write_buffer_empty() {
 
 void Tcp_connection::closed() {
   socket_closed_ = true;
+  maybe_signal_closed();
+}
+
+void Tcp_connection::login_timer_error(const asio::system_error&) {
+  disconnect(Disconnect_reason::transport_error);
+}
+
+void Tcp_connection::login_timer_expired() {
+  disconnect(Disconnect_reason::login_timeout);
+}
+
+void Tcp_connection::login_timer_stopped() {
+  login_timer_stopped_ = true;
   maybe_signal_closed();
 }
 
@@ -135,6 +152,7 @@ Packet_error Tcp_connection::process_login_request(const void* data,
   Login_request_packet request;
   read(request, data);
 
+  login_timer_.stop();
   const auto result =
       acceptor_->on_login_request(*this, request, port_, handler_);
   if (result) {
@@ -194,11 +212,12 @@ void Tcp_connection::disconnect(Disconnect_reason reason) {
   if (!state_changed)
     return;
   socket_.close();
+  login_timer_.stop();
   heartbeat_timer_.stop();
 }
 
 void Tcp_connection::maybe_signal_closed() {
-  if (!socket_closed_ || !heartbeat_timer_stopped_)
+  if (!socket_closed_ || !login_timer_stopped_ || !heartbeat_timer_stopped_)
     return;
   if (port_)
     port_->on_closed();

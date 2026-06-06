@@ -70,6 +70,8 @@ const char* to_string(Disconnect_reason reason) {
     return "peer closed";
   case Disconnect_reason::transport_error:
     return "transport error";
+  case Disconnect_reason::login_timeout:
+    return "login timeout";
   case Disconnect_reason::heartbeat_timeout:
     return "heartbeat timeout";
   case Disconnect_reason::access_denied:

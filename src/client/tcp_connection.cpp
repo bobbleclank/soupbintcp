@@ -19,6 +19,7 @@ Tcp_connection::Tcp_connection(asio::any_io_executor io_executor,
     : connection_(&connection),
       handler_(&handler),
       socket_(io_executor, *this),
+      login_timer_(io_executor, *this, login_response_timeout),
       heartbeat_timer_(io_executor, *this, server_heartbeat_timeout) {
 
   handler_->connecting(connection_->endpoint());
@@ -46,6 +47,8 @@ void Tcp_connection::connect_success() {
 
   const Login_request_packet request = connection_->on_connect_success();
   handler_->logging_in(request);
+  login_timer_stopped_ = false;
+  login_timer_.start();
   socket_.async_read();
   Write_packet packet(request.packet_type, request.payload_size);
   write(request, packet.payload_data());
@@ -95,6 +98,19 @@ void Tcp_connection::write_buffer_empty() {
 
 void Tcp_connection::closed() {
   socket_closed_ = true;
+  maybe_signal_closed();
+}
+
+void Tcp_connection::login_timer_error(const asio::system_error&) {
+  disconnect(Disconnect_reason::transport_error);
+}
+
+void Tcp_connection::login_timer_expired() {
+  disconnect(Disconnect_reason::login_timeout);
+}
+
+void Tcp_connection::login_timer_stopped() {
+  login_timer_stopped_ = true;
   maybe_signal_closed();
 }
 
@@ -154,6 +170,7 @@ Packet_error Tcp_connection::process_login_accepted(const void* data,
   if (response.next_sequence_number == 0)
     return Packet_error::invalid_field_value;
 
+  login_timer_.stop();
   state_.set_state(State::logged_in);
   const auto reason = connection_->on_login_success(response);
   if (reason == Disconnect_reason::none) {
@@ -186,6 +203,7 @@ Packet_error Tcp_connection::process_login_rejected(const void* data,
     return Login_reject_reason::invalid_reject_reason;
   };
 
+  login_timer_.stop();
   handler_->login_failure(convert(response.reason));
   disconnect(Disconnect_reason::access_denied);
   return Packet_error::none;
@@ -237,11 +255,12 @@ void Tcp_connection::disconnect(Disconnect_reason reason) {
   if (!state_changed)
     return;
   socket_.close();
+  login_timer_.stop();
   heartbeat_timer_.stop();
 }
 
 void Tcp_connection::maybe_signal_closed() {
-  if (!socket_closed_ || !heartbeat_timer_stopped_)
+  if (!socket_closed_ || !login_timer_stopped_ || !heartbeat_timer_stopped_)
     return;
   connection_->on_closed(state_.reason());
 }

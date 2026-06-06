@@ -3,6 +3,7 @@
 
 #include "bc/soup/connection_state.h"
 #include "bc/soup/heartbeat_timer.h"
+#include "bc/soup/login_timer.h"
 #include "bc/soup/socket.h"
 #include "bc/soup/types.h"
 
@@ -23,6 +24,7 @@ class Port;
 class Port_handler;
 
 class Tcp_connection final : public Socket::Handler,
+                             public Login_timer::Handler,
                              public Heartbeat_timer::Handler {
 public:
   Tcp_connection(asio::any_io_executor, Socket&&, Acceptor&);
@@ -49,6 +51,10 @@ public:
 
   void closed() override;
 
+  void login_timer_error(const asio::system_error&) override;
+  void login_timer_expired() override;
+  void login_timer_stopped() override;
+
   void heartbeat_timer_error(const asio::system_error&) override;
   void heartbeat_send_due() override;
   void heartbeat_receive_timeout() override;
@@ -60,8 +66,10 @@ private:
   Port_handler* handler_ = nullptr;
   Socket socket_;
   Connection_state state_{Connection_state::State::connected};
+  Login_timer login_timer_;
   Heartbeat_timer heartbeat_timer_;
   bool socket_closed_ = false;
+  bool login_timer_stopped_ = true;
   bool heartbeat_timer_stopped_ = true;
 
   [[nodiscard]] Packet_error process_packet(const Read_packet&);

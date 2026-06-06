@@ -43,6 +43,7 @@ enum class Disconnect_reason {
   logout_request,
   peer_closed,
   transport_error,
+  login_timeout,
   heartbeat_timeout,
   access_denied,
   session_mismatch,
