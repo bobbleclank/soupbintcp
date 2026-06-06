@@ -15,8 +15,10 @@ example/                  - example client and server programs
 
 ## Key shared components
 
-- `Connection_state` — pure state machine (no side effects) tracking `State` and `reason_`. Used by both client and server `Tcp_connection`. Functions: `initiate_disconnect` (state → disconnecting), `disconnect` (state → disconnected). Both return whether the state changed; callers handle socket close and callbacks.
+- `Connection_state` — pure state machine (no side effects) tracking `State` and `reason_`. Used by both client and server `Tcp_connection`. Default-constructs to `State::connecting`; the server uses the parameterized constructor (`State::connected`) since it's born post-accept. Functions: `set_state` (free transitions), `initiate_disconnect` (state → disconnecting), `disconnect` (state → disconnected). The disconnect variants return whether the state changed; callers handle socket close and callbacks.
 - `Socket` — wraps Asio TCP socket, calls back into a `Socket::Handler`. Tracks pending async ops (`connect_pending_`, `read_pending_`, `write_pending_`) and signals `closed()` on the Handler once all ops have drained after `close()`. Async ops are no-ops when `closing_` is set.
+- `Heartbeat_timer` — periodic timer. Owns its own `asio::steady_timer`. Signals `heartbeat_send_due` (no traffic this period), `heartbeat_receive_timeout` (no peer activity for the timeout window), `heartbeat_timer_error`, and `heartbeat_timer_stopped` (drain signal, posted after `stop()` so the holder can safely destroy). Tracks `send_count_`/`receive_count_`; the caller increments per packet-type rules from `Tcp_connection`'s `write_success` and per-packet `process_*` handlers.
+- `Login_timer` — one-shot timer. Owns its own `asio::steady_timer`. Single timeout configured at construction. Handler callbacks: `login_timer_error`, `login_timer_expired`, `login_timer_stopped` (drain signal, same contract as the heartbeat one).
 - `types.h` — shared enums: `Disconnect_reason`, `Packet_error`, `Login_reject_reason`, `Write_error`. `Disconnect_reason::none` and similar `none` enumerators serve as sentinels (no value / success), avoiding `std::optional`.
 
 ## Client side
@@ -88,18 +90,64 @@ Hierarchy: `Server` → `Acceptor` → `Port` → `Tcp_connection`
 - Checked before sequence number validation — session identity is more fundamental than sequence positioning, so fail-fast at the session level before doing sequence math.
 - No rollover handling. If the server changes the session, the client disconnects with `session_mismatch` rather than attempting a transition. Revisit if rollover ever becomes a real use case.
 
+## Heartbeat tracking
+
+Periodic activity monitoring while logged in. Each `Tcp_connection` owns a `Heartbeat_timer`, starts it at the transition to `logged_in`, stops on disconnect.
+
+**Timeouts are named by what we wait for, not who uses it.** `client_heartbeat_timeout` = "timeout waiting for client heartbeats" — server uses it. `server_heartbeat_timeout` — client uses it.
+
+**Send counting** (`increment_send_count`): only the per-side data packet — `Unsequenced_data_packet` (client) / `Sequenced_data_packet` (server). Heartbeats, login, logout, debug excluded. Counting the heartbeat we just sent would defeat the elision-when-other-traffic rule and produce every-other-period heartbeats.
+
+**Receive counting** (`increment_receive_count`): data, heartbeat, end-of-session. Debug excluded under the narrow "real protocol activity" reading. Pre-login packets are rejected as `unexpected_sequence` rather than counted — heartbeat tracking only runs while logged in.
+
+**`heartbeat_send_due`** — Tcp_connection sends the side's heartbeat packet with `(void)socket_.async_write(...)`, discard failure as best effort (buffer-full implies other traffic flowing, closing implies we're shutting down anyway).
+
+**`heartbeat_receive_timeout`** — Tcp_connection disconnects with `Disconnect_reason::heartbeat_timeout`.
+
+## Login timer
+
+One-shot per side, watching for the next login-flow packet.
+
+- **Server**: starts in `Tcp_connection`'s constructor (post-accept, pre-login), waits `login_request_timeout` for `Login_request_packet`. Stops at the top of `process_login_request` after size/state validation succeeds.
+- **Client**: starts in `connect_success` after queuing `Login_request_packet`, waits `login_response_timeout` for `Login_accepted_packet` / `Login_rejected_packet`. Stops at the top of `process_login_accepted` / `process_login_rejected` after size/state (and field) validation succeeds.
+
+**Explicit stop after validation**, not at the start of the function — expresses "we received a well-formed login packet." Failure paths (size/state mismatch, malformed field) rely on the disconnect cascade to stop the timer.
+
+**Two separate timers, not a shared `asio::steady_timer`.** Login and heartbeat lifecycles are sequential (login before logged_in, heartbeat after), so sharing would work, but coordinating cancel + re-arm between two helpers introduces fragile ordering between otherwise-independent objects. `asio::steady_timer` is cheap; keep them independent.
+
+**`login_timer_expired`** — Tcp_connection disconnects with `Disconnect_reason::login_timeout`.
+
+## Drain coordination
+
+`Tcp_connection` holds multiple async-owning subsystems (socket, login timer, heartbeat timer). Destroying it synchronously when `Socket::closed()` fires would dereference captured `this` from the other pending operations.
+
+Each subsystem has a paired flag on `Tcp_connection` and posts a drain-complete signal. `maybe_signal_closed` fires the upper-layer `on_closed` only when all are drained:
+
+```cpp
+if (!socket_closed_ || !login_timer_stopped_ || !heartbeat_timer_stopped_)
+  return;
+```
+
+**Defaults reflect the lifecycle:**
+- `socket_closed_ = false` — Socket is always active over the connection's life; produces exactly one `closed()` signal.
+- `login_timer_stopped_ = true`, `heartbeat_timer_stopped_ = true` — Timers don't always activate. Defaulting "drained" means pre-login disconnects don't wait for signals that won't come. Flipped to false at `start()`, back to true on the `*_stopped` callback.
+
+`disconnect()` calls `subsystem.stop()` on each timer unconditionally — `stop()` is idempotent (early-returns on `!started_`). Order is declaration order: `socket_.close()`, `login_timer_.stop()`, `heartbeat_timer_.stop()`.
+
 ## Connection lifecycle and destruction
 
 The closed cascade enables value-owned `Tcp_connection` without `shared_ptr`:
 
-1. `socket_.close()` sets `closing_=true`, cancels pending ops, calls `maybe_signal_closed`.
-2. `maybe_signal_closed` posts `Handler::closed()` once all `*_pending_` flags drain (via `asio::post`, never inline).
-3. `Tcp_connection::closed()` fires the user's disconnect callback (post-drain) and triggers destruction:
+1. `socket_.close()` sets `closing_=true`, cancels pending ops, calls `Socket::maybe_signal_closed`.
+2. `Socket::maybe_signal_closed` posts `Socket::Handler::closed()` once all `*_pending_` flags drain (via `asio::post`, never inline).
+3. Each owned timer (`login_timer_`, `heartbeat_timer_`) follows the same pattern after `stop()` — drains its pending `async_wait`, posts a `*_stopped` signal.
+4. `Tcp_connection::closed()` and each `*_timer_stopped` callback set their respective drain flag, then call `Tcp_connection::maybe_signal_closed`. The upper-layer fire happens only when all flags indicate drained (see [Drain coordination](#drain-coordination)).
+5. From `Tcp_connection::maybe_signal_closed`:
    - Client: `Connection::on_closed(reason)` resets the `std::optional<Tcp_connection>` and fires disconnect on `Connection_handler`.
    - Server: `Acceptor::on_closed(connection, port_handler, reason)` removes from `connections_` list and fires disconnect on the appropriate handler — `Port_handler` if logged in, `Acceptor_handler` otherwise.
-4. Synchronous destruction inside `closed()` is safe because `closed` always arrives from a posted dispatch, so the socket handlers have already unwound.
+6. Synchronous destruction inside `Tcp_connection::maybe_signal_closed` is safe because all sources have posted their drain signals before this point.
 
-Disconnect callback timing: fires **from the closed cascade** (post-drain), not from `Tcp_connection::disconnect`. The state machine's transition to `disconnected` is decoupled from the user notification.
+Disconnect callback timing: fires **from the closed cascade** (post-drain across all sources), not from `Tcp_connection::disconnect`. The state machine's transition to `disconnected` is decoupled from the user notification.
 
 ## Public connect/close (client `Connection`)
 
@@ -130,3 +178,7 @@ Resolving (2) on the server side may interact with (1) — if handler calls rema
 - No default parameter on `Connection_state::disconnect` — callers always pass an explicit reason. The no-arg `Tcp_connection::disconnect()` exists for `read_aborted` (socket closed from our side, `reason_` always set).
 - `initiate_disconnect` is server-only now, narrowed to the graceful login-rejected path and renamed `prepare_graceful_disconnect` at `Tcp_connection`. Non-graceful paths transition straight to disconnected via `disconnect()`.
 - Re-arm of `socket_.async_read()` in `read_success` is guarded with `!state_.is_closing()` — early returns when closing so no reads are queued after the close decision.
+- Timer setup (`<timer>_stopped_ = false` flag flip + `<timer>.start()`) goes after state changes and callbacks but before any `socket_.async_*` calls. Convention plus defensive against hypothetical synchronous async completion.
+- Timeout constants are named by *what we wait for*, not who uses it: `client_heartbeat_timeout` = "timeout waiting for client heartbeats" → server uses it; `server_heartbeat_timeout` → client uses it. Same shape for `login_request_timeout` (server-side wait) / `login_response_timeout` (client-side wait).
+- Packet field validation belongs at the packet layer (`Packet_error::invalid_field_value`), not in the application layer. State-free comparisons against protocol constants (e.g., `response.next_sequence_number == 0`) live in `process_login_accepted` after `read(...)`. State-dependent comparisons (`session_mismatch`, `sequence_number_too_low/high/ahead`) live in `Connection::on_login_success` because they need Connection state. Connection-owned flags consulted by the packet layer (e.g., `has_session_ended_` from `process_sequenced_data`) are queried via public access functions so packet-validity completes at the packet layer before side effects.
+- `Login_timer`/`Heartbeat_timer` callers must wait for the `*_stopped` signal before destroying the helper — pending `async_wait` from the owned timer would otherwise dereference dangling memory.
