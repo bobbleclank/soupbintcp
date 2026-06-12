@@ -46,9 +46,10 @@ public:
                  ep.port());
   }
 
-  void connect_failure(asio::error_code ec, std::string_view phase) override {
-    std::println("connect failure: error = {}:{} {}, phase = {}",
-                 ec.category().name(), ec.value(), ec.message(), phase);
+  void connect_failure(asio::error_code ec,
+                       std::string_view operation) override {
+    std::println("connect failure: error = {}:{} {}, operation = {}",
+                 ec.category().name(), ec.value(), ec.message(), operation);
   }
 
   void connect_success(const asio::ip::tcp::endpoint& local_ep,

@@ -85,9 +85,9 @@ public:
   }
 
   void listen_setup_failure(asio::error_code ec,
-                            std::string_view phase) override {
-    std::println("listen setup failure: error = {}:{} {}, phase = {}",
-                 ec.category().name(), ec.value(), ec.message(), phase);
+                            std::string_view operation) override {
+    std::println("listen setup failure: error = {}:{} {}, operation = {}",
+                 ec.category().name(), ec.value(), ec.message(), operation);
   }
 
   void listen_setup_success(const asio::ip::tcp::endpoint& ep) override {
