@@ -91,11 +91,11 @@ void Acceptor::start() {
     return;
   }
   if (const auto ec = acceptor_.set_reuse_address()) {
-    handler_->listen_setup_failure(ec, "set reuse address");
+    handler_->listen_setup_failure(ec, "set_reuse_address");
     return;
   }
   if (const auto ec = acceptor_.set_no_delay()) {
-    handler_->listen_setup_failure(ec, "set no delay");
+    handler_->listen_setup_failure(ec, "set_no_delay");
     return;
   }
   if (const auto ec = acceptor_.bind(endpoint_)) {

@@ -29,14 +29,14 @@ Tcp_connection::Tcp_connection(asio::any_io_executor io_executor,
     return;
   }
   if (const auto ec = socket_.set_no_delay()) {
-    handle_connect_failure(ec, "set no delay");
+    handle_connect_failure(ec, "set_no_delay");
     return;
   }
   socket_.async_connect(connection_->endpoint());
 }
 
 void Tcp_connection::connect_failure(asio::error_code ec) {
-  handle_connect_failure(ec, "connect");
+  handle_connect_failure(ec, "async_connect");
 }
 
 void Tcp_connection::connect_success() {
