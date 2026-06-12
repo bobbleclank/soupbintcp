@@ -60,8 +60,8 @@ void Tcp_connection::read_failure(asio::error_code ec) {
   handle_transport_error(ec, "socket async_read");
 }
 
-void Tcp_connection::read_failure(Packet_error) {
-  disconnect(Disconnect_reason::protocol_violation);
+void Tcp_connection::read_failure(Packet_error error) {
+  handle_protocol_violation(error);
 }
 
 void Tcp_connection::read_success(const Read_packet& packet) {
@@ -69,7 +69,7 @@ void Tcp_connection::read_success(const Read_packet& packet) {
     return;
   const auto error = process_packet(packet);
   if (error != Packet_error::none)
-    disconnect(Disconnect_reason::protocol_violation);
+    handle_protocol_violation(error);
   if (state_.is_closing())
     return;
   socket_.async_read();
@@ -253,6 +253,11 @@ void Tcp_connection::handle_transport_error(asio::error_code ec,
                                             std::string_view operation) {
   handler_->transport_error(ec, operation);
   disconnect(Disconnect_reason::transport_error);
+}
+
+void Tcp_connection::handle_protocol_violation(Packet_error error) {
+  handler_->protocol_violation(error);
+  disconnect(Disconnect_reason::protocol_violation);
 }
 
 void Tcp_connection::disconnect(Disconnect_reason reason) {

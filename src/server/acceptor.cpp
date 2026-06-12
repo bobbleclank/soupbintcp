@@ -151,6 +151,10 @@ void Acceptor::on_transport_error(asio::error_code ec,
   handler_->transport_error(ec, operation);
 }
 
+void Acceptor::on_protocol_violation(Packet_error error) {
+  handler_->protocol_violation(error);
+}
+
 void Acceptor::on_closed(Tcp_connection& connection, Port_handler* handler,
                          Disconnect_reason reason) {
   connections_.remove_if(

@@ -83,6 +83,7 @@ private:
 
   void handle_connect_failure(asio::error_code, std::string_view);
   void handle_transport_error(asio::error_code, std::string_view);
+  void handle_protocol_violation(Packet_error);
   void disconnect(Disconnect_reason = Disconnect_reason::unmanaged_abort);
   void maybe_signal_closed();
 

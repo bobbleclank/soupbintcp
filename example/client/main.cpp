@@ -87,6 +87,10 @@ public:
                  ec.category().name(), ec.value(), ec.message(), operation);
   }
 
+  void protocol_violation(soup::Packet_error error) override {
+    std::println("protocol violation: error = {}", to_string(error));
+  }
+
   void disconnect(soup::Disconnect_reason reason) override {
     std::println("disconnect: reason = {}", to_string(reason));
   }
