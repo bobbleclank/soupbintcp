@@ -82,6 +82,7 @@ private:
   [[nodiscard]] Packet_error process_end_of_session(std::size_t);
 
   void handle_connect_failure(asio::error_code, std::string_view);
+  void handle_transport_error(asio::error_code, std::string_view);
   void disconnect(Disconnect_reason = Disconnect_reason::unmanaged_abort);
   void maybe_signal_closed();
 

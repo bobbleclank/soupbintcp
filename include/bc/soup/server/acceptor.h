@@ -75,6 +75,7 @@ private:
   [[nodiscard]] expected<Login_accepted_packet, Login_rejected_packet>
   on_login_request(Tcp_connection&, const Login_request_packet&, Port*&,
                    Port_handler*&);
+  void on_transport_error(asio::error_code, std::string_view);
   void on_closed(Tcp_connection&, Port_handler*, Disconnect_reason);
 };
 

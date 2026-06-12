@@ -55,6 +55,12 @@ public:
     std::println("debug: text = {}", text);
   }
 
+  void transport_error(asio::error_code ec,
+                       std::string_view operation) override {
+    std::println("transport error: error = {}:{} {}, operation = {}",
+                 ec.category().name(), ec.value(), ec.message(), operation);
+  }
+
   void disconnect(soup::Disconnect_reason reason) override {
     std::println("disconnect: reason = {}", to_string(reason));
   }
@@ -120,6 +126,12 @@ public:
 
   void debug(std::string_view text) override {
     std::println("debug: text = {}", text);
+  }
+
+  void transport_error(asio::error_code ec,
+                       std::string_view operation) override {
+    std::println("transport error: error = {}:{} {}, operation = {}",
+                 ec.category().name(), ec.value(), ec.message(), operation);
   }
 
   void disconnect(soup::Disconnect_reason reason) override {

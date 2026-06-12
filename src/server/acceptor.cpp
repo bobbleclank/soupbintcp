@@ -146,6 +146,11 @@ Acceptor::on_login_request(Tcp_connection& connection,
                                 handler);
 }
 
+void Acceptor::on_transport_error(asio::error_code ec,
+                                  std::string_view operation) {
+  handler_->transport_error(ec, operation);
+}
+
 void Acceptor::on_closed(Tcp_connection& connection, Port_handler* handler,
                          Disconnect_reason reason) {
   connections_.remove_if(

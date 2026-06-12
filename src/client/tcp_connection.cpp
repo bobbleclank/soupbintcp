@@ -56,8 +56,8 @@ void Tcp_connection::connect_success() {
   (void)socket_.async_write(std::move(packet));
 }
 
-void Tcp_connection::read_failure(asio::error_code) {
-  disconnect(Disconnect_reason::transport_error);
+void Tcp_connection::read_failure(asio::error_code ec) {
+  handle_transport_error(ec, "async_read");
 }
 
 void Tcp_connection::read_failure(Packet_error) {
@@ -83,8 +83,8 @@ void Tcp_connection::read_end_of_file() {
   disconnect(Disconnect_reason::peer_closed);
 }
 
-void Tcp_connection::write_failure(asio::error_code) {
-  disconnect(Disconnect_reason::transport_error);
+void Tcp_connection::write_failure(asio::error_code ec) {
+  handle_transport_error(ec, "async_write");
 }
 
 void Tcp_connection::write_success(const Write_packet&) {}
@@ -98,8 +98,9 @@ void Tcp_connection::closed() {
   maybe_signal_closed();
 }
 
-void Tcp_connection::login_timer_error(asio::error_code, std::string_view) {
-  disconnect(Disconnect_reason::transport_error);
+void Tcp_connection::login_timer_error(asio::error_code ec,
+                                       std::string_view operation) {
+  handle_transport_error(ec, operation);
 }
 
 void Tcp_connection::login_timer_expired() {
@@ -111,8 +112,9 @@ void Tcp_connection::login_timer_stopped() {
   maybe_signal_closed();
 }
 
-void Tcp_connection::heartbeat_timer_error(asio::error_code, std::string_view) {
-  disconnect(Disconnect_reason::transport_error);
+void Tcp_connection::heartbeat_timer_error(asio::error_code ec,
+                                           std::string_view operation) {
+  handle_transport_error(ec, operation);
 }
 
 void Tcp_connection::heartbeat_send_due() {
@@ -245,6 +247,12 @@ void Tcp_connection::handle_connect_failure(asio::error_code ec,
   connection_->on_connect_failure();
   handler_->connect_failure(ec, operation);
   socket_.close();
+}
+
+void Tcp_connection::handle_transport_error(asio::error_code ec,
+                                            std::string_view operation) {
+  handler_->transport_error(ec, operation);
+  disconnect(Disconnect_reason::transport_error);
 }
 
 void Tcp_connection::disconnect(Disconnect_reason reason) {

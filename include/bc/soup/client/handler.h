@@ -47,6 +47,8 @@ public:
 
   virtual void debug(std::string_view) = 0;
 
+  virtual void transport_error(asio::error_code, std::string_view) = 0;
+
   virtual void disconnect(Disconnect_reason) = 0;
 
 protected:
