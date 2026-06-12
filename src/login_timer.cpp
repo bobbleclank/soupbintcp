@@ -14,7 +14,7 @@ void Login_timer::start() {
   try {
     timer_.expires_after(timeout_);
   } catch (const asio::system_error& e) {
-    handler_->login_timer_error(e);
+    handler_->login_timer_error(e.code(), "expires_after");
     return;
   }
   wait_pending_ = true;
@@ -38,14 +38,14 @@ void Login_timer::cancel() {
   try {
     timer_.cancel();
   } catch (const asio::system_error& e) {
-    handler_->login_timer_error(e);
+    handler_->login_timer_error(e.code(), "cancel");
   }
 }
 
 void Login_timer::on_expiry(asio::error_code ec) {
   if (ec) {
     if (ec != asio::error::operation_aborted)
-      handler_->login_timer_error({ec, "async_wait"});
+      handler_->login_timer_error(ec, "async_wait");
     return;
   }
   if (!started_)

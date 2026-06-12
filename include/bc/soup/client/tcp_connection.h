@@ -51,11 +51,11 @@ public:
 
   void closed() override;
 
-  void login_timer_error(const asio::system_error&) override;
+  void login_timer_error(asio::error_code, std::string_view) override;
   void login_timer_expired() override;
   void login_timer_stopped() override;
 
-  void heartbeat_timer_error(const asio::system_error&) override;
+  void heartbeat_timer_error(asio::error_code, std::string_view) override;
   void heartbeat_send_due() override;
   void heartbeat_receive_timeout() override;
   void heartbeat_timer_stopped() override;

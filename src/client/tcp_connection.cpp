@@ -98,7 +98,7 @@ void Tcp_connection::closed() {
   maybe_signal_closed();
 }
 
-void Tcp_connection::login_timer_error(const asio::system_error&) {
+void Tcp_connection::login_timer_error(asio::error_code, std::string_view) {
   disconnect(Disconnect_reason::transport_error);
 }
 
@@ -111,7 +111,7 @@ void Tcp_connection::login_timer_stopped() {
   maybe_signal_closed();
 }
 
-void Tcp_connection::heartbeat_timer_error(const asio::system_error&) {
+void Tcp_connection::heartbeat_timer_error(asio::error_code, std::string_view) {
   disconnect(Disconnect_reason::transport_error);
 }
 

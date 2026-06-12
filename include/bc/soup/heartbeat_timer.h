@@ -5,6 +5,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <string_view>
 
 namespace bc::soup {
 
@@ -12,7 +13,7 @@ class Heartbeat_timer {
 public:
   class Handler {
   public:
-    virtual void heartbeat_timer_error(const asio::system_error&) = 0;
+    virtual void heartbeat_timer_error(asio::error_code, std::string_view) = 0;
     virtual void heartbeat_send_due() = 0;
     virtual void heartbeat_receive_timeout() = 0;
     virtual void heartbeat_timer_stopped() = 0;

@@ -4,6 +4,7 @@
 #include <asio.hpp>
 
 #include <chrono>
+#include <string_view>
 
 namespace bc::soup {
 
@@ -11,7 +12,7 @@ class Login_timer {
 public:
   class Handler {
   public:
-    virtual void login_timer_error(const asio::system_error&) = 0;
+    virtual void login_timer_error(asio::error_code, std::string_view) = 0;
     virtual void login_timer_expired() = 0;
     virtual void login_timer_stopped() = 0;
 
