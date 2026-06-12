@@ -16,7 +16,7 @@ void Heartbeat_timer::start() {
   try {
     timer_.expires_at(std::chrono::steady_clock::now());
   } catch (const asio::system_error& e) {
-    handler_->heartbeat_timer_error(e.code(), "expires_at");
+    handler_->heartbeat_timer_error(e.code(), "timer expires_at");
     return;
   }
   schedule();
@@ -35,7 +35,7 @@ void Heartbeat_timer::schedule() {
   try {
     timer_.expires_at(timer_.expiry() + heartbeat_period);
   } catch (const asio::system_error& e) {
-    handler_->heartbeat_timer_error(e.code(), "expires_at");
+    handler_->heartbeat_timer_error(e.code(), "timer expires_at");
     return;
   }
   wait_pending_ = true;
@@ -50,14 +50,14 @@ void Heartbeat_timer::cancel() {
   try {
     timer_.cancel();
   } catch (const asio::system_error& e) {
-    handler_->heartbeat_timer_error(e.code(), "cancel");
+    handler_->heartbeat_timer_error(e.code(), "timer cancel");
   }
 }
 
 void Heartbeat_timer::on_expiry(asio::error_code ec) {
   if (ec) {
     if (ec != asio::error::operation_aborted)
-      handler_->heartbeat_timer_error(ec, "async_wait");
+      handler_->heartbeat_timer_error(ec, "timer async_wait");
     return;
   }
   if (!started_)

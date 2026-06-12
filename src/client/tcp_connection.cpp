@@ -57,7 +57,7 @@ void Tcp_connection::connect_success() {
 }
 
 void Tcp_connection::read_failure(asio::error_code ec) {
-  handle_transport_error(ec, "async_read");
+  handle_transport_error(ec, "socket async_read");
 }
 
 void Tcp_connection::read_failure(Packet_error) {
@@ -84,7 +84,7 @@ void Tcp_connection::read_end_of_file() {
 }
 
 void Tcp_connection::write_failure(asio::error_code ec) {
-  handle_transport_error(ec, "async_write");
+  handle_transport_error(ec, "socket async_write");
 }
 
 void Tcp_connection::write_success(const Write_packet&) {}
