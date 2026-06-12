@@ -87,27 +87,27 @@ bool Acceptor::is_handler_set() const {
 
 void Acceptor::start() {
   if (const auto ec = acceptor_.open()) {
-    handler_->listening_setup_failure(ec, "open");
+    handler_->listen_setup_failure(ec, "open");
     return;
   }
   if (const auto ec = acceptor_.set_reuse_address()) {
-    handler_->listening_setup_failure(ec, "set reuse address");
+    handler_->listen_setup_failure(ec, "set reuse address");
     return;
   }
   if (const auto ec = acceptor_.set_no_delay()) {
-    handler_->listening_setup_failure(ec, "set no delay");
+    handler_->listen_setup_failure(ec, "set no delay");
     return;
   }
   if (const auto ec = acceptor_.bind(endpoint_)) {
-    handler_->listening_setup_failure(ec, "bind");
+    handler_->listen_setup_failure(ec, "bind");
     return;
   }
   if (const auto ec = acceptor_.listen()) {
-    handler_->listening_setup_failure(ec, "listen");
+    handler_->listen_setup_failure(ec, "listen");
     return;
   }
   const auto local_endpoint = acceptor_.local_endpoint();
-  handler_->listening_setup_success(local_endpoint);
+  handler_->listen_setup_success(local_endpoint);
   acceptor_.async_accept();
 }
 

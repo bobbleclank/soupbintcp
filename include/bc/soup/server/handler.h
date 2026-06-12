@@ -17,8 +17,8 @@ namespace bc::soup::server {
 
 class Acceptor_handler {
 public:
-  virtual void listening_setup_failure(asio::error_code, const char*) = 0;
-  virtual void listening_setup_success(const asio::ip::tcp::endpoint&) = 0;
+  virtual void listen_setup_failure(asio::error_code, const char*) = 0;
+  virtual void listen_setup_success(const asio::ip::tcp::endpoint&) = 0;
 
   virtual void accept_failure(asio::error_code) = 0;
   virtual void accept_success(const asio::ip::tcp::endpoint&,

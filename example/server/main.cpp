@@ -84,14 +84,13 @@ public:
     port_.emplace(*result);
   }
 
-  void listening_setup_failure(asio::error_code ec,
-                               const char* phase) override {
-    std::println("listening setup failure: error = {}:{} {}, phase = {}",
+  void listen_setup_failure(asio::error_code ec, const char* phase) override {
+    std::println("listen setup failure: error = {}:{} {}, phase = {}",
                  ec.category().name(), ec.value(), ec.message(), phase);
   }
 
-  void listening_setup_success(const asio::ip::tcp::endpoint& ep) override {
-    std::println("listening setup success: endpoint = {}:{}",
+  void listen_setup_success(const asio::ip::tcp::endpoint& ep) override {
+    std::println("listen setup success: endpoint = {}:{}",
                  ep.address().to_string(), ep.port());
   }
 
