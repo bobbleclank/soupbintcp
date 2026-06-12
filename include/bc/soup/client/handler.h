@@ -35,7 +35,7 @@ protected:
 class Connection_handler {
 public:
   virtual void connecting(const asio::ip::tcp::endpoint&) = 0;
-  virtual void connect_failure(asio::error_code, const char*) = 0;
+  virtual void connect_failure(asio::error_code, std::string_view) = 0;
   virtual void connect_success(const asio::ip::tcp::endpoint&,
                                const asio::ip::tcp::endpoint&) = 0;
 

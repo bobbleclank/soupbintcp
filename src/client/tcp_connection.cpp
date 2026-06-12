@@ -240,7 +240,7 @@ Packet_error Tcp_connection::process_end_of_session(std::size_t size) {
 }
 
 void Tcp_connection::handle_connect_failure(asio::error_code ec,
-                                            const char* phase) {
+                                            std::string_view phase) {
   state_.set_state(State::disconnected);
   connection_->on_connect_failure();
   handler_->connect_failure(ec, phase);

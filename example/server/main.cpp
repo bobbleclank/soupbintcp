@@ -84,7 +84,8 @@ public:
     port_.emplace(*result);
   }
 
-  void listen_setup_failure(asio::error_code ec, const char* phase) override {
+  void listen_setup_failure(asio::error_code ec,
+                            std::string_view phase) override {
     std::println("listen setup failure: error = {}:{} {}, phase = {}",
                  ec.category().name(), ec.value(), ec.message(), phase);
   }

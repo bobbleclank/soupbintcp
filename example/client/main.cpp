@@ -46,7 +46,7 @@ public:
                  ep.port());
   }
 
-  void connect_failure(asio::error_code ec, const char* phase) override {
+  void connect_failure(asio::error_code ec, std::string_view phase) override {
     std::println("connect failure: error = {}:{} {}, phase = {}",
                  ec.category().name(), ec.value(), ec.message(), phase);
   }
