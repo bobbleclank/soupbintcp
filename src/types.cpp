@@ -68,6 +68,8 @@ const char* to_string(Disconnect_reason reason) {
     return "logout request";
   case Disconnect_reason::peer_closed:
     return "peer closed";
+  case Disconnect_reason::connect_failure:
+    return "connect failure";
   case Disconnect_reason::transport_error:
     return "transport error";
   case Disconnect_reason::login_timeout:

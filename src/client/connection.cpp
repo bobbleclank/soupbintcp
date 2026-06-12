@@ -109,8 +109,6 @@ bool Connection::is_handler_set() const {
   return handler_ != nullptr;
 }
 
-void Connection::on_connect_failure() {}
-
 Login_request_packet Connection::on_connect_success() {
   next_sequence_number_ = client_->next_sequence_number();
   return Login_request_packet(username_, password_, session_,

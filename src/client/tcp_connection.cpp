@@ -243,10 +243,8 @@ Packet_error Tcp_connection::process_end_of_session(std::size_t size) {
 
 void Tcp_connection::handle_connect_failure(asio::error_code ec,
                                             std::string_view operation) {
-  state_.set_state(State::disconnected);
-  connection_->on_connect_failure();
   handler_->connect_failure(ec, operation);
-  socket_.close();
+  disconnect(Disconnect_reason::connect_failure);
 }
 
 void Tcp_connection::handle_transport_error(asio::error_code ec,
