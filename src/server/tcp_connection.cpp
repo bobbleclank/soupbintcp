@@ -237,7 +237,7 @@ void Tcp_connection::maybe_signal_closed() {
   if (!socket_closed_ || !login_timer_stopped_ || !heartbeat_timer_stopped_)
     return;
   if (port_)
-    port_->on_closed();
+    port_->on_closed(*this);
   acceptor_->on_closed(*this, handler_, state_.reason());
 }
 
@@ -265,6 +265,10 @@ Write_error Tcp_connection::send_debug_packet(std::string_view text) {
     return Write_error::disconnected;
   return socket_.async_write(
       Write_packet(Debug_packet::packet_type, text.data(), text.size()));
+}
+
+void Tcp_connection::supersede() {
+  disconnect(Disconnect_reason::superseded);
 }
 
 } // namespace bc::soup::server

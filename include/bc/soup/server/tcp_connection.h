@@ -95,6 +95,7 @@ private:
   friend class Port;
   [[nodiscard]] Write_error send_packet(Write_packet&&);
   [[nodiscard]] Write_error send_debug_packet(std::string_view);
+  void supersede();
 };
 
 } // namespace bc::soup::server

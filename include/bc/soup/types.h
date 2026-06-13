@@ -40,6 +40,7 @@ const char* to_string(Write_error);
 enum class Disconnect_reason {
   none = 0,
   user_initiated,
+  superseded,
   logout_request,
   peer_closed,
   connect_failure,

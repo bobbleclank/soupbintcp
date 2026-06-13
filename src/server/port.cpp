@@ -76,6 +76,8 @@ Port::on_login_request(Tcp_connection& connection,
                        const Login_request_packet& request,
                        std::string_view session, Port_handler*& handler) {
   handler = handler_;
+  if (connection_)
+    connection_->supersede();
   connection_ = &connection;
 
   if (request.password != password_) {
@@ -114,8 +116,9 @@ void Port::on_unsequenced_data(const void* data, std::size_t size) {
   handler_->unsequenced_data(data, size);
 }
 
-void Port::on_closed() {
-  connection_ = nullptr;
+void Port::on_closed(Tcp_connection& connection) {
+  if (connection_ == &connection)
+    connection_ = nullptr;
 }
 
 } // namespace bc::soup::server
