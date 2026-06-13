@@ -68,6 +68,18 @@ Hierarchy: `Server` → `Acceptor` → `Port` → `Tcp_connection`
 - `handler_->logout_request()` called directly from `Tcp_connection`, not via `port_->on_logout_request()` — no Port-state gate to apply. Parked under "Handler call conventions" for the broader review.
 - User sees two notifications per logout: `logout_request()` at packet receipt, then the disconnect callback with `Disconnect_reason::logout_request` from the closed cascade.
 
+## Connection takeover (server)
+
+When a `Login_request_packet` arrives for a username with an existing `connection_` set on the matching `Port`, the prior connection is **superseded**: `Port::on_login_request` calls `connection_->supersede()` before reassigning `connection_`. `supersede()` is a sibling of `close()` — both delegate to `disconnect()`, differing only in the `Disconnect_reason` carried.
+
+`Port::on_closed(Tcp_connection&)` is identity-aware: the bumped connection's later drain calls `port_->on_closed(*this)` with the *old* connection, which doesn't match the (now-new) `connection_` and is a no-op. Without the check, the old drain would clobber the new pointer.
+
+User-visible callbacks (server side, same `Port_handler` for both sessions):
+- `login_success(...)` for the new session fires synchronously from `on_login_request`.
+- `disconnect(Disconnect_reason::superseded)` for the prior session fires later from the closed cascade.
+
+The bumped connection's *client* sees `disconnect(Disconnect_reason::peer_closed)` — the protocol has no "you were superseded" packet, so the client only knows its peer dropped.
+
 ## Sequence number tracking (client)
 
 - `Client::next_sequence_number_` (default 1, settable via `set_next_sequence_number`) is the canonical counter. Each `Connection` holds its own `next_sequence_number_` for per-physical accounting.
