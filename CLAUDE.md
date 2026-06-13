@@ -155,6 +155,18 @@ Disconnect callback timing: fires **from the closed cascade** (post-drain across
 - `connect()` guarded with `!client_->started()` and `connection_` (already connected) — bails as no-op.
 - `close()` has no started guard — `connection_` null check is the meaningful gate, and a started guard would interfere with `Client::stop` iterating.
 
+## Failure handling
+
+Three handler callbacks report transport-layer failures: `connect_failure`, `transport_error`, `protocol_violation`. Each is wired through a `Tcp_connection::handle_*` helper with the same two-line shape — fire the handler callback, then `disconnect(Disconnect_reason::<X>)`. The `disconnect()` call encapsulates state change, socket close, and idempotent timer stops, so the handlers don't open-code any of that.
+
+**Two-notification contract.** User receives the specific failure callback at the failure point, then the disconnect callback from the closed cascade with the matching `Disconnect_reason`.
+
+**Server pre-login routing.** Server-side `handle_*` checks `handler_` (the `Port_handler`): if non-null, the per-port handler fires; otherwise the `Acceptor_handler` is reached via `acceptor_->on_<failure>(...)`. Client-side always has `handler_` set, so no branching.
+
+**Operation strings.** Format is `"<category> <function_name>"`:
+- `<function_name>` is the literal C++ identifier of the failed call (`"async_read"`, `"async_write"`, `"expires_at"`, `"async_wait"`).
+- `<category>` (`"socket"`, `"timer"`) is included only when the callback spans categories. `transport_error` covers socket and timer failures and carries the prefix. `listen_setup_failure` and `connect_failure` are single-category and omit it.
+
 ## Handler call conventions (unresolved)
 
 Two related questions are deferred to a single review, once all message types are implemented:
@@ -165,6 +177,7 @@ Two related questions are deferred to a single review, once all message types ar
    - **Server login (accept and reject):** `Port::on_login_request` fires `handler_->login_success` / `handler_->login_failure` before `Tcp_connection::process_login_request` performs the post-decision state transition (`set_state(logged_in)` or `prepare_graceful_disconnect`).
    - **Client login rejected:** `Tcp_connection::process_login_rejected` fires `handler_->login_failure` before calling `disconnect(Disconnect_reason::access_denied)`.
    - **Server logout request:** `Tcp_connection::process_logout_request` fires `handler_->logout_request` before calling `disconnect(Disconnect_reason::logout_request)`.
+   - **Failure handlers (`handle_connect_failure`, `handle_transport_error`, `handle_protocol_violation`):** all three fire the handler callback before calling `disconnect(reason)`.
 
 Resolving (2) on the server side may interact with (1) — if handler calls remain in the upper layer, that layer would need to drive the state transition (e.g., calling back into `Tcp_connection` to set state before firing the handler).
 
