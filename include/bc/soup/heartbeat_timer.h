@@ -49,7 +49,6 @@ private:
   bool stopped_signaled_ = false;
 
   void schedule();
-  void cancel();
   void on_expiry(asio::error_code);
   void maybe_signal_stopped();
 };

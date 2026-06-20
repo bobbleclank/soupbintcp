@@ -40,7 +40,6 @@ private:
   bool wait_pending_ = false;
   bool stopped_signaled_ = false;
 
-  void cancel();
   void on_expiry(asio::error_code);
   void maybe_signal_stopped();
 };

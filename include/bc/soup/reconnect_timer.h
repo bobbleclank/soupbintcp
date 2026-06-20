@@ -40,7 +40,6 @@ private:
   bool started_ = false;
   std::uint32_t epoch_ = 0;
 
-  void cancel();
   void on_expiry(asio::error_code);
 };
 

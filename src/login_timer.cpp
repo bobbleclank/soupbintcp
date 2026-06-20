@@ -30,16 +30,12 @@ void Login_timer::stop() {
     return;
   started_ = false;
 
-  cancel();
-  maybe_signal_stopped();
-}
-
-void Login_timer::cancel() {
   try {
     timer_.cancel();
   } catch (const asio::system_error& e) {
     handler_->login_timer_error(e.code(), "timer cancel");
   }
+  maybe_signal_stopped();
 }
 
 void Login_timer::on_expiry(asio::error_code ec) {

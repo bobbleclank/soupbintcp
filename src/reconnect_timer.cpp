@@ -31,10 +31,6 @@ void Reconnect_timer::stop() {
     return;
   started_ = false;
 
-  cancel();
-}
-
-void Reconnect_timer::cancel() {
   try {
     timer_.cancel();
   } catch (const asio::system_error& e) {
