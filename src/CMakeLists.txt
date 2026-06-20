@@ -11,6 +11,7 @@ target_sources(bcsoup
     logical_packets.cpp
     login_timer.cpp
     packing.cpp
+    reconnect_timer.cpp
     rw_packets.cpp
     server/acceptor.cpp
     server/port.cpp

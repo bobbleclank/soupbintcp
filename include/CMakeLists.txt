@@ -16,6 +16,7 @@ target_sources(bcsoup
       bc/soup/logical_packets.h
       bc/soup/login_timer.h
       bc/soup/packing.h
+      bc/soup/reconnect_timer.h
       bc/soup/rw_packets.h
       bc/soup/server/acceptor.h
       bc/soup/server/handler.h
