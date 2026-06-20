@@ -23,6 +23,10 @@ constexpr std::chrono::seconds server_heartbeat_timeout(5);
 constexpr std::chrono::seconds login_request_timeout(30);
 constexpr std::chrono::seconds login_response_timeout(10);
 
+constexpr std::chrono::seconds reconnect_initial_delay(1);
+constexpr std::chrono::seconds reconnect_max_delay(30);
+constexpr int reconnect_delay_multiplier = 2;
+
 } // namespace bc::soup
 
 #endif

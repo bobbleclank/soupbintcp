@@ -95,6 +95,10 @@ public:
     std::println("disconnect: reason = {}", to_string(reason));
   }
 
+  void reconnect_scheduled(std::chrono::seconds delay) override {
+    std::println("reconnect scheduled: delay = {}s", delay.count());
+  }
+
   void send_message() {
     static constexpr std::string_view message = "hello server";
     const auto error =

@@ -2,10 +2,12 @@
 #define INCLUDE_BC_SOUP_CLIENT_CONNECTION_H
 
 #include "bc/soup/client/tcp_connection.h"
+#include "bc/soup/reconnect_timer.h"
 #include "bc/soup/types.h"
 
 #include <asio.hpp>
 
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <optional>
@@ -25,10 +27,13 @@ class Client;
 class Connection_handler;
 class Message;
 
-class Connection {
+class Connection final : public Reconnect_timer::Handler {
 public:
   Connection(asio::any_io_executor, const asio::ip::tcp::endpoint&, Client&,
              Connection_handler*);
+
+  void reconnect_timer_error(asio::error_code, std::string_view) override;
+  void reconnect_timer_expired() override;
 
   void set_handler(Connection_handler&);
 
@@ -65,6 +70,10 @@ private:
   std::uint64_t next_sequence_number_ = 1;
   bool has_session_ended_ = false;
   std::optional<Tcp_connection> connection_;
+  Reconnect_timer reconnect_timer_;
+  std::chrono::seconds reconnect_next_delay_ = std::chrono::seconds::zero();
+
+  void schedule_reconnect();
 
   [[nodiscard]] Write_error send_packet(Write_packet&&);
 

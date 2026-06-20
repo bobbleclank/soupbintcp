@@ -3,13 +3,42 @@
 #include "bc/soup/client/client.h"
 #include "bc/soup/client/handler.h"
 #include "bc/soup/client/message.h"
+#include "bc/soup/constants.h"
 #include "bc/soup/logical_packets.h"
 #include "bc/soup/rw_packets.h"
 #include "bc/soup/validate.h"
 
+#include <algorithm>
 #include <utility>
 
 namespace bc::soup::client {
+
+namespace {
+
+bool is_retryable(Disconnect_reason reason) {
+  switch (reason) {
+  case Disconnect_reason::peer_closed:
+  case Disconnect_reason::connect_failure:
+  case Disconnect_reason::transport_error:
+  case Disconnect_reason::login_timeout:
+  case Disconnect_reason::heartbeat_timeout:
+    return true;
+  case Disconnect_reason::none:
+  case Disconnect_reason::user_initiated:
+  case Disconnect_reason::superseded:
+  case Disconnect_reason::logout_request:
+  case Disconnect_reason::access_denied:
+  case Disconnect_reason::session_mismatch:
+  case Disconnect_reason::sequence_number_ahead_of_session:
+  case Disconnect_reason::sequence_number_too_low:
+  case Disconnect_reason::sequence_number_too_high:
+  case Disconnect_reason::protocol_violation:
+  case Disconnect_reason::unmanaged_abort:
+    return false;
+  }
+}
+
+} // namespace
 
 Connection::Connection(asio::any_io_executor io_executor,
                        const asio::ip::tcp::endpoint& endpoint, Client& client,
@@ -17,7 +46,18 @@ Connection::Connection(asio::any_io_executor io_executor,
     : client_(&client),
       handler_(handler),
       io_executor_(io_executor),
-      endpoint_(endpoint) {}
+      endpoint_(endpoint),
+      reconnect_timer_(io_executor, *this) {}
+
+void Connection::reconnect_timer_error(asio::error_code ec,
+                                       std::string_view operation) {
+  handler_->transport_error(ec, operation);
+}
+
+void Connection::reconnect_timer_expired() {
+  connection_.emplace(io_executor_, *this, *handler_,
+                      client_->write_packets_limit());
+}
 
 void Connection::set_handler(Connection_handler& handler) {
   handler_ = &handler;
@@ -49,6 +89,8 @@ void Connection::connect() {
     return;
   if (connection_)
     return;
+  if (reconnect_timer_.started())
+    return;
   connection_.emplace(io_executor_, *this, *handler_,
                       client_->write_packets_limit());
 }
@@ -56,6 +98,8 @@ void Connection::connect() {
 void Connection::close() {
   if (connection_)
     connection_->close();
+  reconnect_timer_.stop();
+  reconnect_next_delay_ = std::chrono::seconds::zero();
 }
 
 Write_error Connection::send_message(const void* data, std::size_t size) {
@@ -96,6 +140,17 @@ Write_error Connection::send_debug(std::string_view text) {
   return connection_->send_debug_packet(text);
 }
 
+void Connection::schedule_reconnect() {
+  const auto delay = reconnect_next_delay_;
+  reconnect_next_delay_ =
+      (reconnect_next_delay_ == std::chrono::seconds::zero())
+          ? reconnect_initial_delay
+          : std::min(reconnect_next_delay_ * reconnect_delay_multiplier,
+                     reconnect_max_delay);
+  handler_->reconnect_scheduled(delay);
+  reconnect_timer_.start(delay);
+}
+
 Write_error Connection::send_packet(Write_packet&& packet) {
   if (has_session_ended_)
     return Write_error::session_ended;
@@ -133,6 +188,7 @@ Connection::on_login_success(const Login_accepted_packet& response) {
 
   session_ = response.session;
   next_sequence_number_ = response.next_sequence_number;
+  reconnect_next_delay_ = std::chrono::seconds::zero();
   return Disconnect_reason::none;
 }
 
@@ -152,6 +208,11 @@ void Connection::on_end_of_session() {
 void Connection::on_closed(Disconnect_reason reason) {
   connection_.reset();
   handler_->disconnect(reason);
+  if (!client_->started())
+    return;
+  if (!is_retryable(reason))
+    return;
+  schedule_reconnect();
 }
 
 } // namespace bc::soup::client

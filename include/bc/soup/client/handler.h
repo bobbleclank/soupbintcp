@@ -5,6 +5,7 @@
 
 #include <asio.hpp>
 
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <string_view>
@@ -51,6 +52,7 @@ public:
   virtual void protocol_violation(Packet_error) = 0;
 
   virtual void disconnect(Disconnect_reason) = 0;
+  virtual void reconnect_scheduled(std::chrono::seconds) = 0;
 
 protected:
   Connection_handler() = default;
