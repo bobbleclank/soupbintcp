@@ -33,22 +33,19 @@ void Reconnect_timer::stop() {
 
   try {
     timer_.cancel();
-  } catch (const asio::system_error& e) {
-    handler_->reconnect_timer_error(e.code(), "reconnect timer cancel");
+  } catch (const asio::system_error&) {
   }
 }
 
 void Reconnect_timer::on_expiry(asio::error_code ec) {
-  if (ec) {
-    started_ = false;
-    if (ec != asio::error::operation_aborted)
-      handler_->reconnect_timer_error(ec, "reconnect timer async_wait");
-    return;
-  }
   if (!started_)
     return;
-
   started_ = false;
+  if (ec) {
+    handler_->reconnect_timer_error(ec, "reconnect timer async_wait");
+    return;
+  }
+
   handler_->reconnect_timer_expired();
 }
 

@@ -29,8 +29,7 @@ void Heartbeat_timer::stop() {
 
   try {
     timer_.cancel();
-  } catch (const asio::system_error& e) {
-    handler_->heartbeat_timer_error(e.code(), "timer cancel");
+  } catch (const asio::system_error&) {
   }
   maybe_signal_stopped();
 }
@@ -51,13 +50,12 @@ void Heartbeat_timer::schedule() {
 }
 
 void Heartbeat_timer::on_expiry(asio::error_code ec) {
-  if (ec) {
-    if (ec != asio::error::operation_aborted)
-      handler_->heartbeat_timer_error(ec, "timer async_wait");
-    return;
-  }
   if (!started_)
     return;
+  if (ec) {
+    handler_->heartbeat_timer_error(ec, "timer async_wait");
+    return;
+  }
 
   if (receive_count_ == 0) {
     no_receive_period_ += heartbeat_period;
