@@ -21,10 +21,6 @@ inline std::error_code make_error_code(Error e) noexcept {
   return std::error_code(static_cast<int>(e), soup_category());
 }
 
-inline std::error_condition make_error_condition(Error e) noexcept {
-  return std::error_condition(static_cast<int>(e), soup_category());
-}
-
 } // namespace bc::soup
 
 namespace std {

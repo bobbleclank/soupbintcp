@@ -102,39 +102,6 @@ TEST(error, make_error_code) {
   }
 }
 
-TEST(error, make_error_condition) {
-  {
-    std::error_condition ec = make_error_condition(Error::username_too_long);
-    ASSERT_EQ(ec.value(), 1);
-    ASSERT_EQ(ec.category(), soup_category());
-  }
-  {
-    std::error_condition ec = make_error_condition(Error::invalid_username);
-    ASSERT_EQ(ec.value(), 2);
-    ASSERT_EQ(ec.category(), soup_category());
-  }
-  {
-    std::error_condition ec = make_error_condition(Error::password_too_long);
-    ASSERT_EQ(ec.value(), 3);
-    ASSERT_EQ(ec.category(), soup_category());
-  }
-  {
-    std::error_condition ec = make_error_condition(Error::invalid_password);
-    ASSERT_EQ(ec.value(), 4);
-    ASSERT_EQ(ec.category(), soup_category());
-  }
-  {
-    std::error_condition ec = make_error_condition(Error::session_too_long);
-    ASSERT_EQ(ec.value(), 5);
-    ASSERT_EQ(ec.category(), soup_category());
-  }
-  {
-    std::error_condition ec = make_error_condition(Error::invalid_session);
-    ASSERT_EQ(ec.value(), 6);
-    ASSERT_EQ(ec.category(), soup_category());
-  }
-}
-
 TEST(error, is_error_code_enum) {
   ASSERT_TRUE(std::is_error_code_enum<Error>::value);
   {
