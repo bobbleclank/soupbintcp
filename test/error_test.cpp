@@ -9,7 +9,7 @@ using namespace bc::soup;
 
 using namespace std::string_literals;
 
-TEST(error, Error) {
+TEST(error, error_value) {
   ASSERT_EQ(static_cast<int>(Error::username_too_long), 1);
   ASSERT_EQ(static_cast<int>(Error::invalid_username), 2);
   ASSERT_EQ(static_cast<int>(Error::password_too_long), 3);
@@ -140,7 +140,7 @@ TEST(error, is_error_condition_enum) {
   ASSERT_FALSE(std::is_error_condition_enum<Error>::value);
 }
 
-TEST(error, testing_for_an_error) {
+TEST(error, comparison) {
   {
     constexpr int ev = 1;
     std::error_code ec(ev, soup_category());
