@@ -15,14 +15,14 @@ enum class Error {
   invalid_session
 };
 
-const std::error_category& souptcp_category() noexcept;
+const std::error_category& soup_category() noexcept;
 
 inline std::error_code make_error_code(Error e) noexcept {
-  return std::error_code(static_cast<int>(e), souptcp_category());
+  return std::error_code(static_cast<int>(e), soup_category());
 }
 
 inline std::error_condition make_error_condition(Error e) noexcept {
-  return std::error_condition(static_cast<int>(e), souptcp_category());
+  return std::error_condition(static_cast<int>(e), soup_category());
 }
 
 } // namespace bc::soup

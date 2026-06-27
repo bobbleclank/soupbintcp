@@ -6,7 +6,7 @@ namespace bc::soup {
 
 class Error_category : public std::error_category {
 public:
-  const char* name() const noexcept override { return "souptcp"; }
+  const char* name() const noexcept override { return "soup"; }
 
   std::string message(int value) const override {
     switch (static_cast<Error>(value)) {
@@ -41,7 +41,7 @@ public:
   }
 };
 
-const std::error_category& souptcp_category() noexcept {
+const std::error_category& soup_category() noexcept {
   static const Error_category instance;
   return instance;
 }
