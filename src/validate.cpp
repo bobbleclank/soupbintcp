@@ -1,6 +1,7 @@
 #include "bc/soup/validate.h"
 
 #include "bc/soup/constants.h"
+#include "bc/soup/error.h"
 
 #include <cctype>
 
@@ -17,22 +18,28 @@ bool is_valid_string(std::string_view str) {
 
 } // namespace
 
-bool is_valid_username(std::string_view username) {
+std::error_code validate_username(std::string_view username) {
   if (username.size() > username_length)
-    return false;
-  return is_valid_string(username);
+    return Error::username_too_long;
+  if (!is_valid_string(username))
+    return Error::invalid_username;
+  return {};
 }
 
-bool is_valid_password(std::string_view password) {
+std::error_code validate_password(std::string_view password) {
   if (password.size() > password_length)
-    return false;
-  return is_valid_string(password);
+    return Error::password_too_long;
+  if (!is_valid_string(password))
+    return Error::invalid_password;
+  return {};
 }
 
-bool is_valid_session(std::string_view session) {
+std::error_code validate_session(std::string_view session) {
   if (session.size() > session_length)
-    return false;
-  return is_valid_string(session);
+    return Error::session_too_long;
+  if (!is_valid_string(session))
+    return Error::invalid_session;
+  return {};
 }
 
 } // namespace bc::soup

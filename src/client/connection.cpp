@@ -64,22 +64,22 @@ void Connection::set_handler(Connection_handler& handler) {
 }
 
 std::error_code Connection::set_username(std::string_view username) {
-  if (!is_valid_username(username))
-    return std::make_error_code(std::errc::invalid_argument);
+  if (const auto ec = validate_username(username))
+    return ec;
   username_ = username;
   return {};
 }
 
 std::error_code Connection::set_password(std::string_view password) {
-  if (!is_valid_password(password))
-    return std::make_error_code(std::errc::invalid_argument);
+  if (const auto ec = validate_password(password))
+    return ec;
   password_ = password;
   return {};
 }
 
 std::error_code Connection::set_session(std::string_view session) {
-  if (!is_valid_session(session))
-    return std::make_error_code(std::errc::invalid_argument);
+  if (const auto ec = validate_session(session))
+    return ec;
   session_ = session;
   return {};
 }

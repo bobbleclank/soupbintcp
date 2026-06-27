@@ -63,10 +63,10 @@ expected<Port*, std::error_code> Acceptor::add_port(std::string_view username,
 expected<Port*, std::error_code> Acceptor::add_port(std::string_view username,
                                                     std::string_view password,
                                                     Port_handler* handler) {
-  if (!is_valid_username(username))
-    return unexpected(std::make_error_code(std::errc::invalid_argument));
-  if (!is_valid_password(password))
-    return unexpected(std::make_error_code(std::errc::invalid_argument));
+  if (const auto ec = validate_username(username))
+    return unexpected(ec);
+  if (const auto ec = validate_password(password))
+    return unexpected(ec);
 
   for (const auto& port : ports_) {
     if (username == port.username())
