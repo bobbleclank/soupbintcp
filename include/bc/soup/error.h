@@ -12,7 +12,10 @@ enum class Error {
   password_too_long,
   invalid_password,
   session_too_long,
-  invalid_session
+  invalid_session,
+  endpoint_in_use,
+  username_in_use,
+  handler_not_set
 };
 
 const std::error_category& soup_category() noexcept;

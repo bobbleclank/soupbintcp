@@ -22,6 +22,12 @@ public:
       return "session too long";
     case Error::invalid_session:
       return "invalid session";
+    case Error::endpoint_in_use:
+      return "endpoint in use";
+    case Error::username_in_use:
+      return "username in use";
+    case Error::handler_not_set:
+      return "handler not set";
     }
     return "unknown error";
   }
@@ -35,6 +41,11 @@ public:
     case Error::session_too_long:
     case Error::invalid_session:
       return std::errc::invalid_argument;
+    case Error::endpoint_in_use:
+      return std::errc::address_in_use;
+    case Error::username_in_use:
+    case Error::handler_not_set:
+      break;
     }
     return std::error_condition(ev, *this);
   }
