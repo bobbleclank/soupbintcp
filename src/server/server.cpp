@@ -1,5 +1,6 @@
 #include "bc/soup/server/server.h"
 
+#include "bc/soup/error.h"
 #include "bc/soup/validate.h"
 
 namespace bc::soup::server {
@@ -27,7 +28,7 @@ Server::add_acceptor(const asio::ip::tcp::endpoint& endpoint,
 std::error_code Server::start() {
   for (const auto& acceptor : acceptors_) {
     if (!acceptor.is_handler_set())
-      return std::make_error_code(std::errc::invalid_argument);
+      return Error::handler_not_set;
   }
 
   asio::post(io_executor_, [this] {
@@ -68,7 +69,7 @@ Server::add_acceptor(const asio::ip::tcp::endpoint& endpoint,
                      Acceptor_handler* handler) {
   for (const auto& acceptor : acceptors_) {
     if (endpoint == acceptor.endpoint())
-      return unexpected(std::make_error_code(std::errc::invalid_argument));
+      return unexpected(Error::endpoint_in_use);
   }
   return &acceptors_.emplace_back(io_executor_, endpoint, *this, handler);
 }

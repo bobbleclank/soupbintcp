@@ -1,5 +1,6 @@
 #include "bc/soup/server/acceptor.h"
 
+#include "bc/soup/error.h"
 #include "bc/soup/logical_packets.h"
 #include "bc/soup/server/handler.h"
 #include "bc/soup/server/server.h"
@@ -70,7 +71,7 @@ expected<Port*, std::error_code> Acceptor::add_port(std::string_view username,
 
   for (const auto& port : ports_) {
     if (username == port.username())
-      return unexpected(std::make_error_code(std::errc::invalid_argument));
+      return unexpected(Error::username_in_use);
   }
   return &ports_.emplace_back(username, password, handler);
 }

@@ -2,6 +2,7 @@
 
 #include "bc/soup/client/handler.h"
 #include "bc/soup/client/message.h"
+#include "bc/soup/error.h"
 #include "bc/soup/logical_packets.h"
 #include "bc/soup/rw_packets.h"
 
@@ -44,10 +45,10 @@ Client::add_connection(const asio::ip::tcp::endpoint& endpoint,
 
 std::error_code Client::start() {
   if (!handler_)
-    return std::make_error_code(std::errc::invalid_argument);
+    return Error::handler_not_set;
   for (const auto& connection : connections_) {
     if (!connection.is_handler_set())
-      return std::make_error_code(std::errc::invalid_argument);
+      return Error::handler_not_set;
   }
 
   asio::post(io_executor_, [this] {
@@ -109,7 +110,7 @@ Client::add_connection(const asio::ip::tcp::endpoint& endpoint,
                        Connection_handler* handler) {
   for (const auto& connection : connections_) {
     if (endpoint == connection.endpoint())
-      return unexpected(std::make_error_code(std::errc::invalid_argument));
+      return unexpected(Error::endpoint_in_use);
   }
   return &connections_.emplace_back(io_executor_, endpoint, *this, handler);
 }
