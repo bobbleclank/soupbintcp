@@ -55,6 +55,12 @@ TEST(Buffer, move_constructor) {
     assert_empty(b2);
   }
   {
+    Buffer b1(0);
+    Buffer b2(std::move(b1));
+    assert_empty(b1);
+    assert_non_empty(b2, 0);
+  }
+  {
     constexpr auto size = 5;
     Buffer b1(size);
     Buffer b2(std::move(b1));
@@ -70,6 +76,13 @@ TEST(Buffer, move_assignment) {
     b2 = std::move(b1);
     assert_empty(b1);
     assert_empty(b2);
+  }
+  {
+    Buffer b1(0);
+    Buffer b2;
+    b2 = std::move(b1);
+    assert_empty(b1);
+    assert_non_empty(b2, 0);
   }
   {
     constexpr auto size = 5;
@@ -385,6 +398,12 @@ TEST(Write_packet, move_constructor) {
     assert_empty(p2);
   }
   {
+    Write_packet p1('a');
+    Write_packet p2(std::move(p1));
+    assert_empty(p1);
+    assert_non_empty(p2, 'a', 0, 0);
+  }
+  {
     std::string_view sv = "hello";
     auto data = sv.data();
     auto size = sv.size();
@@ -404,6 +423,13 @@ TEST(Write_packet, move_assignment) {
     p2 = std::move(p1);
     assert_empty(p1);
     assert_empty(p2);
+  }
+  {
+    Write_packet p1('a');
+    Write_packet p2;
+    p2 = std::move(p1);
+    assert_empty(p1);
+    assert_non_empty(p2, 'a', 0, 0);
   }
   {
     std::string_view sv = "hello";
