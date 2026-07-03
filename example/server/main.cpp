@@ -90,7 +90,7 @@ public:
   void initialize(std::string_view username, std::string_view password) {
     const auto result = acceptor_->add_port(username, password);
     if (!result)
-      throw std::system_error(result.error(), "add port");
+      throw std::system_error(result.error(), "add_port");
     port_.emplace(*result);
   }
 
@@ -161,19 +161,19 @@ public:
   void initialize(std::string_view username, std::string_view password,
                   std::string_view session) {
     if (const auto ec = server_.set_session(session))
-      throw std::system_error(ec, "set session");
+      throw std::system_error(ec, "set_session");
     const unsigned short port = 5050;
     const asio::ip::tcp::endpoint ep(asio::ip::tcp::v4(), port);
     const auto result = server_.add_acceptor(ep);
     if (!result)
-      throw std::system_error(result.error(), "add acceptor");
+      throw std::system_error(result.error(), "add_acceptor");
     acceptor_.emplace(*result);
     acceptor_->initialize(username, password);
   }
 
   void start() {
     if (const auto ec = server_.start())
-      throw std::system_error(ec, "server start");
+      throw std::system_error(ec, "start");
   }
 
   void send_message() { acceptor_->send_message(); }

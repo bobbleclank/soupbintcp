@@ -34,11 +34,11 @@ public:
       : connection_(connection) {
     connection_->set_handler(*this);
     if (const auto ec = connection_->set_username(username))
-      throw std::system_error(ec, "set username");
+      throw std::system_error(ec, "set_username");
     if (const auto ec = connection_->set_password(password))
-      throw std::system_error(ec, "set password");
+      throw std::system_error(ec, "set_password");
     if (const auto ec = connection_->set_session(session))
-      throw std::system_error(ec, "set session");
+      throw std::system_error(ec, "set_session");
   }
 
   void connecting(const asio::ip::tcp::endpoint& ep) override {
@@ -125,7 +125,7 @@ public:
     const asio::ip::tcp::endpoint ep(address, port);
     const auto result = client_.add_connection(ep);
     if (!result)
-      throw std::system_error(result.error(), "add connection");
+      throw std::system_error(result.error(), "add_connection");
     connection_.emplace(*result, username, password, session);
   }
 
@@ -140,7 +140,7 @@ public:
 
   void start() {
     if (const auto ec = client_.start())
-      throw std::system_error(ec, "client start");
+      throw std::system_error(ec, "start");
   }
 
   void send_message() { connection_->send_message(); }
