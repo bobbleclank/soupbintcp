@@ -23,6 +23,14 @@ Buffer& Buffer::operator=(Buffer&& other) noexcept {
   return *this;
 }
 
+Buffer Buffer::clone() const {
+  if (!data_)
+    return Buffer();
+  Buffer copy(size_);
+  std::memcpy(copy.data_.get(), data_.get(), size_);
+  return copy;
+}
+
 // NOLINTNEXTLINE(*-pro-type-member-init): Initialize in constructor body
 Read_packet::Read_packet() {
   header_.fill(std::byte(0));
@@ -72,6 +80,12 @@ Write_packet::Write_packet(char packet_type, const void* payload_data,
   // NOLINTNEXTLINE(*-pro-bounds-pointer-arithmetic): Payload location
   std::memcpy(packet_.data() + packet_header_length, payload_data,
               payload_size);
+}
+
+Write_packet Write_packet::clone() const {
+  Write_packet copy;
+  copy.packet_ = packet_.clone();
+  return copy;
 }
 
 std::uint16_t Write_packet::packet_size() const {

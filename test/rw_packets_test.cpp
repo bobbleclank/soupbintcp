@@ -28,6 +28,11 @@ void assert_non_empty(const Buffer& b, std::size_t size) {
   ASSERT_EQ(b.size(), size);
 }
 
+void assert_non_empty(const Buffer& b, std::size_t size, const void* data) {
+  assert_non_empty(b, size);
+  ASSERT_EQ(std::memcmp(b.data(), data, size), 0);
+}
+
 } // namespace
 
 TEST(Buffer, default_constructor) {
@@ -108,6 +113,41 @@ TEST(Buffer, move_assignment) {
     b2 = std::move(b1);
     assert_empty(b1);
     assert_non_empty(b2, size1);
+  }
+}
+
+TEST(Buffer, clone) {
+  {
+    Buffer b1;
+    Buffer b2 = b1.clone();
+    assert_empty(b1);
+    assert_empty(b2);
+  }
+  {
+    Buffer b1(0);
+    Buffer b2 = b1.clone();
+    assert_non_empty(b1, 0);
+    assert_non_empty(b2, 0);
+  }
+  {
+    std::string_view sv = "hello";
+    auto data = sv.data();
+    auto size = sv.size();
+    ASSERT_EQ(size, 5u);
+
+    Buffer b1(size);
+    std::memcpy(b1.data(), data, size);
+    Buffer b2 = b1.clone();
+    assert_non_empty(b1, size, data);
+    assert_non_empty(b2, size, data);
+
+    std::string_view sv2 = "world";
+    auto data2 = sv2.data();
+    ASSERT_EQ(sv2.size(), size);
+
+    std::memcpy(b2.data(), data2, size);
+    assert_non_empty(b1, size, data);
+    assert_non_empty(b2, size, data2);
   }
 }
 
@@ -469,6 +509,54 @@ TEST(Write_packet, move_assignment) {
     p2 = std::move(p1);
     assert_empty(p1);
     assert_non_empty(p2, 'a', size, size, data);
+  }
+}
+
+TEST(Write_packet, clone) {
+  {
+    Write_packet p1;
+    Write_packet p2 = p1.clone();
+    assert_empty(p1);
+    assert_empty(p2);
+  }
+  {
+    Write_packet p1('a');
+    Write_packet p2 = p1.clone();
+    assert_non_empty(p1, 'a', 0, 0);
+    assert_non_empty(p2, 'a', 0, 0);
+  }
+  {
+    std::string_view sv = "hello";
+    auto data = sv.data();
+    auto size = sv.size();
+    ASSERT_EQ(size, 5u);
+
+    Write_packet p1('a', data, size);
+    Write_packet p2 = p1.clone();
+    assert_non_empty(p1, 'a', size, size, data);
+    assert_non_empty(p2, 'a', size, size, data);
+
+    std::string_view sv2 = "world";
+    auto data2 = sv2.data();
+    ASSERT_EQ(sv2.size(), size);
+
+    std::memcpy(p2.payload_data(), data2, size);
+    assert_non_empty(p1, 'a', size, size, data);
+    assert_non_empty(p2, 'a', size, size, data2);
+  }
+  {
+    std::string_view sv = "hello world";
+    auto data = sv.data();
+    auto size = sv.size();
+    ASSERT_EQ(size, 11u);
+
+    Write_packet p1('a', data, size);
+    constexpr auto new_size = 5;
+    ASSERT_EQ(p1.resize_payload(new_size),
+              Write_packet::Resize_result::resized);
+    Write_packet p2 = p1.clone();
+    assert_non_empty(p1, 'a', size, new_size, data);
+    assert_non_empty(p2, 'a', size, new_size, data);
   }
 }
 

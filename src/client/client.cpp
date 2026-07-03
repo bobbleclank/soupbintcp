@@ -151,8 +151,7 @@ Write_error Client::send_two(Write_packet&& packet) {
   assert(connections_.size() == 2);
   auto& connection1 = connections_.front();
   auto& connection2 = connections_.back();
-  Write_packet copy(packet.packet_type(), packet.payload_data(),
-                    packet.payload_size());
+  Write_packet copy = packet.clone();
 
   const auto error1 = connection1.send_packet(std::move(packet));
   const auto error2 = connection2.send_packet(std::move(copy));
@@ -171,8 +170,7 @@ Write_error Client::send_multiple(Write_packet&& packet) {
   const auto back_iter = std::prev(connections_.end());
   for (auto iter = connections_.begin(); iter != back_iter; ++iter) {
     auto& connection = *iter;
-    Write_packet copy(packet.packet_type(), packet.payload_data(),
-                      packet.payload_size());
+    Write_packet copy = packet.clone();
     const auto error = connection.send_packet(std::move(copy));
     errors.push_back(error);
   }

@@ -22,6 +22,8 @@ public:
   Buffer(Buffer&&) noexcept;
   Buffer& operator=(Buffer&&) noexcept;
 
+  Buffer clone() const;
+
   std::byte* data() { return data_.get(); }
 
   const std::byte* data() const { return data_.get(); }
@@ -96,6 +98,8 @@ public:
 
   Write_packet(Write_packet&&) = default;
   Write_packet& operator=(Write_packet&&) = default;
+
+  Write_packet clone() const;
 
   std::uint16_t packet_size() const;
 
