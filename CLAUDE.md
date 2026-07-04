@@ -63,7 +63,7 @@ Hierarchy: `Server` → `Acceptor` → `Port` → `Tcp_connection`
 
 - `Client::send_message` sends to **all** connections. Returns `Write_error::none` if any connection succeeds.
 - `Write_error` priority when all connections fail: `none` > `buffer_full` > `not_logged_in` > `disconnected`. `buffer_full` is transient (retry); others indicate the connection cannot currently be used.
-- `Write_packet` copy constructor is deleted to prevent accidental copies. A named `clone()` helper is planned for the explicit copy needed when sending to multiple connections.
+- `Write_packet` copy constructor is deleted to prevent accidental copies. The named `clone()` helper performs the explicit copy needed when sending to multiple connections — `Write_packet::clone` delegates to `Buffer::clone`, a faithful single-`memcpy` duplicate of the full backing buffer (header, payload, and any spare capacity). Fidelity lives on `Buffer`, where the `null ⟹ size 0` invariant is, keeping `Write_packet::clone` a trivial correct-by-construction delegation; `Buffer` likewise deletes its copy constructor, with `clone()` as its named explicit-copy sibling. A shrink-to-fit `trim` is left as a separate operation if ever needed, called before `clone`.
 - `Client` dispatches to `send_one`, `send_two`, or `send_multiple` based on connection count. `send_one` and `send_two` are fast paths for the common cases (1 or 2 redundant connections).
 
 ## Send logout request (client)
