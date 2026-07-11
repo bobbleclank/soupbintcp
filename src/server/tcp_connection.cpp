@@ -15,8 +15,10 @@ namespace bc::soup::server {
 using State = Connection_state::State;
 
 Tcp_connection::Tcp_connection(asio::any_io_executor io_executor,
-                               Socket&& socket, Acceptor& acceptor)
+                               Socket&& socket, Acceptor& acceptor,
+                               Acceptor_handler& acceptor_handler)
     : acceptor_(&acceptor),
+      acceptor_handler_(&acceptor_handler),
       socket_(std::move(socket)),
       login_timer_(io_executor, *this, login_request_timeout),
       heartbeat_timer_(io_executor, *this, client_heartbeat_timeout) {
@@ -139,7 +141,7 @@ void Tcp_connection::process_debug(const void* data, std::size_t size) {
   if (handler_)
     handler_->debug(text);
   else
-    acceptor_->on_debug(text);
+    acceptor_handler_->debug(text);
 }
 
 Packet_error Tcp_connection::process_login_request(const void* data,
@@ -153,6 +155,7 @@ Packet_error Tcp_connection::process_login_request(const void* data,
   read(request, data);
 
   login_timer_.stop();
+  acceptor_handler_->login_request(request);
   const auto result =
       acceptor_->on_login_request(*this, request, port_, handler_);
   if (result) {
@@ -214,7 +217,7 @@ void Tcp_connection::handle_transport_error(asio::error_code ec,
   if (handler_)
     handler_->transport_error(ec, operation);
   else
-    acceptor_->on_transport_error(ec, operation);
+    acceptor_handler_->transport_error(ec, operation);
   disconnect(Disconnect_reason::transport_error);
 }
 
@@ -222,7 +225,7 @@ void Tcp_connection::handle_protocol_violation(Packet_error error) {
   if (handler_)
     handler_->protocol_violation(error);
   else
-    acceptor_->on_protocol_violation(error);
+    acceptor_handler_->protocol_violation(error);
   disconnect(Disconnect_reason::protocol_violation);
 }
 

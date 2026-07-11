@@ -31,8 +31,8 @@ void Acceptor::accept_success(asio::ip::tcp::socket&& s) {
   const auto local_endpoint = socket.local_endpoint();
   const auto remote_endpoint = socket.remote_endpoint();
   handler_->accept_success(local_endpoint, remote_endpoint);
-  auto& connection = connections_.emplace_back(acceptor_.get_executor(),
-                                               std::move(socket), *this);
+  auto& connection = connections_.emplace_back(
+      acceptor_.get_executor(), std::move(socket), *this, *handler_);
   if (!debug_banner_.empty())
     (void)connection.send_debug_packet(debug_banner_);
   acceptor_.async_accept();
@@ -123,15 +123,10 @@ void Acceptor::stop() {
     connection.close();
 }
 
-void Acceptor::on_debug(std::string_view text) {
-  handler_->debug(text);
-}
-
 expected<Login_accepted_packet, Login_rejected_packet>
 Acceptor::on_login_request(Tcp_connection& connection,
                            const Login_request_packet& request, Port*& port,
                            Port_handler*& port_handler) {
-  handler_->login_request(request);
   const auto iter =
       std::find_if(ports_.begin(), ports_.end(),
                    [&username = request.username](const auto& port) {
@@ -145,15 +140,6 @@ Acceptor::on_login_request(Tcp_connection& connection,
   port = &*iter;
   return port->on_login_request(connection, request, server_->session(),
                                 port_handler);
-}
-
-void Acceptor::on_transport_error(asio::error_code ec,
-                                  std::string_view operation) {
-  handler_->transport_error(ec, operation);
-}
-
-void Acceptor::on_protocol_violation(Packet_error error) {
-  handler_->protocol_violation(error);
 }
 
 void Acceptor::on_closed(Tcp_connection& connection, Port_handler* port_handler,

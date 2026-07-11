@@ -20,6 +20,7 @@ class Write_packet;
 namespace bc::soup::server {
 
 class Acceptor;
+class Acceptor_handler;
 class Port;
 class Port_handler;
 
@@ -27,7 +28,7 @@ class Tcp_connection final : public Socket::Handler,
                              public Login_timer::Handler,
                              public Heartbeat_timer::Handler {
 public:
-  Tcp_connection(asio::any_io_executor, Socket&&, Acceptor&);
+  Tcp_connection(asio::any_io_executor, Socket&&, Acceptor&, Acceptor_handler&);
   ~Tcp_connection() = default;
 
   Tcp_connection(const Tcp_connection&) = delete;
@@ -62,6 +63,7 @@ public:
 
 private:
   Acceptor* acceptor_ = nullptr;
+  Acceptor_handler* acceptor_handler_ = nullptr;
   Port* port_ = nullptr;
   Port_handler* handler_ = nullptr;
   Socket socket_;
