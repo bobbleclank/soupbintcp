@@ -207,28 +207,16 @@ Three handler callbacks report transport-layer failures: `connect_failure`, `tra
 
 ## Handler call conventions (unresolved)
 
-Two related questions are deferred to a single review, once all message types are implemented:
+The open question is where each handler call lives — pending a review of the call sites.
 
-1. **Layer.** Handler calls are made from both `Tcp_connection` and the upper layer (`Connection` on the client side, `Port` / `Acceptor` on the server side). No firm convention has been chosen — examples of both patterns exist on both sides, and some `Tcp_connection`-level handler calls are placed there deliberately. To be decided as part of the review.
-
-2. **Order.** The rule is handler call after state change — but it applies to *success / state-advancing* paths, where the handler may immediately act on the newly-valid connection. *Failure / teardown* paths deliberately invert it: the notification fires the moment the outcome is known, against a still-coherent connection (socket open, timers live, state unchanged), and `disconnect(reason)` runs last as the final lifetime step. A user acting on the connection from inside the notification therefore sees the live connection that just failed, not one that's already been torn down.
-
-   **Failure-teardown paths:**
-   - **Client login rejected:** `Tcp_connection::process_login_rejected` fires `handler_->login_failure` then `disconnect(Disconnect_reason::access_denied)`.
-   - **Server login rejected:** `Acceptor::on_login_request` (user not found) or `Port::on_login_request` fires `handler_->login_failure` then `Tcp_connection::process_login_request` calls `prepare_graceful_disconnect(Disconnect_reason::access_denied)` — notify then graceful teardown (cross-layer, but order is correct).
-   - **Server logout request:** `Tcp_connection::process_logout_request` fires `handler_->logout_request` then `disconnect(Disconnect_reason::logout_request)`.
-   - **Failure handlers (`handle_connect_failure`, `handle_transport_error`, `handle_protocol_violation`):** each fires the handler callback then `disconnect(reason)`.
-
-   **Open success-path violation:**
-   - **Server login accepted:** `Port::on_login_request` fires `handler_->login_success` before `Tcp_connection::process_login_request` calls `set_state(logged_in)`. A user acting on the connection from inside `login_success` sees state still `connected`, not `logged_in`.
-
-Resolving the server login accepted case in (2) interacts with (1): advancing state before `login_success` depends on where the handler call lives, so the fix can't be settled independently of the Layer question.
+Handler calls are made from both `Tcp_connection` and the upper layer (`Connection` on the client side, `Port` / `Acceptor` on the server side). No firm convention has been chosen — examples of both patterns exist on both sides, and some `Tcp_connection`-level handler calls are placed there deliberately.
 
 ## Coding conventions
 
 - Async calls (socket_.async_*) go after all state changes and callbacks.
 - `socket_.close()` goes after callbacks (disconnect, connect failure).
-- State changes before callbacks; upper-layer calls before handler callbacks.
+- Handler call after state change — but only on *success / state-advancing* paths, where the handler may immediately act on the newly-valid connection. *Failure / teardown* paths deliberately invert it: the notification fires the moment the outcome is known, against a still-coherent connection (socket open, timers live, state unchanged), and `disconnect(reason)` runs last as the final lifetime step. A user acting on the connection from inside the notification therefore sees the live connection that just failed, not one that's already been torn down.
+- Upper-layer calls before handler callbacks.
 - `[[nodiscard]]` reserved for error types or `expected` (error-bearing returns). State machine bool returns are not marked nodiscard — they're informational/optimizational, ignoring is not a bug.
 - `Connection_state` return stored as `state_changed`; not inlined into if-condition since the function has side effects.
 - No default parameter on `Connection_state::disconnect` — callers always pass an explicit reason. The no-arg `Tcp_connection::disconnect()` exists for `read_aborted` (socket closed from our side, `reason_` always set).
