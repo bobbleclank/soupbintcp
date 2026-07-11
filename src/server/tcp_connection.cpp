@@ -183,7 +183,8 @@ Packet_error Tcp_connection::process_unsequenced_data(const void* data,
     return Packet_error::unexpected_sequence;
 
   heartbeat_timer_.increment_receive_count();
-  port_->on_unsequenced_data(data, size);
+  if (!port_->has_session_ended())
+    handler_->unsequenced_data(data, size);
   return Packet_error::none;
 }
 

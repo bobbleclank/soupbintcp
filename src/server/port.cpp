@@ -108,12 +108,6 @@ void Port::end_session() {
         Write_packet(End_of_session_packet::packet_type));
 }
 
-void Port::on_unsequenced_data(const void* data, std::size_t size) {
-  if (has_session_ended_)
-    return;
-  handler_->unsequenced_data(data, size);
-}
-
 void Port::on_closed(Tcp_connection& connection) {
   if (connection_ == &connection)
     connection_ = nullptr;
