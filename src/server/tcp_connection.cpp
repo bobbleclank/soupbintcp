@@ -158,6 +158,7 @@ Packet_error Tcp_connection::process_login_request(const void* data,
   if (result) {
     const Login_accepted_packet& response = *result;
     state_.set_state(State::logged_in);
+    handler_->login_success(response);
     heartbeat_timer_stopped_ = false;
     heartbeat_timer_.start();
     Write_packet packet(response.packet_type, response.payload_size);

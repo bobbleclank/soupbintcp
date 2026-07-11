@@ -95,9 +95,7 @@ Port::on_login_request(Tcp_connection& connection,
       request.next_sequence_number < next_sequence_number_) {
     next_sequence_number_ = request.next_sequence_number;
   }
-  const Login_accepted_packet response(session, next_sequence_number_);
-  handler_->login_success(response);
-  return response;
+  return Login_accepted_packet(session, next_sequence_number_);
 }
 
 void Port::end_session() {
