@@ -39,8 +39,8 @@ Client::add_connection(const asio::ip::tcp::endpoint& endpoint) {
 
 expected<Connection*, std::error_code>
 Client::add_connection(const asio::ip::tcp::endpoint& endpoint,
-                       Connection_handler& handler) {
-  return add_connection(endpoint, &handler);
+                       Connection_handler& connection_handler) {
+  return add_connection(endpoint, &connection_handler);
 }
 
 std::error_code Client::start() {
@@ -107,12 +107,13 @@ void Client::send_debug(std::string_view text) {
 
 expected<Connection*, std::error_code>
 Client::add_connection(const asio::ip::tcp::endpoint& endpoint,
-                       Connection_handler* handler) {
+                       Connection_handler* connection_handler) {
   for (const auto& connection : connections_) {
     if (endpoint == connection.endpoint())
       return unexpected(Error::endpoint_in_use);
   }
-  return &connections_.emplace_back(io_executor_, endpoint, *this, handler);
+  return &connections_.emplace_back(io_executor_, endpoint, *this,
+                                    connection_handler);
 }
 
 Write_error Client::send_packet(Write_packet&& packet) {

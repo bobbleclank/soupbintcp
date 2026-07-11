@@ -55,15 +55,15 @@ expected<Port*, std::error_code> Acceptor::add_port(std::string_view username,
   return add_port(username, password, nullptr);
 }
 
-expected<Port*, std::error_code> Acceptor::add_port(std::string_view username,
-                                                    std::string_view password,
-                                                    Port_handler& handler) {
-  return add_port(username, password, &handler);
+expected<Port*, std::error_code>
+Acceptor::add_port(std::string_view username, std::string_view password,
+                   Port_handler& port_handler) {
+  return add_port(username, password, &port_handler);
 }
 
-expected<Port*, std::error_code> Acceptor::add_port(std::string_view username,
-                                                    std::string_view password,
-                                                    Port_handler* handler) {
+expected<Port*, std::error_code>
+Acceptor::add_port(std::string_view username, std::string_view password,
+                   Port_handler* port_handler) {
   if (const auto ec = validate_username(username))
     return unexpected(ec);
   if (const auto ec = validate_password(password))
@@ -73,7 +73,7 @@ expected<Port*, std::error_code> Acceptor::add_port(std::string_view username,
     if (username == port.username())
       return unexpected(Error::username_in_use);
   }
-  return &ports_.emplace_back(username, password, handler);
+  return &ports_.emplace_back(username, password, port_handler);
 }
 
 bool Acceptor::is_handler_set() const {
@@ -130,7 +130,7 @@ void Acceptor::on_debug(std::string_view text) {
 expected<Login_accepted_packet, Login_rejected_packet>
 Acceptor::on_login_request(Tcp_connection& connection,
                            const Login_request_packet& request, Port*& port,
-                           Port_handler*& handler) {
+                           Port_handler*& port_handler) {
   handler_->login_request(request);
   const auto iter =
       std::find_if(ports_.begin(), ports_.end(),
@@ -144,7 +144,7 @@ Acceptor::on_login_request(Tcp_connection& connection,
   }
   port = &*iter;
   return port->on_login_request(connection, request, server_->session(),
-                                handler);
+                                port_handler);
 }
 
 void Acceptor::on_transport_error(asio::error_code ec,
@@ -156,12 +156,12 @@ void Acceptor::on_protocol_violation(Packet_error error) {
   handler_->protocol_violation(error);
 }
 
-void Acceptor::on_closed(Tcp_connection& connection, Port_handler* handler,
+void Acceptor::on_closed(Tcp_connection& connection, Port_handler* port_handler,
                          Disconnect_reason reason) {
   connections_.remove_if(
       [&connection](const auto& element) { return &connection == &element; });
-  if (handler)
-    handler->disconnect(reason);
+  if (port_handler)
+    port_handler->disconnect(reason);
   else
     handler_->disconnect(reason);
 }
