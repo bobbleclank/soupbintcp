@@ -76,8 +76,7 @@ Hierarchy: `Server` → `Acceptor` → `Port` → `Tcp_connection`
 ## Process logout request (server)
 
 - `Tcp_connection::process_logout_request` validates payload size and `logged_in` state, fires `handler_->logout_request()`, then `disconnect(Disconnect_reason::logout_request)`.
-- No `has_session_ended_` guard on the logout notification — logout is real intent during the post-session-end tail (replay, pre-shutdown). Differs from `on_unsequenced_data` which suppresses delivery after session end.
-- `handler_->logout_request()` called directly from `Tcp_connection`, not via `port_->on_logout_request()` — no Port-state gate to apply. Parked under "Handler call conventions" for the broader review.
+- No `has_session_ended()` guard on the logout notification — logout is real intent during the post-session-end tail (replay, pre-shutdown). Differs from `process_unsequenced_data` which suppresses delivery after session end.
 - User sees two notifications per logout: `logout_request()` at packet receipt, then the disconnect callback with `Disconnect_reason::logout_request` from the closed cascade.
 
 ## Connection takeover (server)
@@ -167,8 +166,8 @@ The closed cascade enables value-owned `Tcp_connection` without `shared_ptr`:
 3. Each owned timer (`login_timer_`, `heartbeat_timer_`) follows the same pattern after `stop()` — drains its pending `async_wait`, posts a `*_stopped` signal.
 4. `Tcp_connection::closed()` and each `*_timer_stopped` callback set their respective drain flag, then call `Tcp_connection::maybe_signal_closed`. The upper-layer fire happens only when all flags indicate drained (see [Drain coordination](#drain-coordination)).
 5. From `Tcp_connection::maybe_signal_closed`:
-   - Client: `Connection::on_closed(reason)` resets the `std::optional<Tcp_connection>` and fires disconnect on `Connection_handler`.
-   - Server: `Acceptor::on_closed(connection, port_handler, reason)` removes from `connections_` list and fires disconnect on the appropriate handler — `Port_handler` if logged in, `Acceptor_handler` otherwise.
+   - Client: `Connection::on_closed(reason)` resets the `std::optional<Tcp_connection>` — destroying the `Tcp_connection` — and fires disconnect from `Connection` on `Connection_handler`.
+   - Server: `Acceptor::on_closed(connection, port_handler, reason)` removes `connection` from the `std::list<Tcp_connection>` — destroying the `Tcp_connection` — and fires disconnect from `Acceptor` on the appropriate handler — `Port_handler` if logged in, `Acceptor_handler` otherwise.
 6. Synchronous destruction inside `Tcp_connection::maybe_signal_closed` is safe because all sources have posted their drain signals before this point.
 
 Disconnect callback timing: fires **from the closed cascade** (post-drain across all sources), not from `Tcp_connection::disconnect`. The state machine's transition to `disconnected` is decoupled from the user notification.
@@ -199,17 +198,11 @@ Three handler callbacks report transport-layer failures: `connect_failure`, `tra
 
 **Two-notification contract.** User receives the specific failure callback at the failure point, then the disconnect callback from the closed cascade with the matching `Disconnect_reason`.
 
-**Server pre-login routing.** Server-side `handle_*` checks `handler_` (the `Port_handler`): if non-null, the per-port handler fires; otherwise the `Acceptor_handler` is reached via `acceptor_->on_<failure>(...)`. Client-side always has `handler_` set, so no branching.
+**Server pre-login routing.** A pre-login-capable callback checks `handler_` (the `Port_handler`): if set (logged in), the per-port handler fires; otherwise the per-acceptor handler (`acceptor_handler_`) fires — or drops, when there's no acceptor-level equivalent. So `debug` / `transport_error` / `protocol_violation` → `Acceptor_handler`; `write_buffer_empty` (port-only) → drop. Client-side always has `handler_` (the `Connection_handler`) set, so no branching.
 
 **Operation strings.** Format is `"<category> <function_name>"`:
 - `<function_name>` is the literal C++ identifier of the failed call (`"async_read"`, `"async_write"`, `"expires_at"`, `"async_wait"`).
 - `<category>` (`"socket"`, `"timer"`) is included only when the callback spans categories. `transport_error` covers socket and timer failures and carries the prefix. `listen_setup_failure` and `connect_failure` are single-category and omit it.
-
-## Handler call conventions (unresolved)
-
-The open question is where each handler call lives — pending a review of the call sites.
-
-Handler calls are made from both `Tcp_connection` and the upper layer (`Connection` on the client side, `Port` / `Acceptor` on the server side). No firm convention has been chosen — examples of both patterns exist on both sides, and some `Tcp_connection`-level handler calls are placed there deliberately.
 
 ## Coding conventions
 
@@ -217,6 +210,7 @@ Handler calls are made from both `Tcp_connection` and the upper layer (`Connecti
 - `socket_.close()` goes after callbacks (disconnect, connect failure).
 - Handler call after state change — but only on *success / state-advancing* paths, where the handler may immediately act on the newly-valid connection. *Failure / teardown* paths deliberately invert it: the notification fires the moment the outcome is known, against a still-coherent connection (socket open, timers live, state unchanged), and `disconnect(reason)` runs last as the final lifetime step. A user acting on the connection from inside the notification therefore sees the live connection that just failed, not one that's already been torn down.
 - Upper-layer calls before handler callbacks.
+- Handler notifications fire at the lowest layer that reaches the handler, moving up the hierarchy only when an upper layer owns the context the call needs (server `login_failure` — the reject reason is decided at `Acceptor`/`Port`). Reaching a handler is not a reason to go up (hold the handler pointer); reading a value for a filter is not either (use an access function). Destroy-time: `disconnect` fires from the owner (`Connection` / `Acceptor`), not `Tcp_connection`, because closing destroys the `Tcp_connection`.
 - `[[nodiscard]]` reserved for error types or `expected` (error-bearing returns). State machine bool returns are not marked nodiscard — they're informational/optimizational, ignoring is not a bug.
 - `Connection_state` return stored as `state_changed`; not inlined into if-condition since the function has side effects.
 - No default parameter on `Connection_state::disconnect` — callers always pass an explicit reason. The no-arg `Tcp_connection::disconnect()` exists for `read_aborted` (socket closed from our side, `reason_` always set).
