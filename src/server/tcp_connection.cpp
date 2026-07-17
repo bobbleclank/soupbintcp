@@ -75,7 +75,9 @@ void Tcp_connection::write_success(const Write_packet&) {
 }
 
 void Tcp_connection::write_buffer_empty() {
-  handler_->write_buffer_empty();
+  if (handler_)
+    handler_->write_buffer_empty();
+  // No acceptor-level write_buffer_empty; drop pre-login
 }
 
 void Tcp_connection::closed() {
