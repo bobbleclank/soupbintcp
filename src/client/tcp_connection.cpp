@@ -270,7 +270,9 @@ void Tcp_connection::disconnect(Disconnect_reason reason) {
 void Tcp_connection::maybe_signal_closed() {
   if (!socket_closed_ || !login_timer_stopped_ || !heartbeat_timer_stopped_)
     return;
+  // on_closed destroys *this — the owner drops it here
   connection_->on_closed(state_.reason());
+  // Do not add any statements; on_closed must be last
 }
 
 Write_error Tcp_connection::send_packet(Write_packet&& packet) {

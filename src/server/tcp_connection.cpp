@@ -245,7 +245,9 @@ void Tcp_connection::maybe_signal_closed() {
     return;
   if (port_)
     port_->on_closed(*this);
+  // on_closed destroys *this — the owner drops it here
   acceptor_->on_closed(*this, handler_, state_.reason());
+  // Do not add any statements; on_closed must be last
 }
 
 void Tcp_connection::prepare_graceful_disconnect(Disconnect_reason reason) {
