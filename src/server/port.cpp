@@ -76,9 +76,6 @@ Port::on_login_request(Tcp_connection& connection,
                        const Login_request_packet& request,
                        std::string_view session, Port_handler*& handler) {
   handler = handler_;
-  if (connection_)
-    connection_->supersede();
-  connection_ = &connection;
 
   if (request.password != password_) {
     handler_->login_failure(Login_reject_reason::incorrect_password);
@@ -90,6 +87,10 @@ Port::on_login_request(Tcp_connection& connection,
     return unexpected(
         Login_rejected_packet(Login_rejected_reason::session_not_available));
   }
+
+  if (connection_)
+    connection_->supersede();
+  connection_ = &connection;
 
   if (request.next_sequence_number != 0 &&
       request.next_sequence_number < next_sequence_number_) {
