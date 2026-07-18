@@ -2,6 +2,7 @@
 
 #include "bc/soup/error.h"
 #include "bc/soup/logical_packets.h"
+#include "bc/soup/login_reject.h"
 #include "bc/soup/server/handler.h"
 #include "bc/soup/server/server.h"
 #include "bc/soup/socket.h"
@@ -123,7 +124,7 @@ void Acceptor::stop() {
     connection.close();
 }
 
-expected<Login_accepted_packet, Login_rejected_packet>
+expected<Login_accepted_packet, Login_reject>
 Acceptor::on_login_request(Tcp_connection& connection,
                            const Login_request_packet& request, Port*& port,
                            Port_handler*& port_handler) {
@@ -133,12 +134,10 @@ Acceptor::on_login_request(Tcp_connection& connection,
                      return username == port.username();
                    });
   if (iter == ports_.end()) {
-    handler_->login_failure(Login_reject_reason::user_not_found);
-    return unexpected(
-        Login_rejected_packet(Login_rejected_reason::not_authorized));
+    return unexpected(Login_reject(Login_reject_reason::user_not_found,
+                                   Login_rejected_reason::not_authorized));
   }
-  port = &*iter;
-  return port->on_login_request(connection, request, server_->session(),
+  return iter->on_login_request(connection, request, server_->session(), port,
                                 port_handler);
 }
 

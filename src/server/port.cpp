@@ -1,6 +1,7 @@
 #include "bc/soup/server/port.h"
 
 #include "bc/soup/logical_packets.h"
+#include "bc/soup/login_reject.h"
 #include "bc/soup/rw_packets.h"
 #include "bc/soup/server/handler.h"
 #include "bc/soup/server/message.h"
@@ -71,26 +72,24 @@ bool Port::is_handler_set() const {
   return handler_ != nullptr;
 }
 
-expected<Login_accepted_packet, Login_rejected_packet>
-Port::on_login_request(Tcp_connection& connection,
-                       const Login_request_packet& request,
-                       std::string_view session, Port_handler*& handler) {
-  handler = handler_;
-
+expected<Login_accepted_packet, Login_reject> Port::on_login_request(
+    Tcp_connection& connection, const Login_request_packet& request,
+    std::string_view session, Port*& port, Port_handler*& handler) {
   if (request.password != password_) {
-    handler_->login_failure(Login_reject_reason::incorrect_password);
-    return unexpected(
-        Login_rejected_packet(Login_rejected_reason::not_authorized));
+    return unexpected(Login_reject(Login_reject_reason::incorrect_password,
+                                   Login_rejected_reason::not_authorized));
   }
   if (!request.session.empty() && request.session != session) {
-    handler_->login_failure(Login_reject_reason::session_not_available);
     return unexpected(
-        Login_rejected_packet(Login_rejected_reason::session_not_available));
+        Login_reject(Login_reject_reason::session_not_available,
+                     Login_rejected_reason::session_not_available));
   }
 
   if (connection_)
     connection_->supersede();
   connection_ = &connection;
+  port = this;
+  handler = handler_;
 
   if (request.next_sequence_number != 0 &&
       request.next_sequence_number < next_sequence_number_) {

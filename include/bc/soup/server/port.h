@@ -11,8 +11,8 @@
 
 namespace bc::soup {
 struct Login_accepted_packet;
-struct Login_rejected_packet;
 struct Login_request_packet;
+struct Login_reject;
 class Write_packet;
 } // namespace bc::soup
 
@@ -54,9 +54,9 @@ private:
   // Called by Acceptor
   friend class Acceptor;
   bool is_handler_set() const;
-  [[nodiscard]] expected<Login_accepted_packet, Login_rejected_packet>
+  [[nodiscard]] expected<Login_accepted_packet, Login_reject>
   on_login_request(Tcp_connection&, const Login_request_packet&,
-                   std::string_view, Port_handler*&);
+                   std::string_view, Port*&, Port_handler*&);
   void end_session();
 
   // Called by Tcp_connection

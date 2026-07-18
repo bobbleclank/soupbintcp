@@ -14,6 +14,7 @@ target_sources(bcsoup
       bc/soup/file_store.h
       bc/soup/heartbeat_timer.h
       bc/soup/logical_packets.h
+      bc/soup/login_reject.h
       bc/soup/login_timer.h
       bc/soup/packing.h
       bc/soup/reconnect_timer.h

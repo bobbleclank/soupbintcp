@@ -2,6 +2,7 @@
 
 #include "bc/soup/constants.h"
 #include "bc/soup/logical_packets.h"
+#include "bc/soup/login_reject.h"
 #include "bc/soup/rw_packets.h"
 #include "bc/soup/server/acceptor.h"
 #include "bc/soup/server/handler.h"
@@ -171,7 +172,9 @@ Packet_error Tcp_connection::process_login_request(const void* data,
     // Discard write failure: should not fail since first packet sent
     (void)socket_.async_write(std::move(packet));
   } else {
-    const Login_rejected_packet& response = result.error();
+    const Login_reject& reject = result.error();
+    const Login_rejected_packet& response = reject.packet;
+    acceptor_handler_->login_failure(reject.reason);
     prepare_graceful_disconnect(Disconnect_reason::access_denied);
     Write_packet packet(response.packet_type, response.payload_size);
     write(response, packet.payload_data());

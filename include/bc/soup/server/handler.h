@@ -47,7 +47,6 @@ protected:
 
 class Port_handler {
 public:
-  virtual void login_failure(Login_reject_reason) = 0;
   virtual void login_success(const Login_accepted_packet&) = 0;
 
   virtual void unsequenced_data(const void*, std::size_t) = 0;

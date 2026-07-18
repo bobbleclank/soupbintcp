@@ -17,8 +17,8 @@
 
 namespace bc::soup {
 struct Login_accepted_packet;
-struct Login_rejected_packet;
 struct Login_request_packet;
+struct Login_reject;
 } // namespace bc::soup
 
 namespace bc::soup::server {
@@ -71,7 +71,7 @@ private:
 
   // Called by Tcp_connection
   friend class Tcp_connection;
-  [[nodiscard]] expected<Login_accepted_packet, Login_rejected_packet>
+  [[nodiscard]] expected<Login_accepted_packet, Login_reject>
   on_login_request(Tcp_connection&, const Login_request_packet&, Port*&,
                    Port_handler*&);
   void on_closed(Tcp_connection&, Port_handler*, Disconnect_reason);
