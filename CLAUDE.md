@@ -81,7 +81,7 @@ Hierarchy: `Server` → `Acceptor` → `Port` → `Tcp_connection`
 
 ## Connection takeover (server)
 
-When a `Login_request_packet` arrives for a username with an existing `connection_` set on the matching `Port`, the prior connection is **superseded**: `Port::on_login_request` calls `connection_->supersede()` before reassigning `connection_`. `supersede()` is a sibling of `close()` — both delegate to `disconnect()`, differing only in the `Disconnect_reason` carried.
+When a login **succeeds** for a username with an existing `connection_` set on the matching `Port`, the prior connection is **superseded**: `Port::on_login_request` calls `connection_->supersede()` — after the password/session checks pass — before reassigning `connection_`. A rejected login leaves the existing connection untouched (an invalid login can't knock off the live one). `supersede()` is a sibling of `close()` — both delegate to `disconnect()`, differing only in the `Disconnect_reason` carried.
 
 `Port::on_closed(Tcp_connection&)` is identity-aware: the bumped connection's later drain calls `port_->on_closed(*this)` with the *old* connection, which doesn't match the (now-new) `connection_` and is a no-op. Without the check, the old drain would clobber the new pointer.
 
