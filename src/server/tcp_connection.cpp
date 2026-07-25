@@ -162,6 +162,10 @@ Packet_error Tcp_connection::process_login_request(const void* data,
   const auto result =
       acceptor_->on_login_request(*this, request, port_, handler_);
   if (result) {
+    const auto debug_banner = port_->debug_banner();
+    if (!debug_banner.empty())
+      (void)send_debug_packet(debug_banner);
+
     const Login_accepted_packet& response = *result;
     state_.set_state(State::logged_in);
     handler_->login_success(response);

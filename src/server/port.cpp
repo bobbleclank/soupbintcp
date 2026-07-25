@@ -19,6 +19,10 @@ void Port::set_handler(Port_handler& handler) {
   handler_ = &handler;
 }
 
+void Port::set_debug_banner(std::string_view debug_banner) {
+  debug_banner_ = debug_banner;
+}
+
 void Port::set_next_sequence_number(std::uint64_t next_sequence_number) {
   next_sequence_number_ = next_sequence_number;
 }

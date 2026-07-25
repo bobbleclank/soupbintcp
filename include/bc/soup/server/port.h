@@ -27,6 +27,7 @@ public:
   Port(std::string_view, std::string_view, Port_handler*);
 
   void set_handler(Port_handler&);
+  void set_debug_banner(std::string_view);
 
   void set_next_sequence_number(std::uint64_t);
 
@@ -47,6 +48,7 @@ private:
   std::string password_;
   std::uint64_t next_sequence_number_ = 1;
   bool has_session_ended_ = false;
+  std::string debug_banner_;
   Tcp_connection* connection_ = nullptr;
 
   [[nodiscard]] Write_error send_packet(Write_packet&&);
@@ -61,6 +63,7 @@ private:
 
   // Called by Tcp_connection
   friend class Tcp_connection;
+  std::string_view debug_banner() const { return debug_banner_; }
   void on_closed(Tcp_connection&);
 };
 

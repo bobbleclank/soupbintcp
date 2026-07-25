@@ -31,6 +31,7 @@ class Port final : public soup::server::Port_handler {
 public:
   explicit Port(soup::server::Port* port) : port_(port) {
     port_->set_handler(*this);
+    port_->set_debug_banner("hello from port");
   }
 
   void login_success(const soup::Login_accepted_packet& p) override {
