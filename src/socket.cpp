@@ -83,12 +83,23 @@ Write_error Socket::async_write(Write_packet&& packet) {
   if (closing_)
     return Write_error::disconnected;
   const auto size = write_packets_.size();
-  if (size == write_packets_limit_) {
+  // >= not == since async_write_guaranteed can exceed the limit
+  if (size >= write_packets_limit_) {
     write_buffer_was_full_ = true;
     return Write_error::buffer_full;
   }
   write_packets_.push_back(std::move(packet));
   if (size == 0)
+    write_packet();
+  return Write_error::none;
+}
+
+Write_error Socket::async_write_guaranteed(Write_packet&& packet) {
+  if (closing_)
+    return Write_error::disconnected;
+  const auto empty = write_packets_.empty();
+  write_packets_.push_back(std::move(packet));
+  if (empty)
     write_packet();
   return Write_error::none;
 }

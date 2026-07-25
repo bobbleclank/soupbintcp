@@ -55,8 +55,7 @@ void Tcp_connection::connect_success() {
   socket_.async_read();
   Write_packet packet(request.packet_type, request.payload_size);
   write(request, packet.payload_data());
-  // Discard write failure: should not fail since first packet sent
-  (void)socket_.async_write(std::move(packet));
+  (void)socket_.async_write_guaranteed(std::move(packet));
 }
 
 void Tcp_connection::read_failure(asio::error_code ec) {

@@ -173,8 +173,7 @@ Packet_error Tcp_connection::process_login_request(const void* data,
     heartbeat_timer_.start();
     Write_packet packet(response.packet_type, response.payload_size);
     write(response, packet.payload_data());
-    // Discard write failure: should not fail since first packet sent
-    (void)socket_.async_write(std::move(packet));
+    (void)socket_.async_write_guaranteed(std::move(packet));
     // After the accepted packet is queued: a send from the callback must not
     // precede it (login accepted must be the first non-debug packet)
     handler_->login_success(response);
@@ -185,8 +184,7 @@ Packet_error Tcp_connection::process_login_request(const void* data,
     prepare_graceful_disconnect(Disconnect_reason::access_denied);
     Write_packet packet(response.packet_type, response.payload_size);
     write(response, packet.payload_data());
-    // Discard write failure: should not fail since first packet sent
-    (void)socket_.async_write(std::move(packet));
+    (void)socket_.async_write_guaranteed(std::move(packet));
   }
 
   return Packet_error::none;
