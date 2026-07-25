@@ -168,13 +168,15 @@ Packet_error Tcp_connection::process_login_request(const void* data,
 
     const Login_accepted_packet& response = *result;
     state_.set_state(State::logged_in);
-    handler_->login_success(response);
     heartbeat_timer_stopped_ = false;
     heartbeat_timer_.start();
     Write_packet packet(response.packet_type, response.payload_size);
     write(response, packet.payload_data());
     // Discard write failure: should not fail since first packet sent
     (void)socket_.async_write(std::move(packet));
+    // After the accepted packet is queued: a send from the callback must not
+    // precede it (login accepted must be the first non-debug packet)
+    handler_->login_success(response);
   } else {
     const Login_reject& reject = result.error();
     const Login_rejected_packet& response = reject.packet;
