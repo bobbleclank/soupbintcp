@@ -175,8 +175,8 @@ Packet_error Tcp_connection::process_login_accepted(const void* data,
   login_timer_.stop();
   state_.set_state(State::logged_in);
   const auto reason = connection_->on_login_success(response);
+  handler_->login_success(response);
   if (reason == Disconnect_reason::none) {
-    handler_->login_success(response);
     heartbeat_timer_stopped_ = false;
     heartbeat_timer_.start();
   } else {
