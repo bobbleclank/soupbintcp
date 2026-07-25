@@ -44,6 +44,9 @@ void Tcp_connection::connect_success() {
   const auto local_endpoint = socket_.local_endpoint();
   const auto remote_endpoint = socket_.remote_endpoint();
   handler_->connect_success(local_endpoint, remote_endpoint);
+  const auto debug_banner = connection_->debug_banner();
+  if (!debug_banner.empty())
+    (void)send_debug_packet(debug_banner);
 
   const Login_request_packet request = connection_->on_connect_success();
   handler_->logging_in(request);

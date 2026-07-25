@@ -63,6 +63,10 @@ void Connection::set_handler(Connection_handler& handler) {
   handler_ = &handler;
 }
 
+void Connection::set_debug_banner(std::string_view debug_banner) {
+  debug_banner_ = debug_banner;
+}
+
 std::error_code Connection::set_username(std::string_view username) {
   if (const auto ec = validate_username(username))
     return ec;

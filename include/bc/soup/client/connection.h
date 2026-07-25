@@ -36,6 +36,7 @@ public:
   void reconnect_timer_expired() override;
 
   void set_handler(Connection_handler&);
+  void set_debug_banner(std::string_view);
 
   [[nodiscard]] std::error_code set_username(std::string_view);
   [[nodiscard]] std::error_code set_password(std::string_view);
@@ -69,6 +70,7 @@ private:
   std::string session_;
   std::uint64_t next_sequence_number_ = 1;
   bool has_session_ended_ = false;
+  std::string debug_banner_;
   std::optional<Tcp_connection> connection_;
   Reconnect_timer reconnect_timer_;
   std::chrono::seconds reconnect_next_delay_ = std::chrono::seconds::zero();
@@ -83,6 +85,7 @@ private:
 
   // Called by Tcp_connection
   friend class Tcp_connection;
+  std::string_view debug_banner() const { return debug_banner_; }
   Login_request_packet on_connect_success();
   [[nodiscard]] Disconnect_reason
   on_login_success(const Login_accepted_packet&);

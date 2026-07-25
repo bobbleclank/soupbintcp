@@ -33,6 +33,7 @@ public:
              std::string_view password, std::string_view session)
       : connection_(connection) {
     connection_->set_handler(*this);
+    connection_->set_debug_banner("hello from connection");
     if (const auto ec = connection_->set_username(username))
       throw std::system_error(ec, "set_username");
     if (const auto ec = connection_->set_password(password))
