@@ -73,12 +73,13 @@ public:
   asio::ip::tcp::socket::executor_type get_executor();
 
 private:
+  static constexpr std::size_t default_write_packets_limit = 100;
+
   Handler* handler_ = nullptr;
   asio::ip::tcp::socket socket_;
   Read_packet read_packet_;
   std::list<Write_packet> write_packets_;
-  // NOLINTNEXTLINE(*-avoid-magic-numbers): Default value
-  std::size_t write_packets_limit_ = 100;
+  std::size_t write_packets_limit_ = default_write_packets_limit;
   bool write_buffer_was_full_ = false;
   bool connect_pending_ = false;
   bool read_pending_ = false;
