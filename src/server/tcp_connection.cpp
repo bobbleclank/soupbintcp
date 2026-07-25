@@ -70,8 +70,9 @@ void Tcp_connection::write_failure(asio::error_code ec) {
   handle_transport_error(ec, "socket async_write");
 }
 
-void Tcp_connection::write_success(const Write_packet&) {
-  if (state_.state() == State::disconnecting)
+void Tcp_connection::write_success(const Write_packet& packet) {
+  if (state_.state() == State::disconnecting &&
+      packet.packet_type() == Login_rejected_packet::packet_type)
     disconnect();
 }
 
