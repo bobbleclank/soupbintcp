@@ -120,7 +120,7 @@ void Tcp_connection::heartbeat_timer_error(asio::error_code ec,
 }
 
 void Tcp_connection::heartbeat_send_due() {
-  // Discard write failure: best effort
+  // Discard write failure: fails only when redundant (data queued) or closing
   (void)socket_.async_write(Write_packet(Client_heartbeat_packet::packet_type));
 }
 
