@@ -20,6 +20,6 @@ target_compile_options(bcsouputility
   PRIVATE
     -Wall
     -Wextra
-    -pedantic
+    -Wpedantic
     -Werror
 )

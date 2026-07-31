@@ -20,6 +20,6 @@ target_compile_options(bc_soup_server
   PRIVATE
     -Wall
     -Wextra
-    -pedantic
+    -Wpedantic
     -Werror
 )

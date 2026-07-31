@@ -27,7 +27,7 @@ target_compile_options(test_bcsoup
   PRIVATE
     -Wall
     -Wextra
-    -pedantic
+    -Wpedantic
     -Werror
 )
 

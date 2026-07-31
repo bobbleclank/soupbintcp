@@ -30,6 +30,6 @@ target_compile_options(bcsoup
   PUBLIC
     -Wall
     -Wextra
-    -pedantic
+    -Wpedantic
     -Werror
 )

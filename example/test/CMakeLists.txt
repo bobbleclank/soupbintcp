@@ -20,7 +20,7 @@ target_compile_options(test_bcsouputility
   PRIVATE
     -Wall
     -Wextra
-    -pedantic
+    -Wpedantic
     -Werror
 )
 
