@@ -27,7 +27,7 @@ target_compile_features(bcsoup
     cxx_std_23
 )
 target_compile_options(bcsoup
-  PUBLIC
+  PRIVATE
     -Wall
     -Wextra
     -Wpedantic
