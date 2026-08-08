@@ -13,7 +13,7 @@ target_sources(bcsouputility
       option_error.h
 )
 target_compile_features(bcsouputility
-  PRIVATE
+  PUBLIC
     cxx_std_23
 )
 target_compile_options(bcsouputility
