@@ -12,14 +12,11 @@ target_sources(bcsouputility
       option_convert.h
       option_error.h
 )
+target_link_libraries(bcsouputility
+  PRIVATE
+    bcsoup_warnings
+)
 target_compile_features(bcsouputility
   PUBLIC
     cxx_std_23
-)
-target_compile_options(bcsouputility
-  PRIVATE
-    -Wall
-    -Wextra
-    -Wpedantic
-    -Werror
 )

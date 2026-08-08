@@ -8,6 +8,7 @@ target_sources(test_bcsouputility
 )
 target_link_libraries(test_bcsouputility
   PRIVATE
+    bcsoup_warnings
     bcsouputility
     GTest::gtest_main
     GTest::gtest
@@ -15,13 +16,6 @@ target_link_libraries(test_bcsouputility
 target_compile_features(test_bcsouputility
   PRIVATE
     cxx_std_23
-)
-target_compile_options(test_bcsouputility
-  PRIVATE
-    -Wall
-    -Wextra
-    -Wpedantic
-    -Werror
 )
 
 add_test(

@@ -9,17 +9,11 @@ target_include_directories(bc_soup_client
 )
 target_link_libraries(bc_soup_client
   PRIVATE
+    bcsoup_warnings
     bcsouputility
     bcsoup
 )
 target_compile_features(bc_soup_client
   PRIVATE
     cxx_std_23
-)
-target_compile_options(bc_soup_client
-  PRIVATE
-    -Wall
-    -Wextra
-    -Wpedantic
-    -Werror
 )

@@ -21,6 +21,15 @@ FetchContent_Declare(
 )
 set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
 
+add_library(bcsoup_warnings INTERFACE)
+target_compile_options(bcsoup_warnings
+  INTERFACE
+    -Wall
+    -Wextra
+    -Wpedantic
+    $<BUILD_INTERFACE:-Werror>
+)
+
 add_subdirectory(src)
 add_subdirectory(include)
 
@@ -38,10 +47,12 @@ include(CMakePackageConfigHelpers)
 install(
   TARGETS
     bcsoup
+    bcsoup_warnings
   EXPORT BcSoupTargets
   FILE_SET HEADERS
 )
 add_library(BcSoup::bcsoup ALIAS bcsoup)
+add_library(BcSoup::bcsoup_warnings ALIAS bcsoup_warnings)
 install(
   EXPORT BcSoupTargets
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/BcSoup

@@ -15,6 +15,7 @@ target_sources(test_bcsoup
 )
 target_link_libraries(test_bcsoup
   PRIVATE
+    bcsoup_warnings
     bcsoup
     GTest::gtest_main
     GTest::gtest
@@ -22,13 +23,6 @@ target_link_libraries(test_bcsoup
 target_compile_features(test_bcsoup
   PRIVATE
     cxx_std_23
-)
-target_compile_options(test_bcsoup
-  PRIVATE
-    -Wall
-    -Wextra
-    -Wpedantic
-    -Werror
 )
 
 add_test(

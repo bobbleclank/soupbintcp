@@ -22,14 +22,11 @@ target_sources(bcsoup
     types.cpp
     validate.cpp
 )
+target_link_libraries(bcsoup
+  PRIVATE
+    bcsoup_warnings
+)
 target_compile_features(bcsoup
   PUBLIC
     cxx_std_23
-)
-target_compile_options(bcsoup
-  PRIVATE
-    -Wall
-    -Wextra
-    -Wpedantic
-    -Werror
 )
