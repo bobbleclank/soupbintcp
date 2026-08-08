@@ -33,7 +33,8 @@ Write_error Port::send_message(const void* data, std::size_t size) {
   if (!data)
     return Write_error::null_buffer;
 
-  Write_packet packet(Sequenced_data_packet::packet_type, data, size);
+  Write_packet packet(Sequenced_data_packet::packet_type, data,
+                      static_cast<std::uint16_t>(size));
   const auto error = send_packet(std::move(packet));
   if (error == Write_error::none)
     ++next_sequence_number_;

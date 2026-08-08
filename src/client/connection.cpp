@@ -112,7 +112,8 @@ Write_error Connection::send_message(const void* data, std::size_t size) {
   if (!data)
     return Write_error::null_buffer;
 
-  Write_packet packet(Unsequenced_data_packet::packet_type, data, size);
+  Write_packet packet(Unsequenced_data_packet::packet_type, data,
+                      static_cast<std::uint16_t>(size));
   return send_packet(std::move(packet));
 }
 
