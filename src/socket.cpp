@@ -149,8 +149,7 @@ void Socket::header_received(asio::error_code ec, std::size_t n) {
     return;
   }
   if (n != read_packet_.header_size()) { // Needed? Error code should be set.
-    const asio::error_code ec(ECANCELED, asio::system_category());
-    handler_->read_failure(ec);
+    handler_->read_failure({ECANCELED, asio::system_category()});
     return;
   }
   using Result = Read_packet::Resize_result;
@@ -196,8 +195,7 @@ void Socket::payload_received(asio::error_code ec, std::size_t n) {
     return;
   }
   if (n != read_packet_.payload_size()) { // Needed? Error code should be set.
-    const asio::error_code ec(ECANCELED, asio::system_category());
-    handler_->read_failure(ec);
+    handler_->read_failure({ECANCELED, asio::system_category()});
     return;
   }
   const Read_packet packet(std::move(read_packet_));
@@ -226,8 +224,7 @@ void Socket::packet_sent(asio::error_code ec, std::size_t n) {
   }
   const auto& packet = write_packets_.front();
   if (n != packet.size()) { // Needed? Error code should be set.
-    const asio::error_code ec(ECANCELED, asio::system_category());
-    handler_->write_failure(ec);
+    handler_->write_failure({ECANCELED, asio::system_category()});
     return;
   }
   handler_->write_success(packet);
