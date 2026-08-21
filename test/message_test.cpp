@@ -108,7 +108,7 @@ TYPED_TEST(Message, write_payload_constructor) {
   auto size = sv.size();
   ASSERT_EQ(size, 5u);
 
-  TypeParam m(data, size);
+  TypeParam m(data, static_cast<std::uint16_t>(size));
   assert_non_empty(m, size, size, data);
 }
 
@@ -125,7 +125,7 @@ TYPED_TEST(Message, release_packet) {
     auto size = sv.size();
     ASSERT_EQ(size, 5u);
 
-    TypeParam m(data, size);
+    TypeParam m(data, static_cast<std::uint16_t>(size));
     Write_packet p = m.release_packet();
     assert_empty(m);
     assert_non_empty(p, Packet_type<TypeParam>::value, size, size, data);
@@ -136,7 +136,7 @@ TYPED_TEST(Message, release_packet) {
     auto size = sv.size();
     ASSERT_EQ(size, 5u);
 
-    TypeParam m(data, size);
+    TypeParam m(data, static_cast<std::uint16_t>(size));
     Write_packet p = m.release_packet();
     Write_packet q = m.release_packet();
     (void)p;
@@ -182,7 +182,7 @@ TYPED_TEST(Message, resize_payload) {
     auto size = sv.size();
     ASSERT_EQ(size, 11u);
 
-    TypeParam m(data, size);
+    TypeParam m(data, static_cast<std::uint16_t>(size));
 
     constexpr auto new_size = 5;
     typename TypeParam::Resize_result result = m.resize_payload(new_size);
@@ -196,7 +196,7 @@ TYPED_TEST(Message, resize_payload) {
     ASSERT_EQ(m.payload_capacity(), 11u);
     ASSERT_EQ(m.payload_size(), 0u);
 
-    result = m.resize_payload(size);
+    result = m.resize_payload(static_cast<std::uint16_t>(size));
     ASSERT_EQ(result, TypeParam::Resize_result::resized);
     assert_non_empty(m, size, size, data);
   }
@@ -208,7 +208,7 @@ TYPED_TEST(Message, payload) {
   auto size = sv.size();
   ASSERT_EQ(size, 5u);
 
-  TypeParam m(size);
+  TypeParam m(static_cast<std::uint16_t>(size));
   std::memcpy(m.payload_data(), data, size);
   assert_non_empty(m, size, size, data);
 }
