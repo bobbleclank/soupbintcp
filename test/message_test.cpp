@@ -3,6 +3,7 @@
 
 #include "bc/soup/rw_packets.h"
 
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -33,21 +34,24 @@ void assert_empty(const Write_packet& p, char) {
 }
 
 void assert_non_empty(const Write_packet& p, char packet_type,
-                      std::uint16_t payload_capacity,
-                      std::uint16_t payload_size) {
-  ASSERT_EQ(p.payload_capacity(), payload_capacity);
+                      std::integral auto payload_capacity,
+                      std::integral auto payload_size) {
+  ASSERT_EQ(p.payload_capacity(), static_cast<std::size_t>(payload_capacity));
   ASSERT_NE(p.data(), nullptr);
-  ASSERT_EQ(p.packet_size(), 1u + payload_size);
+  ASSERT_EQ(p.packet_size(), static_cast<std::uint16_t>(1 + payload_size));
   ASSERT_EQ(p.packet_type(), packet_type);
-  ASSERT_EQ(p.payload_size(), payload_size);
-  ASSERT_EQ(p.size(), 3u + payload_size);
+  ASSERT_EQ(p.payload_size(), static_cast<std::size_t>(payload_size));
+  ASSERT_EQ(p.size(), static_cast<std::size_t>(3 + payload_size));
 }
 
 void assert_non_empty(const Write_packet& p, char packet_type,
-                      std::uint16_t payload_capacity,
-                      std::uint16_t payload_size, const void* payload_data) {
+                      std::integral auto payload_capacity,
+                      std::integral auto payload_size,
+                      const void* payload_data) {
   assert_non_empty(p, packet_type, payload_capacity, payload_size);
-  ASSERT_EQ(std::memcmp(p.payload_data(), payload_data, payload_size), 0);
+  ASSERT_EQ(std::memcmp(p.payload_data(), payload_data,
+                        static_cast<std::size_t>(payload_size)),
+            0);
 }
 
 template <typename Message>
@@ -58,20 +62,23 @@ void assert_empty(Message& m) {
 }
 
 template <typename Message>
-void assert_non_empty(Message& m, std::uint16_t payload_capacity,
-                      std::uint16_t payload_size) {
-  ASSERT_EQ(m.payload_capacity(), payload_capacity);
-  ASSERT_EQ(m.payload_size(), payload_size);
+void assert_non_empty(Message& m, std::integral auto payload_capacity,
+                      std::integral auto payload_size) {
+  ASSERT_EQ(m.payload_capacity(), static_cast<std::size_t>(payload_capacity));
+  ASSERT_EQ(m.payload_size(), static_cast<std::size_t>(payload_size));
   Write_packet p = m.release_packet();
   assert_non_empty(p, Packet_type<Message>::value, payload_capacity,
                    payload_size);
 }
 template <typename Message>
-void assert_non_empty(Message& m, std::uint16_t payload_capacity,
-                      std::uint16_t payload_size, const void* payload_data) {
-  ASSERT_EQ(m.payload_capacity(), payload_capacity);
-  ASSERT_EQ(m.payload_size(), payload_size);
-  ASSERT_EQ(std::memcmp(m.payload_data(), payload_data, payload_size), 0);
+void assert_non_empty(Message& m, std::integral auto payload_capacity,
+                      std::integral auto payload_size,
+                      const void* payload_data) {
+  ASSERT_EQ(m.payload_capacity(), static_cast<std::size_t>(payload_capacity));
+  ASSERT_EQ(m.payload_size(), static_cast<std::size_t>(payload_size));
+  ASSERT_EQ(std::memcmp(m.payload_data(), payload_data,
+                        static_cast<std::size_t>(payload_size)),
+            0);
   Write_packet p = m.release_packet();
   assert_non_empty(p, Packet_type<Message>::value, payload_capacity,
                    payload_size, payload_data);
