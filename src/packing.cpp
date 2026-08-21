@@ -20,7 +20,7 @@ void pack_alphanumeric_right_padded(std::string_view str, void* data) {
     str.remove_suffix(str.size() - s.size());
   const auto iter =
       std::ranges::find_if_not(str, [](auto c) { return std::isalnum(c); });
-  str.remove_suffix(str.end() - iter);
+  str.remove_suffix(static_cast<std::size_t>(str.end() - iter));
   const auto pad = s.last(s.size() - str.size());
   std::ranges::copy(str, s.begin());
   std::ranges::fill(pad, ' ');
@@ -31,7 +31,7 @@ void unpack_alphanumeric_right_padded(std::string& str, const void* data) {
   const std::span<const char, length> s(static_cast<const char*>(data), length);
   const auto iter =
       std::ranges::find_if_not(s, [](auto c) { return std::isalnum(c); });
-  const auto sub = s.first(iter - s.begin());
+  const auto sub = s.first(static_cast<std::size_t>(iter - s.begin()));
   str.insert_range(str.begin(), sub);
 }
 
@@ -64,7 +64,7 @@ void pack_alphanumeric_left_padded(std::string_view str, void* data) {
     str.remove_suffix(str.size() - s.size());
   const auto iter = std::ranges::find_if_not(
       str.rbegin(), str.rend(), [](auto c) { return std::isalnum(c); });
-  str.remove_prefix(str.rend() - iter);
+  str.remove_prefix(static_cast<std::size_t>(str.rend() - iter));
   const auto pad = s.first(s.size() - str.size());
   const auto sub = s.last(str.size());
   std::ranges::fill(pad, ' ');
@@ -76,7 +76,7 @@ void unpack_alphanumeric_left_padded(std::string& str, const void* data) {
   const std::span<const char, length> s(static_cast<const char*>(data), length);
   const auto iter = std::ranges::find_if_not(
       s.rbegin(), s.rend(), [](auto c) { return std::isalnum(c); });
-  const auto sub = s.last(iter - s.rbegin());
+  const auto sub = s.last(static_cast<std::size_t>(iter - s.rbegin()));
   str.insert_range(str.begin(), sub);
 }
 
@@ -108,7 +108,7 @@ void pack_numeric(Integral i, void* data) {
     if (i == 0)
       break;
   }
-  const auto pad = s.first(iter - s.begin());
+  const auto pad = s.first(static_cast<std::size_t>(iter - s.begin()));
   std::ranges::fill(pad, ' ');
 }
 
@@ -119,7 +119,7 @@ void unpack_numeric(Integral& i, const void* data) {
   const std::span<const char, length> s(static_cast<const char*>(data), length);
   const auto iter = std::ranges::find_if_not(
       s.rbegin(), s.rend(), [](auto c) { return std::isdigit(c); });
-  const auto sub = s.last(iter - s.rbegin());
+  const auto sub = s.last(static_cast<std::size_t>(iter - s.rbegin()));
   i = 0;
   for (const char c : sub) {
     i *= base;
