@@ -1,5 +1,6 @@
 #include "bc/soup/rw_packets.h"
 
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -181,26 +182,27 @@ TEST(Buffer, subscript_operator) {
 
 namespace {
 
-void write_header(Read_packet& p, std::uint16_t packet_size, char packet_type) {
+void write_header(Read_packet& p, std::integral auto size, char packet_type) {
   auto* ptr = static_cast<unsigned char*>(p.header_data());
+  auto packet_size = static_cast<std::uint16_t>(size);
   packet_size = htons(packet_size);
   std::memcpy(ptr, &packet_size, sizeof(packet_size));
   // NOLINTNEXTLINE(*-pro-bounds-pointer-arithmetic): Packet type location
   std::memcpy(ptr + sizeof(packet_size), &packet_type, sizeof(packet_type));
 }
 
-void write_payload(Read_packet& p, char packet_type, std::uint16_t payload_size,
-                   const void* payload_data) {
-  write_header(p, 1u + payload_size, packet_type);
+void write_payload(Read_packet& p, char packet_type,
+                   std::integral auto payload_size, const void* payload_data) {
+  write_header(p, 1 + payload_size, packet_type);
   (void)p.resize_payload();
   std::memcpy(p.payload_data(), payload_data, p.payload_size());
 }
 
 // NOLINTBEGIN(clang-analyzer-cplusplus.Move)
 
-void assert_empty(const Read_packet& p, std::uint16_t packet_size,
+void assert_empty(const Read_packet& p, std::integral auto packet_size,
                   char packet_type) {
-  ASSERT_EQ(p.packet_size(), packet_size);
+  ASSERT_EQ(p.packet_size(), static_cast<std::uint16_t>(packet_size));
   ASSERT_EQ(p.packet_type(), packet_type);
   ASSERT_EQ(p.payload_data(), nullptr);
   ASSERT_EQ(p.payload_size(), 0u);
@@ -213,17 +215,20 @@ void assert_empty(const Read_packet& p) {
 // NOLINTEND(clang-analyzer-cplusplus.Move)
 
 void assert_non_empty(const Read_packet& p, char packet_type,
-                      std::uint16_t payload_size) {
-  ASSERT_EQ(p.packet_size(), 1u + payload_size);
+                      std::integral auto payload_size) {
+  ASSERT_EQ(p.packet_size(), static_cast<std::uint16_t>(1 + payload_size));
   ASSERT_EQ(p.packet_type(), packet_type);
   ASSERT_NE(p.payload_data(), nullptr);
-  ASSERT_EQ(p.payload_size(), payload_size);
+  ASSERT_EQ(p.payload_size(), static_cast<std::size_t>(payload_size));
 }
 
 void assert_non_empty(const Read_packet& p, char packet_type,
-                      std::uint16_t payload_size, const void* payload_data) {
+                      std::integral auto payload_size,
+                      const void* payload_data) {
   assert_non_empty(p, packet_type, payload_size);
-  ASSERT_EQ(std::memcmp(p.payload_data(), payload_data, payload_size), 0);
+  ASSERT_EQ(std::memcmp(p.payload_data(), payload_data,
+                        static_cast<std::size_t>(payload_size)),
+            0);
 }
 
 } // namespace
@@ -385,21 +390,24 @@ void assert_empty(const Write_packet& p) {
 // NOLINTEND(clang-analyzer-cplusplus.Move)
 
 void assert_non_empty(const Write_packet& p, char packet_type,
-                      std::uint16_t payload_capacity,
-                      std::uint16_t payload_size) {
-  ASSERT_EQ(p.payload_capacity(), payload_capacity);
+                      std::integral auto payload_capacity,
+                      std::integral auto payload_size) {
+  ASSERT_EQ(p.payload_capacity(), static_cast<std::size_t>(payload_capacity));
   ASSERT_NE(p.data(), nullptr);
-  ASSERT_EQ(p.packet_size(), 1u + payload_size);
+  ASSERT_EQ(p.packet_size(), static_cast<std::uint16_t>(1 + payload_size));
   ASSERT_EQ(p.packet_type(), packet_type);
-  ASSERT_EQ(p.payload_size(), payload_size);
-  ASSERT_EQ(p.size(), 3u + payload_size);
+  ASSERT_EQ(p.payload_size(), static_cast<std::size_t>(payload_size));
+  ASSERT_EQ(p.size(), static_cast<std::size_t>(3 + payload_size));
 }
 
 void assert_non_empty(const Write_packet& p, char packet_type,
-                      std::uint16_t payload_capacity,
-                      std::uint16_t payload_size, const void* payload_data) {
+                      std::integral auto payload_capacity,
+                      std::integral auto payload_size,
+                      const void* payload_data) {
   assert_non_empty(p, packet_type, payload_capacity, payload_size);
-  ASSERT_EQ(std::memcmp(p.payload_data(), payload_data, payload_size), 0);
+  ASSERT_EQ(std::memcmp(p.payload_data(), payload_data,
+                        static_cast<std::size_t>(payload_size)),
+            0);
 }
 
 } // namespace
