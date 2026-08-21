@@ -123,7 +123,7 @@ void unpack_numeric(Integral& i, const void* data) {
   i = 0;
   for (const char c : sub) {
     i *= base;
-    i += c - '0';
+    i += static_cast<Integral>(c - '0');
   }
 }
 
