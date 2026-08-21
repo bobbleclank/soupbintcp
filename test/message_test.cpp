@@ -70,6 +70,7 @@ void assert_non_empty(Message& m, std::integral auto payload_capacity,
   assert_non_empty(p, Packet_type<Message>::value, payload_capacity,
                    payload_size);
 }
+
 template <typename Message>
 void assert_non_empty(Message& m, std::integral auto payload_capacity,
                       std::integral auto payload_size,
