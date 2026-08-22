@@ -16,9 +16,9 @@ template <typename Integral,
 void pack(Integral i, void* data) {
   static_assert(sizeof(i) == 1 || sizeof(i) == 2 || sizeof(i) == 4);
   if constexpr (sizeof(i) == 2)
-    i = htons(i);
+    i = static_cast<Integral>(htons(static_cast<std::uint16_t>(i)));
   else if constexpr (sizeof(i) == 4)
-    i = htonl(i);
+    i = static_cast<Integral>(htonl(static_cast<std::uint32_t>(i)));
   std::memcpy(data, &i, sizeof(i));
 }
 
@@ -28,9 +28,9 @@ void unpack(Integral& i, const void* data) {
   static_assert(sizeof(i) == 1 || sizeof(i) == 2 || sizeof(i) == 4);
   std::memcpy(&i, data, sizeof(i));
   if constexpr (sizeof(i) == 2)
-    i = ntohs(i);
+    i = static_cast<Integral>(ntohs(static_cast<std::uint16_t>(i)));
   else if constexpr (sizeof(i) == 4)
-    i = ntohl(i);
+    i = static_cast<Integral>(ntohl(static_cast<std::uint32_t>(i)));
 }
 
 template <typename Enum, std::enable_if_t<std::is_enum_v<Enum>, bool> = true>
