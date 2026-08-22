@@ -58,7 +58,6 @@ Write_error Port::send_message(Message&& message) {
 Write_error Port::send_debug(std::string_view text) {
   if (!connection_)
     return Write_error::disconnected;
-
   return connection_->send_debug_packet(text);
 }
 
@@ -67,7 +66,6 @@ Write_error Port::send_packet(Write_packet&& packet) {
     return Write_error::session_ended;
   if (!connection_)
     return Write_error::disconnected;
-
   return connection_->send_packet(std::move(packet));
 }
 
