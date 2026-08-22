@@ -29,6 +29,7 @@ enum class Write_error {
   none = 0,
   empty_buffer,
   null_buffer,
+  buffer_too_big,
   session_ended,
   disconnected,
   not_logged_in,

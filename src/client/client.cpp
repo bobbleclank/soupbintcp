@@ -2,6 +2,7 @@
 
 #include "bc/soup/client/handler.h"
 #include "bc/soup/client/message.h"
+#include "bc/soup/constants.h"
 #include "bc/soup/error.h"
 #include "bc/soup/logical_packets.h"
 #include "bc/soup/rw_packets.h"
@@ -79,6 +80,8 @@ Write_error Client::send_message(const void* data, std::size_t size) {
     return Write_error::empty_buffer;
   if (!data)
     return Write_error::null_buffer;
+  if (size > max_payload_size)
+    return Write_error::buffer_too_big;
 
   Write_packet packet(Unsequenced_data_packet::packet_type, data,
                       static_cast<std::uint16_t>(size));
@@ -91,6 +94,8 @@ Write_error Client::send_message(Message&& message) {
     return Write_error::empty_buffer;
   if (!message.payload_data())
     return Write_error::null_buffer;
+  if (message.payload_size() > max_payload_size)
+    return Write_error::buffer_too_big;
 
   auto packet = message.release_packet();
   return send_packet(std::move(packet));

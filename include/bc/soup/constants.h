@@ -4,6 +4,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 
 namespace bc::soup {
 
@@ -11,6 +12,9 @@ constexpr std::size_t packet_size_length = sizeof(std::uint16_t);
 constexpr std::size_t packet_type_length = sizeof(char);
 constexpr std::size_t packet_header_length =
     packet_size_length + packet_type_length;
+
+constexpr std::size_t max_payload_size =
+    std::numeric_limits<std::uint16_t>::max() - packet_type_length;
 
 constexpr std::size_t username_length = 6;
 constexpr std::size_t password_length = 10;

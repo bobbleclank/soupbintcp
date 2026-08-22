@@ -46,6 +46,8 @@ const char* to_string(Write_error error) {
     return "empty buffer";
   case Write_error::null_buffer:
     return "null buffer";
+  case Write_error::buffer_too_big:
+    return "buffer too big";
   case Write_error::session_ended:
     return "session ended";
   case Write_error::disconnected:
