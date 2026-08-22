@@ -9,12 +9,12 @@
 using namespace bc::soup;
 
 TEST(validate, validate_username) {
-  constexpr int max_input_len = 20;
-  constexpr int max_valid_len = 6;
+  constexpr unsigned int max_input_len = 20;
+  constexpr unsigned int max_valid_len = 6;
 
   ASSERT_FALSE(validate_username(""));
 
-  for (int i = 1; i != max_input_len + 1; ++i) {
+  for (unsigned int i = 1; i != max_input_len + 1; ++i) {
     auto ec = validate_username(std::string(i, 'a'));
     if (i <= max_valid_len)
       ASSERT_FALSE(ec);
@@ -22,7 +22,7 @@ TEST(validate, validate_username) {
       ASSERT_EQ(ec, Error::username_too_long);
   }
 
-  for (int i = 1; i != max_input_len + 1; ++i) {
+  for (unsigned int i = 1; i != max_input_len + 1; ++i) {
     auto ec = validate_username(std::string(i, '1'));
     if (i <= max_valid_len)
       ASSERT_FALSE(ec);
@@ -35,12 +35,12 @@ TEST(validate, validate_username) {
 }
 
 TEST(validate, validate_password) {
-  constexpr int max_input_len = 20;
-  constexpr int max_valid_len = 10;
+  constexpr unsigned int max_input_len = 20;
+  constexpr unsigned int max_valid_len = 10;
 
   ASSERT_FALSE(validate_password(""));
 
-  for (int i = 1; i != max_input_len + 1; ++i) {
+  for (unsigned int i = 1; i != max_input_len + 1; ++i) {
     auto ec = validate_password(std::string(i, 'a'));
     if (i <= max_valid_len)
       ASSERT_FALSE(ec);
@@ -48,7 +48,7 @@ TEST(validate, validate_password) {
       ASSERT_EQ(ec, Error::password_too_long);
   }
 
-  for (int i = 1; i != max_input_len + 1; ++i) {
+  for (unsigned int i = 1; i != max_input_len + 1; ++i) {
     auto ec = validate_password(std::string(i, '1'));
     if (i <= max_valid_len)
       ASSERT_FALSE(ec);
@@ -61,12 +61,12 @@ TEST(validate, validate_password) {
 }
 
 TEST(validate, validate_session) {
-  constexpr int max_input_len = 20;
-  constexpr int max_valid_len = 10;
+  constexpr unsigned int max_input_len = 20;
+  constexpr unsigned int max_valid_len = 10;
 
   ASSERT_FALSE(validate_session(""));
 
-  for (int i = 1; i != max_input_len + 1; ++i) {
+  for (unsigned int i = 1; i != max_input_len + 1; ++i) {
     auto ec = validate_session(std::string(i, 'a'));
     if (i <= max_valid_len)
       ASSERT_FALSE(ec);
@@ -74,7 +74,7 @@ TEST(validate, validate_session) {
       ASSERT_EQ(ec, Error::session_too_long);
   }
 
-  for (int i = 1; i != max_input_len + 1; ++i) {
+  for (unsigned int i = 1; i != max_input_len + 1; ++i) {
     auto ec = validate_session(std::string(i, '1'));
     if (i <= max_valid_len)
       ASSERT_FALSE(ec);
