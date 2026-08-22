@@ -3,6 +3,17 @@ target_compile_options(bcsoup_warnings
   INTERFACE
     -Wall
     -Wextra
+    -Wshadow
+    -Wnon-virtual-dtor
+    -Wold-style-cast
+    -Wcast-align
+    -Wunused
+    -Woverloaded-virtual
     -Wpedantic
+    -Wconversion
+    -Wnull-dereference
+    -Wdouble-promotion
+    -Wformat=2
+    -Wimplicit-fallthrough
     $<BUILD_INTERFACE:-Werror>
 )
