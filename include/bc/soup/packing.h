@@ -32,16 +32,21 @@ void unpack(Integral& i, const void* data) {
     i = static_cast<Integral>(ntohl(static_cast<std::uint32_t>(i)));
 }
 
-template <typename Enum>
-  requires std::is_enum_v<Enum>
+namespace detail {
+
+template <typename T>
+concept Enumeration = std::is_enum_v<T>;
+
+}
+
+template <detail::Enumeration Enum>
 void pack(Enum e, void* data) {
   using T = std::underlying_type_t<Enum>;
   const auto t = static_cast<T>(e);
   pack(t, data);
 }
 
-template <typename Enum>
-  requires std::is_enum_v<Enum>
+template <detail::Enumeration Enum>
 void unpack(Enum& e, const void* data) {
   using T = std::underlying_type_t<Enum>;
   T t = 0;
