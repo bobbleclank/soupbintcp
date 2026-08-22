@@ -34,8 +34,7 @@ void Acceptor::accept_success(asio::ip::tcp::socket&& s) {
   handler_->accept_success(local_endpoint, remote_endpoint);
   auto& connection = connections_.emplace_back(
       acceptor_.get_executor(), std::move(socket), *this, *handler_);
-  if (!debug_banner_.empty())
-    (void)connection.send_debug_packet(debug_banner_);
+  (void)connection.send_debug_packet(debug_banner_);
   acceptor_.async_accept();
 }
 

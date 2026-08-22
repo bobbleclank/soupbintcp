@@ -46,8 +46,7 @@ void Tcp_connection::connect_success() {
   const auto remote_endpoint = socket_.remote_endpoint();
   handler_->connect_success(local_endpoint, remote_endpoint);
   const auto debug_banner = connection_->debug_banner();
-  if (!debug_banner.empty())
-    (void)send_debug_packet(debug_banner);
+  (void)send_debug_packet(debug_banner);
 
   const Login_request_packet request = connection_->on_connect_success();
   handler_->logging_in(request);
@@ -290,6 +289,9 @@ Write_error Tcp_connection::send_packet(Write_packet&& packet) {
 }
 
 Write_error Tcp_connection::send_debug_packet(std::string_view text) {
+  if (text.empty())
+    return Write_error::empty_buffer;
+
   if (state_.state() == State::connecting || state_.is_closing())
     return Write_error::disconnected;
   return socket_.async_write(

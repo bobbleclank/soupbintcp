@@ -137,8 +137,6 @@ Write_error Connection::send_logout_request() {
 }
 
 Write_error Connection::send_debug(std::string_view text) {
-  if (text.empty())
-    return Write_error::empty_buffer;
   if (!connection_)
     return Write_error::disconnected;
 
