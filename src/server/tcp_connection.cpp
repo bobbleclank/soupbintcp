@@ -248,6 +248,10 @@ void Tcp_connection::disconnect(Disconnect_reason reason) {
   heartbeat_timer_.stop();
 }
 
+void Tcp_connection::prepare_graceful_disconnect(Disconnect_reason reason) {
+  state_.initiate_disconnect(reason);
+}
+
 void Tcp_connection::maybe_signal_closed() {
   if (!socket_closed_ || !login_timer_stopped_ || !heartbeat_timer_stopped_)
     return;
@@ -256,10 +260,6 @@ void Tcp_connection::maybe_signal_closed() {
   // on_closed destroys *this — the owner drops it here
   acceptor_->on_closed(*this, handler_, state_.reason());
   // Do not add any statements; on_closed must be last
-}
-
-void Tcp_connection::prepare_graceful_disconnect(Disconnect_reason reason) {
-  state_.initiate_disconnect(reason);
 }
 
 void Tcp_connection::close() {
