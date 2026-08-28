@@ -135,8 +135,7 @@ Write_error Connection::send_message(Message&& message) {
 Write_error Connection::send_logout_request() {
   if (!connection_)
     return Write_error::disconnected;
-  return connection_->send_packet(
-      Write_packet(Logout_request_packet::packet_type));
+  return connection_->send_logout_request_packet();
 }
 
 Write_error Connection::send_debug(std::string_view text) {

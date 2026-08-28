@@ -6,6 +6,7 @@
 #include "bc/soup/logical_packets.h"
 #include "bc/soup/rw_packets.h"
 
+#include <cassert>
 #include <cstdint>
 #include <utility>
 
@@ -89,7 +90,11 @@ void Tcp_connection::write_failure(asio::error_code ec) {
   handle_transport_error(ec, "socket async_write");
 }
 
-void Tcp_connection::write_success(const Write_packet&) {}
+void Tcp_connection::write_success(const Write_packet& packet) {
+  if (state_.state() == State::disconnecting &&
+      packet.packet_type() == Logout_request_packet::packet_type)
+    disconnect();
+}
 
 void Tcp_connection::write_buffer_empty() {
   handler_->write_buffer_empty();
@@ -269,12 +274,28 @@ void Tcp_connection::disconnect(Disconnect_reason reason) {
   heartbeat_timer_.stop();
 }
 
+void Tcp_connection::prepare_graceful_disconnect(Disconnect_reason reason) {
+  state_.initiate_disconnect(reason);
+}
+
 void Tcp_connection::maybe_signal_closed() {
   if (!socket_closed_ || !login_timer_stopped_ || !heartbeat_timer_stopped_)
     return;
   // on_closed destroys *this — the owner drops it here
   connection_->on_closed(state_.reason());
   // Do not add any statements; on_closed must be last
+}
+
+Write_error Tcp_connection::send_logout_request_packet() {
+  if (state_.state() != State::logged_in)
+    return Write_error::not_logged_in;
+  prepare_graceful_disconnect(Disconnect_reason::logout_request);
+  const auto error = socket_.async_write_guaranteed(
+      Write_packet(Logout_request_packet::packet_type));
+  assert(error == Write_error::none);
+  if (error != Write_error::none)
+    disconnect();
+  return error;
 }
 
 Write_error Tcp_connection::send_packet(Write_packet&& packet) {
