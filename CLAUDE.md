@@ -66,6 +66,16 @@ Hierarchy: `Server` → `Acceptor` → `Port` → `Tcp_connection`
 - `Write_packet` copy constructor is deleted to prevent accidental copies. The named `clone()` helper performs the explicit copy needed when sending to multiple connections — `Write_packet::clone` delegates to `Buffer::clone`, a faithful single-`memcpy` duplicate of the full backing buffer (header, payload, and any spare capacity). Fidelity lives on `Buffer`, where the `null ⟹ size 0` invariant is, keeping `Write_packet::clone` a trivial correct-by-construction delegation; `Buffer` likewise deletes its copy constructor, with `clone()` as its named explicit-copy sibling. A shrink-to-fit `trim` is left as a separate operation if ever needed, called before `clone`.
 - `Client` dispatches to `send_one`, `send_two`, or `send_multiple` based on connection count. `send_one` and `send_two` are fast paths for the common cases (1 or 2 redundant connections).
 
+## Send argument validation
+
+Every send entry point validates its arguments before constructing a packet, in a fixed order: **empty, then null, then too big**. `send_message` runs all three; `send_debug` takes a `std::string_view` and so has no null check.
+
+- **Argument validation sits where the packet is constructed.** `Client`/`Connection`/`Port::send_message` and `Tcp_connection::send_debug_packet` each build their own `Write_packet`, and validate before doing so.
+- **Zero-length data messages are unsupported.** The protocol sets no minimum Packet Length, but describes a data packet as an *envelope* that "carries a single higher-level protocol message". An empty payload carries no message, so there is nothing to envelop — `send_message` rejects it rather than putting an empty envelope on the wire, which is why `empty_buffer` exists.
+- **The protocol does not define a maximum payload length.** The `max_payload_size` ceiling is structural, not normative: 65534 is simply the largest payload the Two Byte Packet Length can express alongside the Packet Type byte. `buffer_too_big` enforces it.
+- **`empty_buffer` precedes `null_buffer`** so each name denotes an exact set. A buffer is valid as `(null, 0)`, `(non-null, 0)` or `(non-null, non-0)`; only `(null, non-0)` is malformed. Checking size first makes `empty_buffer` mean "nothing to send" — both spellings — and leaves `null_buffer` for the malformed case alone.
+- **`buffer_too_big` goes last, after the null check** — a claim about the buffer, so the pointer must be checked first.
+
 ## Send logout request (client)
 
 - Two layers. `Connection::send_logout_request` checks `connection_` then delegates to `Tcp_connection::send_packet` — the single state-gated entry point for fire-and-forget protocol packets. `Client::send_logout_request` iterates all connections. (Server-side `Port::end_session` follows the same shape for `End_of_session_packet`.)
