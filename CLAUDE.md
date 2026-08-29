@@ -164,7 +164,7 @@ A static, library-owned debug greeting, set per config-level object and sent aut
 The login packets — client `login_request`, server `login_accepted`/`login_rejected` — must reach the wire even when the send queue is full, which a plain `async_write` can't promise: a write queued ahead (a debug banner, or a client `send_debug`) fills the queue, and the login packet then hits `buffer_full` and is dropped — the preceding write goes out fine; the login packet is the casualty. Two mechanisms prevent that:
 
 - **Guaranteed send.** The must-deliver login packet sends use `Socket::async_write_guaranteed`, which bypasses `write_packets_limit_` and always queues — so a full queue can never drop a login packet at `buffer_full`. The queue can then exceed its limit by one — only one login packet per handshake.
-- **Graceful-reject drain.** A rejected login queues `login_rejected` then `prepare_graceful_disconnect` (state → `disconnecting`); the close must wait for the reject to flush. `write_success` closes only on the reject's completion. If the reject write itself fails, `write_failure` → `disconnect()` still fires — no hang.
+- **Graceful-reject drain.** A rejected login calls `prepare_graceful_disconnect` (state → `disconnecting`) then queues `login_rejected`; the close must wait for the reject to flush. `write_success` closes only on the reject's completion. If the reject write itself fails, `write_failure` → `disconnect()` still fires — no hang.
 
 ## Drain coordination
 
