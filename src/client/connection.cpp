@@ -156,8 +156,6 @@ void Connection::schedule_reconnect() {
 }
 
 Write_error Connection::send_packet(Write_packet&& packet) {
-  if (has_session_ended_)
-    return Write_error::session_ended;
   if (!connection_)
     return Write_error::disconnected;
   return connection_->send_packet(std::move(packet));
@@ -202,9 +200,6 @@ void Connection::on_sequenced_data(const void* data, std::size_t size) {
 }
 
 void Connection::on_end_of_session() {
-  if (has_session_ended_)
-    return;
-  has_session_ended_ = true;
   client_->on_end_of_session();
 }
 

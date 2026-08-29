@@ -49,7 +49,6 @@ public:
   std::string_view session() const { return session_; }
 
   std::uint64_t next_sequence_number() const { return next_sequence_number_; }
-  bool has_session_ended() const { return has_session_ended_; }
 
   void connect();
   void close();
@@ -69,7 +68,6 @@ private:
   std::string password_;
   std::string session_;
   std::uint64_t next_sequence_number_ = 1;
-  bool has_session_ended_ = false;
   std::string debug_banner_;
   std::optional<Tcp_connection> connection_;
   Reconnect_timer reconnect_timer_;

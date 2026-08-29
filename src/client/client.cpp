@@ -123,9 +123,6 @@ Client::add_connection(const asio::ip::tcp::endpoint& endpoint,
 }
 
 Write_error Client::send_packet(Write_packet&& packet) {
-  if (has_session_ended_)
-    return Write_error::session_ended;
-
   if (connections_.size() == 1)
     return send_one(std::move(packet));
   if (connections_.size() == 2)
