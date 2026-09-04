@@ -87,7 +87,7 @@ Every send entry point validates its arguments before constructing a packet, in 
 ## Process logout request (server)
 
 - `Tcp_connection::process_logout_request` validates payload size and `logged_in` state, fires `handler_->logout_request()`, then `disconnect(Disconnect_reason::logout_request)`.
-- No `has_session_ended()` guard on the logout notification — logout is real intent during the post-session-end tail (replay, pre-shutdown). Differs from `process_unsequenced_data` which suppresses delivery after session end.
+- No `has_session_ended()` guard on the logout notification — logout is real intent during the post-session-end tail. Differs from `process_unsequenced_data` which suppresses delivery after session end.
 - User sees two notifications per logout: `logout_request()` at packet receipt, then the disconnect callback with `Disconnect_reason::logout_request` from the closed cascade.
 
 ## End of session (client)
@@ -95,6 +95,13 @@ Every send entry point validates its arguments before constructing a packet, in 
 - Receiving `End_of_session_packet` fires `Client::on_end_of_session()` once; `Client::has_session_ended()` exposes the same fact for later query. The callback is the edge, the access function the level.
 - **The library does not act on it.** Sends are not refused, and sequenced data arriving after the marker is delivered normally. What a server does after End of Session is the server's business; the client reports and leaves the decision to the user.
 - Session end is tracked only on `Client`, never per-connection. A client cannot be sure it received the marker — one that dropped beforehand never will, since it is sent once and not re-sent on later logins — and with redundant connections some may hold it while others don't. Gating on it would let identical calls behave differently depending on which connection happened to see the announcement.
+
+## End of session (server)
+
+- `Server::end_session()` sends `End_of_session_packet` to the attached connection of each port and sets `Port::has_session_ended_`. It does not close — `Server::stop()` is the hard stop, and the gap between them is a tail in which an already-connected client receives nothing.
+- **The replay window precedes `end_session()`.** `Port::send_packet()` returns `Write_error::session_ended` once `has_session_ended_` is set, which is never cleared, so nothing can be sent afterwards. The gap between the last new message and the `end_session()` call is the only chance for a client that dropped to reconnect and collect the messages it missed; call `end_session()` immediately after the last new message and they are lost to it.
+- **Logins are rejected after End of Session** — `Login_reject_reason::session_ended`, carried as `session_not_available` on the wire, which the protocol's own gloss covers: "either invalid or not available". Checked after the password, so an unauthenticated client cannot probe session state, and before the session match, since once the session has ended no requested session would be accepted either.
+- Together with sends being blocked, that makes both halves of the protocol's sentence hold: "The connection will be closed shortly after this packet, **and** the user will no longer be able to reconnect to the current session." There is no replay window after End of Session; a server must leave one before it.
 
 ## Connection takeover (server)
 
