@@ -38,7 +38,7 @@ example/                  - example client and server programs
 Hierarchy: `Client` → `Connection` → `Tcp_connection`
 
 - `Client` — owns a list of `Connection` objects. Designed for **one logical connection with redundant physical connections** — multiple connections exist for redundancy, not for independent sessions. Packets already received by one connection are dropped by others. If multiple independent sessions are needed, users create multiple `Client` instances.
-- `Connection` — represents one physical TCP connection. Holds credentials (username, password, session), state flags (e.g. `has_session_ended_`), owns a `Tcp_connection`, and drives automatic reconnect via a `Reconnect_timer` member (inherits `Reconnect_timer::Handler`). Sits between `Client` and `Tcp_connection` in the call chain.
+- `Connection` — represents one physical TCP connection. Holds credentials (username, password, session), its own `next_sequence_number_`, owns a `Tcp_connection`, and drives automatic reconnect via a `Reconnect_timer` member (inherits `Reconnect_timer::Handler`). Sits between `Client` and `Tcp_connection` in the call chain.
 - `Tcp_connection` — handles raw packet I/O, processes login/data packets, delegates up through `Connection` to `Client`.
 - `Client_handler` — all callbacks pure virtual; user must implement all.
 
@@ -78,8 +78,7 @@ Every send entry point validates its arguments before constructing a packet, in 
 
 ## Send logout request (client)
 
-- Two layers. `Connection::send_logout_request` checks `connection_` then delegates to `Tcp_connection::send_logout_request_packet`. `Client::send_logout_request` iterates all connections.
-- No `has_session_ended_` guard at `Connection` — logout is a transport-level action; the `logged_in` check inside `send_logout_request_packet` is the meaningful gate.
+- Two layers. `Connection::send_logout_request` checks `connection_` then delegates to `Tcp_connection::send_logout_request_packet`, which gates on `logged_in`. `Client::send_logout_request` iterates all connections.
 - **Sending logout closes the connection**, mirroring the server's graceful-reject drain: `prepare_graceful_disconnect` stamps `Disconnect_reason::logout_request` before the packet is queued, and `write_success` calls `disconnect()` on that packet's completion. The client does not wait to be dropped. Stamping first means `logout_request` survives even if the server closes mid-drain, and `is_retryable(logout_request)` is `false`, so no reconnect follows.
 - The packet sends via `async_write_guaranteed` — the close depends on its completion, so it must not be droppable at `buffer_full`.
 - `Client::send_logout_request` returns `void` (user is closing anyway; per-connection error handling available via `Connection` layer if needed).
@@ -90,6 +89,12 @@ Every send entry point validates its arguments before constructing a packet, in 
 - `Tcp_connection::process_logout_request` validates payload size and `logged_in` state, fires `handler_->logout_request()`, then `disconnect(Disconnect_reason::logout_request)`.
 - No `has_session_ended()` guard on the logout notification — logout is real intent during the post-session-end tail (replay, pre-shutdown). Differs from `process_unsequenced_data` which suppresses delivery after session end.
 - User sees two notifications per logout: `logout_request()` at packet receipt, then the disconnect callback with `Disconnect_reason::logout_request` from the closed cascade.
+
+## End of session (client)
+
+- Receiving `End_of_session_packet` fires `Client::on_end_of_session()` once; `Client::has_session_ended()` exposes the same fact for later query. The callback is the edge, the access function the level.
+- **The library does not act on it.** Sends are not refused, and sequenced data arriving after the marker is delivered normally. What a server does after End of Session is the server's business; the client reports and leaves the decision to the user.
+- Session end is tracked only on `Client`, never per-connection. A client cannot be sure it received the marker — one that dropped beforehand never will, since it is sent once and not re-sent on later logins — and with redundant connections some may hold it while others don't. Gating on it would let identical calls behave differently depending on which connection happened to see the announcement.
 
 ## Connection takeover (server)
 
