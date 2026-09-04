@@ -32,6 +32,10 @@ const char* to_string(Login_reject_reason reason) {
     return "incorrect password";
   case Login_reject_reason::session_not_available:
     return "session not available";
+  case Login_reject_reason::session_ended:
+    return "session ended";
+  case Login_reject_reason::invalid_session:
+    return "invalid session";
   case Login_reject_reason::invalid_reject_reason:
     return "invalid reject reason";
   }

@@ -85,9 +85,14 @@ expected<Login_accepted_packet, Login_reject> Port::on_login_request(
     return unexpected(Login_reject(Login_reject_reason::incorrect_password,
                                    Login_rejected_reason::not_authorized));
   }
+  if (has_session_ended_) {
+    return unexpected(
+        Login_reject(Login_reject_reason::session_ended,
+                     Login_rejected_reason::session_not_available));
+  }
   if (!request.session.empty() && request.session != session) {
     return unexpected(
-        Login_reject(Login_reject_reason::session_not_available,
+        Login_reject(Login_reject_reason::invalid_session,
                      Login_rejected_reason::session_not_available));
   }
 

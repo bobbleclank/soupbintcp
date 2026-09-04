@@ -20,6 +20,8 @@ enum class Login_reject_reason {
   user_not_found,
   incorrect_password,
   session_not_available,
+  session_ended,
+  invalid_session,
   invalid_reject_reason
 };
 
