@@ -133,10 +133,8 @@ Acceptor::on_login_request(Tcp_connection& connection,
                    [&username = request.username](const auto& port) {
                      return username == port.username();
                    });
-  if (iter == ports_.end()) {
-    return unexpected(Login_reject(Login_reject_reason::user_not_found,
-                                   Login_rejected_reason::not_authorized));
-  }
+  if (iter == ports_.end())
+    return unexpected(Login_reject(Login_reject_reason::user_not_found));
   return iter->on_login_request(connection, request, server_->session(), port,
                                 port_handler);
 }

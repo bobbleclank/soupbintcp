@@ -15,6 +15,7 @@ target_sources(bcsoup
     reconnect_timer.cpp
     rw_packets.cpp
     server/acceptor.cpp
+    server/login_reject.cpp
     server/port.cpp
     server/server.cpp
     server/tcp_connection.cpp

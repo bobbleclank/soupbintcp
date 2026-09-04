@@ -7,9 +7,7 @@
 namespace bc::soup::server {
 
 struct Login_reject {
-  Login_reject(Login_reject_reason reason_,
-               Login_rejected_packet::Reason packet_reason)
-      : reason(reason_), packet(packet_reason) {}
+  explicit Login_reject(Login_reject_reason);
 
   Login_reject_reason reason = Login_reject_reason::user_not_found;
   Login_rejected_packet packet;
