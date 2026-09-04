@@ -18,7 +18,6 @@
 namespace bc::soup {
 struct Login_accepted_packet;
 struct Login_request_packet;
-struct Login_reject;
 } // namespace bc::soup
 
 namespace bc::soup::server {
@@ -26,6 +25,7 @@ namespace bc::soup::server {
 class Server;
 class Acceptor_handler;
 class Port_handler;
+struct Login_reject;
 
 class Acceptor final : public Socket_acceptor::Handler {
 public:

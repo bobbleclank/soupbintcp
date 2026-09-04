@@ -2,10 +2,10 @@
 
 #include "bc/soup/constants.h"
 #include "bc/soup/logical_packets.h"
-#include "bc/soup/login_reject.h"
 #include "bc/soup/rw_packets.h"
 #include "bc/soup/server/acceptor.h"
 #include "bc/soup/server/handler.h"
+#include "bc/soup/server/login_reject.h"
 #include "bc/soup/server/port.h"
 
 #include <cassert>

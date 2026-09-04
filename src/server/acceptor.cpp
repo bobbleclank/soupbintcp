@@ -2,8 +2,8 @@
 
 #include "bc/soup/error.h"
 #include "bc/soup/logical_packets.h"
-#include "bc/soup/login_reject.h"
 #include "bc/soup/server/handler.h"
+#include "bc/soup/server/login_reject.h"
 #include "bc/soup/server/server.h"
 #include "bc/soup/socket.h"
 #include "bc/soup/validate.h"

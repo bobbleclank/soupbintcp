@@ -12,7 +12,6 @@
 namespace bc::soup {
 struct Login_accepted_packet;
 struct Login_request_packet;
-struct Login_reject;
 class Write_packet;
 } // namespace bc::soup
 
@@ -21,6 +20,7 @@ namespace bc::soup::server {
 class Port_handler;
 class Tcp_connection;
 class Message;
+struct Login_reject;
 
 class Port {
 public:
