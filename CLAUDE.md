@@ -20,7 +20,7 @@ example/                  - example client and server programs
 - `Heartbeat_timer` — periodic timer. Owns its own `asio::steady_timer`. Signals `heartbeat_send_due` (no traffic this period), `heartbeat_receive_timeout` (no peer activity for the timeout window), `heartbeat_timer_error`, and `heartbeat_timer_stopped` (drain signal, posted after `stop()` so the holder can safely destroy). Tracks `send_count_`/`receive_count_`; the caller increments per packet-type rules from `Tcp_connection`'s `send_packet` and per-packet `process_*` handlers.
 - `Login_timer` — one-shot timer. Owns its own `asio::steady_timer`. Single timeout configured at construction. Handler callbacks: `login_timer_error`, `login_timer_expired`, `login_timer_stopped` (drain signal, same contract as the heartbeat one).
 - `Reconnect_timer` — one-shot per arm, re-armable (delay passed per `start()` rather than fixed at construction). Owns its own `asio::steady_timer`. Handler callbacks: `reconnect_timer_error`, `reconnect_timer_expired`. **No `*_stopped` drain signal** — the holder (`Connection`) isn't destroyed mid-life, so per-class drain coordination isn't needed; pending `async_wait` lambdas drain via the io thread join (per `Io_context_runner`). Each arm bumps `epoch_` and stamps its completion lambda; stale completions from prior arms are filtered before reaching `on_expiry` — protects against cross-arm leakage when `stop()` followed by `start()` races the completion queue.
-- `types.h` — shared enums: `Disconnect_reason`, `Packet_error`, `Login_reject_reason`, `Write_error`. `Disconnect_reason::none` and similar `none` enumerators serve as sentinels (no value / success), avoiding `std::optional`.
+- `types.h` — shared enums: `Disconnect_reason`, `Packet_error`, `Write_error`. `Disconnect_reason::none` and similar `none` enumerators serve as sentinels (no value / success), avoiding `std::optional`.
 - `error.h` — `Error`, the project's single `std::error_code`-integrated enumeration (the only error type with a category, `soup_category()`), kept separate from the plain enums in `types.h`. See [Error category](#error-category).
 
 ## Error category
@@ -244,6 +244,14 @@ Three handler callbacks report transport-layer failures: `connect_failure`, `tra
 - `<function_name>` is the literal C++ identifier of the failed call (`"async_read"`, `"async_write"`, `"expires_at"`, `"async_wait"`).
 - `<category>` (`"socket"`, `"timer"`) is included only when the callback spans categories. `transport_error` covers socket and timer failures and carries the prefix. `listen_setup_failure` and `connect_failure` are single-category and omit it.
 
+## Login reject reasons
+
+Each side has its own `Login_reject_reason`, with no enumerator in common.
+
+- **Server** (`server/types.h`) names the *cause*: `user_not_found`, `incorrect_password`, `session_ended`, `invalid_session`.
+- **Client** (`client/types.h`) names what arrived on the *wire*: `not_authorized`, `session_not_available`, and `invalid_reject_reason` for a code the protocol doesn't define.
+- `Login_reject`'s constructor maps cause to wire code, so the server's richer reason reaches its own `login_failure` while the client sees only the two the protocol carries.
+
 ## Coding conventions
 
 - Async calls (socket_.async_*) go after all state changes and callbacks.
@@ -251,7 +259,7 @@ Three handler callbacks report transport-layer failures: `connect_failure`, `tra
 - Handler call after state change — but only on *success / state-advancing* paths, where the handler may immediately act on the newly-valid connection. *Failure / teardown* paths deliberately invert it: the notification fires the moment the outcome is known, against a still-coherent connection (socket open, timers live, state unchanged), and `disconnect(reason)` runs last as the final lifetime step. A user acting on the connection from inside the notification therefore sees the live connection that just failed, not one that's already been torn down.
 - **`login_success` placement is side-specific.** *Client* (`process_login_accepted`) fires it **unconditionally** — a post-accept `session_mismatch`/sequence rejection still notifies first, then `disconnect(reason)` (the failure-invert). So client `login_success` means "the server accepted the login," not "a stable session". *Server* (`process_login_request`, accept branch) fires it **after** the `login_accepted` async_write — a deliberate exception to "async socket calls after all callbacks," so a user send from the callback can't precede `login_accepted` (the first non-debug packet).
 - Upper-layer calls before handler callbacks.
-- Handler notifications fire at the lowest layer that reaches the handler. Reaching a handler is not a reason to go up (hold the handler pointer); reading a value for a filter is not either (use an access function). When an upper layer owns the *decision*, it passes the result *down* for `Tcp_connection` to fire rather than firing there itself — a `Disconnect_reason` on the client, a `Login_reject{reason, packet}` on the server. The sole call made from an upper layer is destroy-time `disconnect`, fired from the owner (`Connection` / `Acceptor`), not `Tcp_connection`, because closing destroys the `Tcp_connection`.
+- Handler notifications fire at the lowest layer that reaches the handler. Reaching a handler is not a reason to go up (hold the handler pointer); reading a value for a filter is not either (use an access function). When an upper layer owns the *decision*, it passes the result *down* for `Tcp_connection` to fire rather than firing there itself — a `Disconnect_reason` on the client, a `Login_reject(reason)` on the server. The sole call made from an upper layer is destroy-time `disconnect`, fired from the owner (`Connection` / `Acceptor`), not `Tcp_connection`, because closing destroys the `Tcp_connection`.
 - `[[nodiscard]]` reserved for error types or `expected` (error-bearing returns). State machine bool returns are not marked nodiscard — they're informational/optimizational, ignoring is not a bug.
 - `Connection_state` return stored as `state_changed`; not inlined into if-condition since the function has side effects.
 - No default parameter on `Connection_state::disconnect` — callers always pass an explicit reason. The no-arg `Tcp_connection::disconnect()` exists for `read_aborted` (socket closed from our side, `reason_` always set).
