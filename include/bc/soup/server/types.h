@@ -4,7 +4,6 @@
 namespace bc::soup::server {
 
 enum class Login_reject_reason {
-  none = 0,
   user_not_found,
   incorrect_password,
   session_ended,

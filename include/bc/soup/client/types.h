@@ -4,7 +4,6 @@
 namespace bc::soup::client {
 
 enum class Login_reject_reason {
-  none = 0,
   not_authorized,
   session_not_available,
   invalid_reject_reason

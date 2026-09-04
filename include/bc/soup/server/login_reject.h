@@ -11,7 +11,7 @@ struct Login_reject {
                Login_rejected_packet::Reason packet_reason)
       : reason(reason_), packet(packet_reason) {}
 
-  Login_reject_reason reason = Login_reject_reason::none;
+  Login_reject_reason reason = Login_reject_reason::user_not_found;
   Login_rejected_packet packet;
 };
 
