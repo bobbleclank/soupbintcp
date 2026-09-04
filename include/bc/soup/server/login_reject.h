@@ -2,7 +2,7 @@
 #define INCLUDE_BC_SOUP_SERVER_LOGIN_REJECT_H
 
 #include "bc/soup/logical_packets.h"
-#include "bc/soup/types.h"
+#include "bc/soup/server/types.h"
 
 namespace bc::soup::server {
 

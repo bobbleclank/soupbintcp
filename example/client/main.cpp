@@ -1,6 +1,7 @@
 #include "bc/soup/client/client.h"
 #include "bc/soup/client/connection.h"
 #include "bc/soup/client/handler.h"
+#include "bc/soup/client/types.h"
 #include "bc/soup/expected.h"
 #include "bc/soup/logical_packets.h"
 #include "bc/soup/types.h"
@@ -67,7 +68,7 @@ public:
                  p.username, p.password, p.session, p.next_sequence_number);
   }
 
-  void login_failure(soup::Login_reject_reason reason) override {
+  void login_failure(soup::client::Login_reject_reason reason) override {
     std::println("login failure: reason = {}", to_string(reason));
   }
 

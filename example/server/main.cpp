@@ -4,6 +4,7 @@
 #include "bc/soup/server/handler.h"
 #include "bc/soup/server/port.h"
 #include "bc/soup/server/server.h"
+#include "bc/soup/server/types.h"
 #include "bc/soup/types.h"
 #include "bc_soup_config.h"
 #include "io_context_runner.h"
@@ -121,7 +122,7 @@ public:
                  p.username, p.password, p.session, p.next_sequence_number);
   }
 
-  void login_failure(soup::Login_reject_reason reason) override {
+  void login_failure(soup::server::Login_reject_reason reason) override {
     std::println("login failure: reason = {}", to_string(reason));
   }
 

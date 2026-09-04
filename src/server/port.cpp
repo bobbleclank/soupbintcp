@@ -7,6 +7,7 @@
 #include "bc/soup/server/login_reject.h"
 #include "bc/soup/server/message.h"
 #include "bc/soup/server/tcp_connection.h"
+#include "bc/soup/server/types.h"
 
 #include <utility>
 

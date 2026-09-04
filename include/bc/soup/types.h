@@ -14,19 +14,6 @@ enum class Packet_error {
 
 const char* to_string(Packet_error);
 
-enum class Login_reject_reason {
-  none = 0,
-  not_authorized,
-  user_not_found,
-  incorrect_password,
-  session_not_available,
-  session_ended,
-  invalid_session,
-  invalid_reject_reason
-};
-
-const char* to_string(Login_reject_reason);
-
 enum class Write_error {
   none = 0,
   empty_buffer,

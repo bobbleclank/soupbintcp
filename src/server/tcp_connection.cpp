@@ -7,6 +7,7 @@
 #include "bc/soup/server/handler.h"
 #include "bc/soup/server/login_reject.h"
 #include "bc/soup/server/port.h"
+#include "bc/soup/server/types.h"
 
 #include <cassert>
 #include <cstdint>
@@ -179,8 +180,9 @@ Packet_error Tcp_connection::process_login_request(const void* data,
     handler_->login_success(response);
   } else {
     const Login_reject& reject = result.error();
+    const Login_reject_reason reason = reject.reason;
     const Login_rejected_packet& response = reject.packet;
-    acceptor_handler_->login_failure(reject.reason);
+    acceptor_handler_->login_failure(reason);
     prepare_graceful_disconnect(Disconnect_reason::access_denied);
     Write_packet packet(response.packet_type, response.payload_size);
     write(response, packet.payload_data());

@@ -4,6 +4,7 @@ target_sources(bcsoup
     client/client.cpp
     client/connection.cpp
     client/tcp_connection.cpp
+    client/types.cpp
     connection_state.cpp
     error.cpp
     file_store.cpp
@@ -17,6 +18,7 @@ target_sources(bcsoup
     server/port.cpp
     server/server.cpp
     server/tcp_connection.cpp
+    server/types.cpp
     socket.cpp
     socket_acceptor.cpp
     types.cpp

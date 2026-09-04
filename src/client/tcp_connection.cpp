@@ -2,6 +2,7 @@
 
 #include "bc/soup/client/connection.h"
 #include "bc/soup/client/handler.h"
+#include "bc/soup/client/types.h"
 #include "bc/soup/constants.h"
 #include "bc/soup/logical_packets.h"
 #include "bc/soup/rw_packets.h"

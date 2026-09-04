@@ -5,6 +5,7 @@
 #include "bc/soup/server/handler.h"
 #include "bc/soup/server/login_reject.h"
 #include "bc/soup/server/server.h"
+#include "bc/soup/server/types.h"
 #include "bc/soup/socket.h"
 #include "bc/soup/validate.h"
 
