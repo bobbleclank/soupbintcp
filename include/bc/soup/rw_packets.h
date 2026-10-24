@@ -64,7 +64,7 @@ public:
   std::uint16_t packet_size() const;
 
   char packet_type() const {
-    return static_cast<char>(header_[packet_size_length]);
+    return static_cast<char>(std::get<packet_size_length>(header_));
   }
 
   [[nodiscard]] Resize_result resize_payload();
