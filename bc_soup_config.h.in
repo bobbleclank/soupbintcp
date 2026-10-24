@@ -1,2 +1,4 @@
+// NOLINTBEGIN(*-macro-usage,*-macro-to-enum): Version
 #define bc_soup_VERSION_MAJOR @bc_soup_VERSION_MAJOR@
 #define bc_soup_VERSION_MINOR @bc_soup_VERSION_MINOR@
+// NOLINTEND(*-macro-usage,*-macro-to-enum): Version
