@@ -132,6 +132,8 @@ std::error_code File_store::get(std::size_t first, std::size_t last,
   if (last < first || last > offsets_.size())
     return {EINVAL, std::system_category()};
 
+  // first validated above
+  // NOLINTNEXTLINE(*-pro-bounds-avoid-unchecked-container-access)
   const off_t off = lseek(fd_, offsets_[first - 1], SEEK_SET);
   if (off == -1)
     return {errno, std::system_category()};
