@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstring>
 #include <initializer_list>
+#include <span>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -60,7 +61,7 @@ void assert_messages(const std::vector<Message>& v) {
 template <typename T>
 struct Partial_rw {
   std::initializer_list<ssize_t> in;
-  decltype(in)::const_iterator iter = in.begin();
+  std::span<const ssize_t> rest = in;
 
   struct out_value_type {
     std::ptrdiff_t pos;
@@ -70,8 +71,11 @@ struct Partial_rw {
 
   ssize_t operator()(int, T* buf, size_t nbyte) {
     out.emplace_back(buf - arr.data(), nbyte);
-    if (iter != in.end())
-      return *iter++;
+    if (!rest.empty()) {
+      const auto value = rest.front();
+      rest = rest.subspan(1);
+      return value;
+    }
     constexpr ssize_t distinct_unexpected_value = -2;
     return distinct_unexpected_value;
   }
