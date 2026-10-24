@@ -111,6 +111,7 @@ public:
           !std::is_same_v<std::remove_cvref_t<U>, expected<T, E>> &&
           !std::is_same_v<std::remove_cvref_t<U>, unexpected<E>>>* = nullptr,
       std::enable_if_t<std::is_convertible_v<U&&, T>>* = nullptr>
+  // NOLINTNEXTLINE(*-explicit-constructor): Conditionally explicit
   expected(U&& v) : val_(std::in_place, std::forward<U>(v)) {}
 
   template <
@@ -126,6 +127,7 @@ public:
   template <class G = E,
             std::enable_if_t<std::is_constructible_v<E, const G&>>* = nullptr,
             std::enable_if_t<std::is_convertible_v<const G&, E>>* = nullptr>
+  // NOLINTNEXTLINE(*-explicit-constructor): Conditionally explicit
   expected(const unexpected<G>& e) : unexpect_(std::in_place, e.value()) {}
 
   template <class G = E,
@@ -137,9 +139,11 @@ public:
   template <class G = E,
             std::enable_if_t<std::is_constructible_v<E, G&&>>* = nullptr,
             std::enable_if_t<std::is_convertible_v<G&&, E>>* = nullptr>
+  // NOLINTBEGIN(*-explicit-constructor): Conditionally explicit
   // NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Moved via value
   expected(unexpected<G>&& e)
       : unexpect_(std::in_place, std::move(e.value())) {}
+  // NOLINTEND(*-explicit-constructor): Conditionally explicit
 
   template <class G = E,
             std::enable_if_t<std::is_constructible_v<E, G&&>>* = nullptr,
