@@ -19,6 +19,7 @@ class Write_packet;
 
 namespace bc::soup::server {
 
+// NOLINTNEXTLINE(*-virtual-class-destructor): Final class
 class Acceptor;
 class Acceptor_handler;
 class Port;

@@ -19,6 +19,7 @@ class Write_packet;
 
 namespace bc::soup::client {
 
+// NOLINTNEXTLINE(*-virtual-class-destructor): Final class
 class Connection;
 class Connection_handler;
 

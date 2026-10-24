@@ -18,6 +18,7 @@ class Write_packet;
 namespace bc::soup::server {
 
 class Port_handler;
+// NOLINTNEXTLINE(*-virtual-class-destructor): Final class
 class Tcp_connection;
 class Message;
 struct Login_reject;
@@ -54,6 +55,7 @@ private:
   [[nodiscard]] Write_error send_packet(Write_packet&&);
 
   // Called by Acceptor
+  // NOLINTNEXTLINE(*-virtual-class-destructor): Final class
   friend class Acceptor;
   bool is_handler_set() const;
   [[nodiscard]] expected<Login_accepted_packet, Login_reject>
