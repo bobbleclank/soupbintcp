@@ -3,6 +3,7 @@
 #include <array>
 #include <cstdint>
 #include <limits>
+#include <span>
 #include <string>
 #include <string_view>
 
@@ -124,12 +125,14 @@ TEST(packing, enumeration) {
 TEST(packing, pack_password) {
   constexpr auto pad = 3;
   constexpr auto size = pad + 10 + pad;
-  auto pack = [](auto s, auto b) { pack_password(s, b); };
+  auto pack = [](auto s, auto& b) {
+    pack_password(s, std::span(b).subspan(pad).data());
+  };
   {
     std::string_view s = "";
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...          ...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -138,7 +141,7 @@ TEST(packing, pack_password) {
     std::string_view s = "a";
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...a         ...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -147,7 +150,7 @@ TEST(packing, pack_password) {
     std::string_view s = "abcde";
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...abcde     ...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -156,7 +159,7 @@ TEST(packing, pack_password) {
     std::string_view s = "abcdefghi";
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...abcdefghi ...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -165,7 +168,7 @@ TEST(packing, pack_password) {
     std::string_view s = "abcdefghij";
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...abcdefghij...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -174,7 +177,7 @@ TEST(packing, pack_password) {
     std::string_view s = "     abcde"; // Leading invalid character.
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...          ...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -183,7 +186,7 @@ TEST(packing, pack_password) {
     std::string_view s = "_____abcde"; // Leading invalid character.
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...          ...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -192,7 +195,7 @@ TEST(packing, pack_password) {
     std::string_view s = "abcde     "; // Trailing invalid character.
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...abcde     ...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -201,7 +204,7 @@ TEST(packing, pack_password) {
     std::string_view s = "abcde_____"; // Trailing invalid character.
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...abcde     ...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -210,7 +213,7 @@ TEST(packing, pack_password) {
     std::string_view s = "abc    def"; // Embedded invalid character.
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...abc       ...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -219,7 +222,7 @@ TEST(packing, pack_password) {
     std::string_view s = "abc____def"; // Embedded invalid character.
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...abc       ...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -228,7 +231,7 @@ TEST(packing, pack_password) {
     std::string_view s = "abcdefghijkl"; // Too long.
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...abcdefghij...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -237,7 +240,7 @@ TEST(packing, pack_password) {
     std::string_view s = "  abcdefghij"; // Too long (leading invalid).
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...          ...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -246,7 +249,7 @@ TEST(packing, pack_password) {
     std::string_view s = "__abcdefghij"; // Too long (leading invalid).
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...          ...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -255,7 +258,7 @@ TEST(packing, pack_password) {
     std::string_view s = "abcdefghij  "; // Too long (trailing invalid).
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...abcdefghij...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -264,7 +267,7 @@ TEST(packing, pack_password) {
     std::string_view s = "abcdefghij__"; // Too long (trailing invalid).
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...abcdefghij...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -385,12 +388,14 @@ TEST(packing, unpack_password) {
 TEST(packing, pack_session) {
   constexpr auto pad = 3;
   constexpr auto size = pad + 10 + pad;
-  auto pack = [](auto s, auto b) { pack_session(s, b); };
+  auto pack = [](auto s, auto& b) {
+    pack_session(s, std::span(b).subspan(pad).data());
+  };
   {
     std::string_view s = "";
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...          ...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -399,7 +404,7 @@ TEST(packing, pack_session) {
     std::string_view s = "a";
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...         a...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -408,7 +413,7 @@ TEST(packing, pack_session) {
     std::string_view s = "abcde";
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...     abcde...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -417,7 +422,7 @@ TEST(packing, pack_session) {
     std::string_view s = "abcdefghi";
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "... abcdefghi...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -426,7 +431,7 @@ TEST(packing, pack_session) {
     std::string_view s = "abcdefghij";
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...abcdefghij...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -435,7 +440,7 @@ TEST(packing, pack_session) {
     std::string_view s = "     abcde"; // Leading invalid character.
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...     abcde...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -444,7 +449,7 @@ TEST(packing, pack_session) {
     std::string_view s = "_____abcde"; // Leading invalid character.
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...     abcde...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -453,7 +458,7 @@ TEST(packing, pack_session) {
     std::string_view s = "abcde     "; // Trailing invalid character.
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...          ...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -462,7 +467,7 @@ TEST(packing, pack_session) {
     std::string_view s = "abcde_____"; // Trailing invalid character.
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...          ...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -471,7 +476,7 @@ TEST(packing, pack_session) {
     std::string_view s = "abc    def"; // Embedded invalid character.
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...       def...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -480,7 +485,7 @@ TEST(packing, pack_session) {
     std::string_view s = "abc____def"; // Embedded invalid character.
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...       def...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -489,7 +494,7 @@ TEST(packing, pack_session) {
     std::string_view s = "abcdefghijkl"; // Too long.
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...abcdefghij...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -498,7 +503,7 @@ TEST(packing, pack_session) {
     std::string_view s = "  abcdefghij"; // Too long (leading invalid).
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...  abcdefgh...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -507,7 +512,7 @@ TEST(packing, pack_session) {
     std::string_view s = "__abcdefghij"; // Too long (leading invalid).
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...  abcdefgh...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -516,7 +521,7 @@ TEST(packing, pack_session) {
     std::string_view s = "abcdefghij  "; // Too long (trailing invalid).
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...abcdefghij...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -525,7 +530,7 @@ TEST(packing, pack_session) {
     std::string_view s = "abcdefghij__"; // Too long (trailing invalid).
     std::array<char, size> b = {};
     b.fill('.');
-    pack(s, b.begin() + pad);
+    pack(s, b);
     std::string_view e = "...abcdefghij...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -646,12 +651,14 @@ TEST(packing, unpack_session) {
 TEST(packing, pack_sequence_number) {
   constexpr auto pad = 3;
   constexpr auto size = pad + 20 + pad;
-  auto pack = [](auto i, auto b) { pack_sequence_number(i, b); };
+  auto pack = [](auto i, auto& b) {
+    pack_sequence_number(i, std::span(b).subspan(pad).data());
+  };
   {
     std::uint64_t i = 0;
     std::array<char, size> b = {};
     b.fill('.');
-    pack(i, b.begin() + pad);
+    pack(i, b);
     std::string_view e = "...                   0...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -660,7 +667,7 @@ TEST(packing, pack_sequence_number) {
     std::uint64_t i = 1;
     std::array<char, size> b = {};
     b.fill('.');
-    pack(i, b.begin() + pad);
+    pack(i, b);
     std::string_view e = "...                   1...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -670,7 +677,7 @@ TEST(packing, pack_sequence_number) {
     std::uint64_t i = 12345;
     std::array<char, size> b = {};
     b.fill('.');
-    pack(i, b.begin() + pad);
+    pack(i, b);
     std::string_view e = "...               12345...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -680,7 +687,7 @@ TEST(packing, pack_sequence_number) {
     std::uint64_t i = 1234567890;
     std::array<char, size> b = {};
     b.fill('.');
-    pack(i, b.begin() + pad);
+    pack(i, b);
     std::string_view e = "...          1234567890...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -690,7 +697,7 @@ TEST(packing, pack_sequence_number) {
     std::uint64_t i = 123456789012345uL;
     std::array<char, size> b = {};
     b.fill('.');
-    pack(i, b.begin() + pad);
+    pack(i, b);
     std::string_view e = "...     123456789012345...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -700,7 +707,7 @@ TEST(packing, pack_sequence_number) {
     std::uint64_t i = 9999999999999999999uL;
     std::array<char, size> b = {};
     b.fill('.');
-    pack(i, b.begin() + pad);
+    pack(i, b);
     std::string_view e = "... 9999999999999999999...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
@@ -709,7 +716,7 @@ TEST(packing, pack_sequence_number) {
     std::uint64_t i = std::numeric_limits<std::uint64_t>::max();
     std::array<char, size> b = {};
     b.fill('.');
-    pack(i, b.begin() + pad);
+    pack(i, b);
     std::string_view e = "...18446744073709551615...";
     ASSERT_EQ(e.size(), size);
     ASSERT_EQ(std::string_view(b.data(), b.size()), e);
