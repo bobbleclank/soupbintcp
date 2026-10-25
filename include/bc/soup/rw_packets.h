@@ -28,8 +28,12 @@ public:
 
   const std::byte* data() const { return data_.get(); }
 
+  // No bounds checking
+  // NOLINTNEXTLINE(*-pro-bounds-avoid-unchecked-container-access)
   std::byte& operator[](std::size_t i) { return data_[i]; }
 
+  // No bounds checking
+  // NOLINTNEXTLINE(*-pro-bounds-avoid-unchecked-container-access)
   const std::byte& operator[](std::size_t i) const { return data_[i]; }
 
   std::size_t size() const { return size_; }
@@ -104,6 +108,8 @@ public:
   std::uint16_t packet_size() const;
 
   char packet_type() const {
+    // Packet type location
+    // NOLINTNEXTLINE(*-pro-bounds-avoid-unchecked-container-access)
     return static_cast<char>(packet_[packet_size_length]);
   }
 

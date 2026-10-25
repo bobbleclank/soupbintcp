@@ -71,6 +71,8 @@ Write_packet::Write_packet(char packet_type, std::uint16_t payload_size)
     : packet_(packet_header_length + payload_size) {
   const std::uint16_t packet_size = packet_type_length + payload_size;
   pack(packet_size, packet_.data());
+  // packet_ sized above
+  // NOLINTNEXTLINE(*-pro-bounds-avoid-unchecked-container-access)
   packet_[packet_size_length] = static_cast<std::byte>(packet_type);
 }
 
