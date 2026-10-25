@@ -2,4 +2,7 @@ Checks:
   - clang-analyzer-*
   - cppcoreguidelines-*
   - readability-qualified-auto
+  - misc-const-correctness
+CheckOptions:
+  misc-const-correctness.AnalyzeLambdas: false
 WarningsAsErrors: '*'
