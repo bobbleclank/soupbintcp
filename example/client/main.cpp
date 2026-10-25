@@ -198,6 +198,7 @@ void display_version() {
   std::println("version {}.{}", bc_soup_VERSION_MAJOR, bc_soup_VERSION_MINOR);
 }
 
+// NOLINTNEXTLINE(*-const-correctness): Standard main signature
 int main(int argc, char** argv) {
   const char* username = "user";
   const char* password = "pass";
