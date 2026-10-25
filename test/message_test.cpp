@@ -112,7 +112,7 @@ TYPED_TEST(Message, allocate_payload_constructor) {
 
 TYPED_TEST(Message, write_payload_constructor) {
   std::string_view sv = "hello";
-  auto data = sv.data();
+  const auto* data = sv.data();
   auto size = sv.size();
   ASSERT_EQ(size, 5u);
 
@@ -129,7 +129,7 @@ TYPED_TEST(Message, release_packet) {
   }
   {
     std::string_view sv = "hello";
-    auto data = sv.data();
+    const auto* data = sv.data();
     auto size = sv.size();
     ASSERT_EQ(size, 5u);
 
@@ -140,7 +140,7 @@ TYPED_TEST(Message, release_packet) {
   }
   {
     std::string_view sv = "hello";
-    auto data = sv.data();
+    const auto* data = sv.data();
     auto size = sv.size();
     ASSERT_EQ(size, 5u);
 
@@ -186,7 +186,7 @@ TYPED_TEST(Message, resize_payload) {
   }
   {
     std::string_view sv = "hello world";
-    auto data = sv.data();
+    const auto* data = sv.data();
     auto size = sv.size();
     ASSERT_EQ(size, 11u);
 
@@ -212,7 +212,7 @@ TYPED_TEST(Message, resize_payload) {
 
 TYPED_TEST(Message, payload) {
   std::string_view sv = "hello";
-  auto data = sv.data();
+  const auto* data = sv.data();
   auto size = sv.size();
   ASSERT_EQ(size, 5u);
 

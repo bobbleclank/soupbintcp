@@ -132,7 +132,7 @@ TEST(Buffer, clone) {
   }
   {
     std::string_view sv = "hello";
-    auto data = sv.data();
+    const auto* data = sv.data();
     auto size = sv.size();
     ASSERT_EQ(size, 5u);
 
@@ -143,7 +143,7 @@ TEST(Buffer, clone) {
     assert_non_empty(b2, size, data);
 
     std::string_view sv2 = "world";
-    auto data2 = sv2.data();
+    const auto* data2 = sv2.data();
     ASSERT_EQ(sv2.size(), size);
 
     std::memcpy(b2.data(), data2, size);
@@ -154,7 +154,7 @@ TEST(Buffer, clone) {
 
 TEST(Buffer, data) {
   std::string_view sv = "hello";
-  auto data = sv.data();
+  const auto* data = sv.data();
   auto size = sv.size();
   ASSERT_EQ(size, 5u);
 
@@ -261,7 +261,7 @@ TEST(Read_packet, move_constructor) {
   }
   {
     std::string_view sv = "hello";
-    auto data = sv.data();
+    const auto* data = sv.data();
     auto size = sv.size();
     ASSERT_EQ(size, 5u);
 
@@ -283,7 +283,7 @@ TEST(Read_packet, move_assignment) {
   }
   {
     std::string_view sv = "hello";
-    auto data = sv.data();
+    const auto* data = sv.data();
     auto size = sv.size();
     ASSERT_EQ(size, 5u);
 
@@ -296,7 +296,7 @@ TEST(Read_packet, move_assignment) {
   }
   {
     std::string_view sv = "HELLO WORLD";
-    auto data = sv.data();
+    const auto* data = sv.data();
     auto size = sv.size();
     ASSERT_EQ(size, 11u);
 
@@ -309,7 +309,7 @@ TEST(Read_packet, move_assignment) {
   }
   {
     std::string_view sv = "hello";
-    auto data = sv.data();
+    const auto* data = sv.data();
     auto size = sv.size();
     ASSERT_EQ(size, 5u);
 
@@ -328,7 +328,7 @@ TEST(Read_packet, move_assignment) {
 
 TEST(Read_packet, resize_payload) {
   std::string_view sv = "hello";
-  auto data = sv.data();
+  const auto* data = sv.data();
   auto size = sv.size();
   ASSERT_EQ(size, 5u);
   {
@@ -373,7 +373,7 @@ TEST(Read_packet, resize_payload) {
 
 TEST(Read_packet, payload) {
   std::string_view sv = "hello";
-  auto data = sv.data();
+  const auto* data = sv.data();
   auto size = sv.size();
   ASSERT_EQ(size, 5u);
 
@@ -434,7 +434,7 @@ TEST(Write_packet, allocate_payload_constructor) {
 
 TEST(Write_packet, write_payload_constructor) {
   std::string_view sv = "hello";
-  auto data = sv.data();
+  const auto* data = sv.data();
   auto size = sv.size();
   ASSERT_EQ(size, 5u);
 
@@ -457,7 +457,7 @@ TEST(Write_packet, move_constructor) {
   }
   {
     std::string_view sv = "hello";
-    auto data = sv.data();
+    const auto* data = sv.data();
     auto size = sv.size();
     ASSERT_EQ(size, 5u);
 
@@ -485,7 +485,7 @@ TEST(Write_packet, move_assignment) {
   }
   {
     std::string_view sv = "hello";
-    auto data = sv.data();
+    const auto* data = sv.data();
     auto size = sv.size();
     ASSERT_EQ(size, 5u);
 
@@ -497,7 +497,7 @@ TEST(Write_packet, move_assignment) {
   }
   {
     std::string_view sv = "HELLO WORLD";
-    auto data = sv.data();
+    const auto* data = sv.data();
     auto size = sv.size();
     ASSERT_EQ(size, 11u);
 
@@ -509,7 +509,7 @@ TEST(Write_packet, move_assignment) {
   }
   {
     std::string_view sv = "hello";
-    auto data = sv.data();
+    const auto* data = sv.data();
     auto size = sv.size();
     ASSERT_EQ(size, 5u);
 
@@ -539,7 +539,7 @@ TEST(Write_packet, clone) {
   }
   {
     std::string_view sv = "hello";
-    auto data = sv.data();
+    const auto* data = sv.data();
     auto size = sv.size();
     ASSERT_EQ(size, 5u);
 
@@ -549,7 +549,7 @@ TEST(Write_packet, clone) {
     assert_non_empty(p2, 'a', size, size, data);
 
     std::string_view sv2 = "world";
-    auto data2 = sv2.data();
+    const auto* data2 = sv2.data();
     ASSERT_EQ(sv2.size(), size);
 
     std::memcpy(p2.payload_data(), data2, size);
@@ -558,7 +558,7 @@ TEST(Write_packet, clone) {
   }
   {
     std::string_view sv = "hello world";
-    auto data = sv.data();
+    const auto* data = sv.data();
     auto size = sv.size();
     ASSERT_EQ(size, 11u);
 
@@ -595,7 +595,7 @@ TEST(Write_packet, resize_payload) {
   }
   {
     std::string_view sv = "hello world";
-    auto data = sv.data();
+    const auto* data = sv.data();
     auto size = sv.size();
     ASSERT_EQ(size, 11u);
 
@@ -613,7 +613,7 @@ TEST(Write_packet, resize_payload) {
 
 TEST(Write_packet, payload) {
   std::string_view sv = "hello";
-  auto data = sv.data();
+  const auto* data = sv.data();
   auto size = sv.size();
   ASSERT_EQ(size, 5u);
 
