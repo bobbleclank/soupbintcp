@@ -165,6 +165,8 @@ TEST(Buffer, data) {
 }
 
 TEST(Buffer, subscript_operator) {
+  // To test subscript operator
+  // NOLINTBEGIN(*-pro-bounds-avoid-unchecked-container-access)
   constexpr auto size = 5;
   Buffer b(size);
   b[0] = std::byte('h');
@@ -178,6 +180,8 @@ TEST(Buffer, subscript_operator) {
   ASSERT_EQ(r[2], std::byte('l'));
   ASSERT_EQ(r[3], std::byte('l'));
   ASSERT_EQ(r[4], std::byte('o'));
+  // To test subscript operator
+  // NOLINTEND(*-pro-bounds-avoid-unchecked-container-access)
 }
 
 namespace {
