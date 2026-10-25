@@ -1,4 +1,5 @@
 Checks:
   - clang-analyzer-*
   - cppcoreguidelines-*
+  - readability-qualified-auto
 WarningsAsErrors: '*'
