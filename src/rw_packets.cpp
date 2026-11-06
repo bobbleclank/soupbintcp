@@ -33,9 +33,8 @@ Buffer Buffer::clone() const {
 }
 
 Read_packet::Read_packet(Read_packet&& other) noexcept
-    : header_(other.header_), payload_(std::move(other.payload_)) {
-  other.header_.fill(std::byte(0));
-}
+    : header_(std::exchange(other.header_, {})),
+      payload_(std::move(other.payload_)) {}
 
 Read_packet& Read_packet::operator=(Read_packet&& other) noexcept {
   header_ = std::exchange(other.header_, {});
