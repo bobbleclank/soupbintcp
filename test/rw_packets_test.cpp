@@ -240,8 +240,9 @@ void write_header(Read_packet& p, std::integral auto size, char packet_type) {
 void write_payload(Read_packet& p, char packet_type,
                    std::integral auto payload_size, const void* payload_data) {
   write_header(p, 1 + payload_size, packet_type);
-  (void)p.resize_payload();
-  std::memcpy(p.payload_data(), payload_data, p.payload_size());
+  auto resize_result = p.resize_payload();
+  if (resize_result == Read_packet::Resize_result::resized)
+    std::memcpy(p.payload_data(), payload_data, p.payload_size());
 }
 
 // NOLINTBEGIN(clang-analyzer-cplusplus.Move)
