@@ -400,7 +400,7 @@ TEST(Read_packet, self_move_assignment) {
     write_header(p, 1 + size, 'a');
     Read_packet& alias = p;
     p = std::move(alias);
-    assert_empty(p);
+    assert_empty(p, 1 + size, 'a');
   }
   {
     std::string_view sv = "hello";
@@ -413,11 +413,7 @@ TEST(Read_packet, self_move_assignment) {
     const auto* payload_data = p.payload_data();
     Read_packet& alias = p;
     p = std::move(alias);
-    ASSERT_EQ(p.packet_size(), 0u);
-    ASSERT_EQ(p.packet_type(), '\0');
-    ASSERT_NE(p.payload_data(), nullptr);
-    ASSERT_EQ(p.payload_size(), size);
-    ASSERT_EQ(std::memcmp(p.payload_data(), data, size), 0);
+    assert_non_empty(p, 'a', size, data);
     ASSERT_EQ(p.payload_data(), payload_data);
   }
 }
