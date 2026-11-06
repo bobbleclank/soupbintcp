@@ -634,6 +634,7 @@ TEST(Write_packet, clone) {
     Write_packet p2 = p1.clone();
     assert_non_empty(p1, 'a', 0, 0);
     assert_non_empty(p2, 'a', 0, 0);
+    ASSERT_NE(p1.data(), p2.data());
   }
   {
     std::string_view sv = "hello";
@@ -645,6 +646,7 @@ TEST(Write_packet, clone) {
     Write_packet p2 = p1.clone();
     assert_non_empty(p1, 'a', size, size, data);
     assert_non_empty(p2, 'a', size, size, data);
+    ASSERT_NE(p1.data(), p2.data());
 
     std::string_view sv2 = "world";
     const auto* data2 = sv2.data();
@@ -669,6 +671,7 @@ TEST(Write_packet, clone) {
     assert_non_empty(p2, 'a', size, new_size, data);
     // Spare capacity cloned
     ASSERT_EQ(std::memcmp(p2.payload_data(), data, size), 0);
+    ASSERT_NE(p1.data(), p2.data());
   }
 }
 
