@@ -32,11 +32,6 @@ Buffer Buffer::clone() const {
   return copy;
 }
 
-// NOLINTNEXTLINE(*-pro-type-member-init): Initialize in constructor body
-Read_packet::Read_packet() {
-  header_.fill(std::byte(0));
-}
-
 Read_packet::Read_packet(Read_packet&& other) noexcept
     : header_(other.header_), payload_(std::move(other.payload_)) {
   other.header_.fill(std::byte(0));

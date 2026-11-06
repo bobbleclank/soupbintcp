@@ -59,7 +59,7 @@ public:
     malformed_header
   };
 
-  Read_packet();
+  Read_packet() = default;
   ~Read_packet() = default;
 
   Read_packet(const Read_packet&) = delete;
@@ -87,7 +87,7 @@ public:
   std::size_t payload_size() const { return payload_.size(); }
 
 private:
-  std::array<std::byte, packet_header_length> header_;
+  std::array<std::byte, packet_header_length> header_ = {};
   Buffer payload_;
 };
 
