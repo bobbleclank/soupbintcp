@@ -655,6 +655,54 @@ TEST(Write_packet, move_assignment) {
   }
 }
 
+TEST(Write_packet, self_move_assignment) {
+  // Move through a reference to avoid -Wself-move
+  {
+    Write_packet p;
+    Write_packet& alias = p;
+    p = std::move(alias);
+    assert_empty(p);
+  }
+  {
+    Write_packet p('a');
+    const auto* packet_data = p.data();
+    Write_packet& alias = p;
+    p = std::move(alias);
+    assert_non_empty(p, 'a', 0, 0);
+    ASSERT_EQ(p.data(), packet_data);
+  }
+  {
+    std::string_view sv = "hello";
+    const auto* data = sv.data();
+    auto size = sv.size();
+    ASSERT_EQ(size, 5u);
+
+    Write_packet p('a', data, static_cast<std::uint16_t>(size));
+    const auto* packet_data = p.data();
+    Write_packet& alias = p;
+    p = std::move(alias);
+    assert_non_empty(p, 'a', size, size, data);
+    ASSERT_EQ(p.data(), packet_data);
+  }
+  {
+    std::string_view sv = "hello world";
+    const auto* data = sv.data();
+    auto size = sv.size();
+    ASSERT_EQ(size, 11u);
+
+    Write_packet p('a', data, static_cast<std::uint16_t>(size));
+    const auto* packet_data = p.data();
+    constexpr auto new_size = 5;
+    ASSERT_EQ(p.resize_payload(new_size), Write_packet::Resize_result::resized);
+    Write_packet& alias = p;
+    p = std::move(alias);
+    assert_non_empty(p, 'a', size, new_size, data);
+    // Spare capacity unchanged
+    ASSERT_EQ(std::memcmp(p.payload_data(), data, size), 0);
+    ASSERT_EQ(p.data(), packet_data);
+  }
+}
+
 TEST(Write_packet, clone) {
   {
     Write_packet p1;
