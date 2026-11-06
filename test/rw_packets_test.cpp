@@ -667,6 +667,8 @@ TEST(Write_packet, clone) {
     Write_packet p2 = p1.clone();
     assert_non_empty(p1, 'a', size, new_size, data);
     assert_non_empty(p2, 'a', size, new_size, data);
+    // Spare capacity cloned
+    ASSERT_EQ(std::memcmp(p2.payload_data(), data, size), 0);
   }
 }
 
@@ -705,6 +707,7 @@ TEST(Write_packet, resize_payload) {
     assert_non_empty(p, 'a', size, 0);
     ASSERT_EQ(p.resize_payload(static_cast<std::uint16_t>(size)),
               Write_packet::Resize_result::resized);
+    // Spare capacity kept
     assert_non_empty(p, 'a', size, size, data);
   }
 }
