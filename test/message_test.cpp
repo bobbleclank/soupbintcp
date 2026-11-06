@@ -29,7 +29,7 @@ struct Packet_type<server::Message> {
 };
 
 void assert_empty(const Write_packet& p, char) {
-  ASSERT_EQ(p.payload_capacity(), static_cast<std::size_t>(-3));
+  ASSERT_EQ(p.payload_capacity(), 0u);
   ASSERT_EQ(p.data(), nullptr);
 }
 
@@ -56,7 +56,7 @@ void assert_non_empty(const Write_packet& p, char packet_type,
 
 template <typename Message>
 void assert_empty(Message& m) {
-  ASSERT_EQ(m.payload_capacity(), static_cast<std::size_t>(-3));
+  ASSERT_EQ(m.payload_capacity(), 0u);
   Write_packet p = m.release_packet();
   assert_empty(p, Packet_type<Message>::value);
 }

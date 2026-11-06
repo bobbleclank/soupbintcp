@@ -137,7 +137,7 @@ public:
   }
 
   std::size_t payload_capacity() const {
-    return packet_.size() - packet_header_length;
+    return packet_.size() == 0 ? 0 : packet_.size() - packet_header_length;
   }
 
   const void* data() const { return packet_.data(); }

@@ -485,7 +485,7 @@ namespace {
 // NOLINTBEGIN(clang-analyzer-cplusplus.Move)
 
 void assert_empty(const Write_packet& p) {
-  ASSERT_EQ(p.payload_capacity(), static_cast<std::size_t>(-3));
+  ASSERT_EQ(p.payload_capacity(), 0u);
   ASSERT_EQ(p.data(), nullptr);
 }
 
