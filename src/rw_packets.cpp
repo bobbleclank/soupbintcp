@@ -12,9 +12,7 @@ Buffer::Buffer(std::size_t size)
     : data_(std::make_unique<std::byte[]>(size)), size_(size) {}
 
 Buffer::Buffer(Buffer&& other) noexcept
-    : data_(std::move(other.data_)), size_(other.size_) {
-  other.size_ = 0;
-}
+    : data_(std::move(other.data_)), size_(std::exchange(other.size_, 0)) {}
 
 Buffer& Buffer::operator=(Buffer&& other) noexcept {
   data_ = std::move(other.data_);
