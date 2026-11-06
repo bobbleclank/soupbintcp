@@ -302,6 +302,14 @@ TEST(Read_packet, move_constructor) {
     assert_empty(p2);
   }
   {
+    constexpr auto size = 5;
+    Read_packet p1;
+    write_header(p1, 1 + size, 'a');
+    Read_packet p2(std::move(p1));
+    assert_empty(p1);
+    assert_empty(p2, 1 + size, 'a');
+  }
+  {
     std::string_view sv = "hello";
     const auto* data = sv.data();
     auto size = sv.size();
@@ -322,6 +330,15 @@ TEST(Read_packet, move_assignment) {
     p2 = std::move(p1);
     assert_empty(p1);
     assert_empty(p2);
+  }
+  {
+    constexpr auto size = 5;
+    Read_packet p1;
+    write_header(p1, 1 + size, 'a');
+    Read_packet p2;
+    p2 = std::move(p1);
+    assert_empty(p1);
+    assert_empty(p2, 1 + size, 'a');
   }
   {
     std::string_view sv = "hello";
