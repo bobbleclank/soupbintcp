@@ -18,8 +18,7 @@ Buffer::Buffer(Buffer&& other) noexcept
 
 Buffer& Buffer::operator=(Buffer&& other) noexcept {
   data_ = std::move(other.data_);
-  size_ = other.size_;
-  other.size_ = 0;
+  size_ = std::exchange(other.size_, 0);
   return *this;
 }
 

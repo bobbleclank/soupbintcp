@@ -139,7 +139,7 @@ TEST(Buffer, self_move_assignment) {
     const auto* data = b.data();
     Buffer& alias = b;
     b = std::move(alias);
-    assert_non_empty(b, 0);
+    assert_non_empty(b, size);
     ASSERT_EQ(b.data(), data);
   }
 }
