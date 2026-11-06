@@ -62,7 +62,7 @@ Read_packet::Resize_result Read_packet::resize_payload() {
     return Resize_result::malformed_header;
   if (packet_size == packet_type_length)
     return Resize_result::empty_payload;
-  payload_ = Buffer(packet_size - packet_type_length);
+  payload_ = Buffer(packet_size - packet_type_length, Buffer::for_overwrite);
   return Resize_result::resized;
 }
 
