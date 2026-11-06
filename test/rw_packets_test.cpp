@@ -386,6 +386,42 @@ TEST(Read_packet, move_assignment) {
   }
 }
 
+TEST(Read_packet, self_move_assignment) {
+  // Move through a reference to avoid -Wself-move
+  {
+    Read_packet p;
+    Read_packet& alias = p;
+    p = std::move(alias);
+    assert_empty(p);
+  }
+  {
+    constexpr auto size = 5;
+    Read_packet p;
+    write_header(p, 1 + size, 'a');
+    Read_packet& alias = p;
+    p = std::move(alias);
+    assert_empty(p);
+  }
+  {
+    std::string_view sv = "hello";
+    const auto* data = sv.data();
+    auto size = sv.size();
+    ASSERT_EQ(size, 5u);
+
+    Read_packet p;
+    write_payload(p, 'a', size, data);
+    const auto* payload_data = p.payload_data();
+    Read_packet& alias = p;
+    p = std::move(alias);
+    ASSERT_EQ(p.packet_size(), 0u);
+    ASSERT_EQ(p.packet_type(), '\0');
+    ASSERT_NE(p.payload_data(), nullptr);
+    ASSERT_EQ(p.payload_size(), size);
+    ASSERT_EQ(std::memcmp(p.payload_data(), data, size), 0);
+    ASSERT_EQ(p.payload_data(), payload_data);
+  }
+}
+
 TEST(Read_packet, resize_payload) {
   std::string_view sv = "hello";
   const auto* data = sv.data();
