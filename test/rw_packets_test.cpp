@@ -117,6 +117,33 @@ TEST(Buffer, move_assignment) {
   }
 }
 
+TEST(Buffer, self_move_assignment) {
+  // Move through a reference to avoid -Wself-move
+  {
+    Buffer b;
+    Buffer& alias = b;
+    b = std::move(alias);
+    assert_empty(b);
+  }
+  {
+    Buffer b(0);
+    const auto* data = b.data();
+    Buffer& alias = b;
+    b = std::move(alias);
+    assert_non_empty(b, 0);
+    ASSERT_EQ(b.data(), data);
+  }
+  {
+    constexpr auto size = 5;
+    Buffer b(size);
+    const auto* data = b.data();
+    Buffer& alias = b;
+    b = std::move(alias);
+    assert_non_empty(b, 0);
+    ASSERT_EQ(b.data(), data);
+  }
+}
+
 TEST(Buffer, clone) {
   {
     Buffer b1;
