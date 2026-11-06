@@ -11,6 +11,10 @@ Buffer::Buffer(std::size_t size)
     // NOLINTNEXTLINE(*-avoid-c-arrays): Dynamically-allocated array
     : data_(std::make_unique<std::byte[]>(size)), size_(size) {}
 
+Buffer::Buffer(std::size_t size, For_overwrite)
+    // NOLINTNEXTLINE(*-avoid-c-arrays): Dynamically-allocated array
+    : data_(std::make_unique_for_overwrite<std::byte[]>(size)), size_(size) {}
+
 Buffer::Buffer(Buffer&& other) noexcept
     : data_(std::move(other.data_)), size_(std::exchange(other.size_, 0)) {}
 

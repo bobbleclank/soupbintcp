@@ -12,8 +12,15 @@ namespace bc::soup {
 
 class Buffer {
 public:
+  struct For_overwrite {
+    explicit For_overwrite() = default;
+  };
+
+  static constexpr For_overwrite for_overwrite{};
+
   Buffer() = default;
   explicit Buffer(std::size_t);
+  explicit Buffer(std::size_t, For_overwrite);
   ~Buffer() = default;
 
   Buffer(const Buffer&) = delete;

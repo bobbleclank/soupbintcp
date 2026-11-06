@@ -56,6 +56,18 @@ TEST(Buffer, size_constructor) {
   }
 }
 
+TEST(Buffer, for_overwrite_constructor) {
+  {
+    Buffer b(0, Buffer::for_overwrite);
+    assert_non_empty(b, 0);
+  }
+  {
+    constexpr auto size = 5;
+    Buffer b(size, Buffer::for_overwrite);
+    assert_non_empty(b, size);
+  }
+}
+
 TEST(Buffer, move_constructor) {
   {
     Buffer b1;
