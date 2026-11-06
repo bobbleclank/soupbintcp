@@ -442,6 +442,12 @@ TEST(Read_packet, resize_payload) {
   }
   {
     Read_packet p;
+    write_header(p, 1 + max_payload_size, 'a');
+    ASSERT_EQ(p.resize_payload(), Read_packet::Resize_result::resized);
+    assert_non_empty(p, 'a', max_payload_size);
+  }
+  {
+    Read_packet p;
     write_payload(p, 'a', size, data);
     write_header(p, 0 + 0, 'b');
     ASSERT_EQ(p.resize_payload(), Read_packet::Resize_result::malformed_header);
