@@ -1,5 +1,6 @@
 #include "bc/soup/rw_packets.h"
 
+#include <array>
 #include <concepts>
 #include <cstddef>
 #include <cstdint>
@@ -48,8 +49,10 @@ TEST(Buffer, size_constructor) {
   }
   {
     constexpr auto size = 5;
+    std::array<unsigned char, size> arr = {};
+
     Buffer b(size);
-    assert_non_empty(b, size);
+    assert_non_empty(b, size, arr.data());
   }
 }
 
