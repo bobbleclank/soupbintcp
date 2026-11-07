@@ -5,7 +5,6 @@
 
 #include <concepts>
 #include <cstddef>
-#include <cstdint>
 #include <cstring>
 #include <string_view>
 
@@ -38,7 +37,7 @@ void assert_non_empty(const Write_packet& p, char packet_type,
                       std::integral auto payload_size) {
   ASSERT_EQ(p.payload_capacity(), static_cast<std::size_t>(payload_capacity));
   ASSERT_NE(p.data(), nullptr);
-  ASSERT_EQ(p.packet_size(), static_cast<std::uint16_t>(1 + payload_size));
+  ASSERT_EQ(p.packet_size(), static_cast<std::size_t>(1 + payload_size));
   ASSERT_EQ(p.packet_type(), packet_type);
   ASSERT_EQ(p.payload_size(), static_cast<std::size_t>(payload_size));
   ASSERT_EQ(p.size(), static_cast<std::size_t>(3 + payload_size));

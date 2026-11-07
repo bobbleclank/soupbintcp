@@ -249,7 +249,7 @@ void write_payload(Read_packet& p, char packet_type,
 
 void assert_empty(const Read_packet& p, std::integral auto packet_size,
                   char packet_type) {
-  ASSERT_EQ(p.packet_size(), static_cast<std::uint16_t>(packet_size));
+  ASSERT_EQ(p.packet_size(), static_cast<std::size_t>(packet_size));
   ASSERT_EQ(p.packet_type(), packet_type);
   ASSERT_EQ(p.payload_data(), nullptr);
   ASSERT_EQ(p.payload_size(), 0u);
@@ -263,7 +263,7 @@ void assert_empty(const Read_packet& p) {
 
 void assert_non_empty(const Read_packet& p, char packet_type,
                       std::integral auto payload_size) {
-  ASSERT_EQ(p.packet_size(), static_cast<std::uint16_t>(1 + payload_size));
+  ASSERT_EQ(p.packet_size(), static_cast<std::size_t>(1 + payload_size));
   ASSERT_EQ(p.packet_type(), packet_type);
   ASSERT_NE(p.payload_data(), nullptr);
   ASSERT_EQ(p.payload_size(), static_cast<std::size_t>(payload_size));
@@ -496,7 +496,7 @@ void assert_non_empty(const Write_packet& p, char packet_type,
                       std::integral auto payload_size) {
   ASSERT_EQ(p.payload_capacity(), static_cast<std::size_t>(payload_capacity));
   ASSERT_NE(p.data(), nullptr);
-  ASSERT_EQ(p.packet_size(), static_cast<std::uint16_t>(1 + payload_size));
+  ASSERT_EQ(p.packet_size(), static_cast<std::size_t>(1 + payload_size));
   ASSERT_EQ(p.packet_type(), packet_type);
   ASSERT_EQ(p.payload_size(), static_cast<std::size_t>(payload_size));
   ASSERT_EQ(p.size(), static_cast<std::size_t>(3 + payload_size));
