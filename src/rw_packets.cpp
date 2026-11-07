@@ -61,9 +61,10 @@ Read_packet::Resize_result Read_packet::resize_payload() {
 
 Write_packet::Write_packet(char packet_type) : Write_packet(packet_type, 0) {}
 
-Write_packet::Write_packet(char packet_type, std::uint16_t payload_size)
+Write_packet::Write_packet(char packet_type, std::size_t payload_size)
     : packet_(packet_header_length + payload_size) {
-  const std::uint16_t packet_size = packet_type_length + payload_size;
+  const auto packet_size =
+      static_cast<std::uint16_t>(packet_type_length + payload_size);
   pack(packet_size, packet_.data());
   // packet_ sized above
   // NOLINTNEXTLINE(*-pro-bounds-avoid-unchecked-container-access)
@@ -71,7 +72,7 @@ Write_packet::Write_packet(char packet_type, std::uint16_t payload_size)
 }
 
 Write_packet::Write_packet(char packet_type, const void* payload_data,
-                           std::uint16_t payload_size)
+                           std::size_t payload_size)
     : Write_packet(packet_type, payload_size) {
   // NOLINTNEXTLINE(*-pro-bounds-pointer-arithmetic): Payload location
   std::memcpy(packet_.data() + packet_header_length, payload_data,
@@ -91,10 +92,11 @@ std::uint16_t Write_packet::packet_size() const {
 }
 
 Write_packet::Resize_result
-Write_packet::resize_payload(std::uint16_t payload_size) {
+Write_packet::resize_payload(std::size_t payload_size) {
   if (payload_size > payload_capacity())
     return Resize_result::no_capacity;
-  const std::uint16_t packet_size = packet_type_length + payload_size;
+  const auto packet_size =
+      static_cast<std::uint16_t>(packet_type_length + payload_size);
   pack(packet_size, packet_.data());
   return Resize_result::resized;
 }

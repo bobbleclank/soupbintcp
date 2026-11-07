@@ -114,8 +114,7 @@ Write_error Connection::send_message(const void* data, std::size_t size) {
   if (size > max_payload_size)
     return Write_error::buffer_too_big;
 
-  Write_packet packet(Unsequenced_data_packet::packet_type, data,
-                      static_cast<std::uint16_t>(size));
+  Write_packet packet(Unsequenced_data_packet::packet_type, data, size);
   return send_packet(std::move(packet));
 }
 

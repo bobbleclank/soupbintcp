@@ -100,8 +100,8 @@ public:
 
   Write_packet() = default;
   explicit Write_packet(char);
-  Write_packet(char, std::uint16_t);
-  Write_packet(char, const void*, std::uint16_t);
+  Write_packet(char, std::size_t);
+  Write_packet(char, const void*, std::size_t);
   ~Write_packet() = default;
 
   Write_packet(const Write_packet&) = delete;
@@ -120,7 +120,7 @@ public:
     return static_cast<char>(packet_[packet_size_length]);
   }
 
-  [[nodiscard]] Resize_result resize_payload(std::uint16_t);
+  [[nodiscard]] Resize_result resize_payload(std::size_t);
 
   void* payload_data() {
     // NOLINTNEXTLINE(*-pro-bounds-pointer-arithmetic): Payload location

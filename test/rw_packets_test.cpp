@@ -536,7 +536,7 @@ TEST(Write_packet, write_payload_constructor) {
   auto size = sv.size();
   ASSERT_EQ(size, 5u);
 
-  Write_packet p('a', data, static_cast<std::uint16_t>(size));
+  Write_packet p('a', data, size);
   assert_non_empty(p, 'a', size, size, data);
 }
 
@@ -559,7 +559,7 @@ TEST(Write_packet, move_constructor) {
     auto size = sv.size();
     ASSERT_EQ(size, 5u);
 
-    Write_packet p1('a', data, static_cast<std::uint16_t>(size));
+    Write_packet p1('a', data, size);
     Write_packet p2(std::move(p1));
     assert_empty(p1);
     assert_non_empty(p2, 'a', size, size, data);
@@ -570,7 +570,7 @@ TEST(Write_packet, move_constructor) {
     auto size = sv.size();
     ASSERT_EQ(size, 11u);
 
-    Write_packet p1('a', data, static_cast<std::uint16_t>(size));
+    Write_packet p1('a', data, size);
     constexpr auto new_size = 5;
     ASSERT_EQ(p1.resize_payload(new_size),
               Write_packet::Resize_result::resized);
@@ -603,7 +603,7 @@ TEST(Write_packet, move_assignment) {
     auto size = sv.size();
     ASSERT_EQ(size, 5u);
 
-    Write_packet p1('a', data, static_cast<std::uint16_t>(size));
+    Write_packet p1('a', data, size);
     Write_packet p2;
     p2 = std::move(p1);
     assert_empty(p1);
@@ -615,7 +615,7 @@ TEST(Write_packet, move_assignment) {
     auto size = sv.size();
     ASSERT_EQ(size, 11u);
 
-    Write_packet p1('a', data, static_cast<std::uint16_t>(size));
+    Write_packet p1('a', data, size);
     constexpr auto new_size = 5;
     ASSERT_EQ(p1.resize_payload(new_size),
               Write_packet::Resize_result::resized);
@@ -633,7 +633,7 @@ TEST(Write_packet, move_assignment) {
     ASSERT_EQ(size, 11u);
 
     Write_packet p1;
-    Write_packet p2('b', data, static_cast<std::uint16_t>(size));
+    Write_packet p2('b', data, size);
     p2 = std::move(p1);
     assert_empty(p1);
     assert_empty(p2);
@@ -646,9 +646,9 @@ TEST(Write_packet, move_assignment) {
 
     std::string_view distinct_initial_value = "HELLO WORLD";
 
-    Write_packet p1('a', data, static_cast<std::uint16_t>(size));
+    Write_packet p1('a', data, size);
     Write_packet p2('b', distinct_initial_value.data(),
-                    static_cast<std::uint16_t>(distinct_initial_value.size()));
+                    distinct_initial_value.size());
     p2 = std::move(p1);
     assert_empty(p1);
     assert_non_empty(p2, 'a', size, size, data);
@@ -677,7 +677,7 @@ TEST(Write_packet, self_move_assignment) {
     auto size = sv.size();
     ASSERT_EQ(size, 5u);
 
-    Write_packet p('a', data, static_cast<std::uint16_t>(size));
+    Write_packet p('a', data, size);
     const auto* packet_data = p.data();
     Write_packet& alias = p;
     p = std::move(alias);
@@ -690,7 +690,7 @@ TEST(Write_packet, self_move_assignment) {
     auto size = sv.size();
     ASSERT_EQ(size, 11u);
 
-    Write_packet p('a', data, static_cast<std::uint16_t>(size));
+    Write_packet p('a', data, size);
     const auto* packet_data = p.data();
     constexpr auto new_size = 5;
     ASSERT_EQ(p.resize_payload(new_size), Write_packet::Resize_result::resized);
@@ -723,7 +723,7 @@ TEST(Write_packet, clone) {
     auto size = sv.size();
     ASSERT_EQ(size, 5u);
 
-    Write_packet p1('a', data, static_cast<std::uint16_t>(size));
+    Write_packet p1('a', data, size);
     Write_packet p2 = p1.clone();
     assert_non_empty(p1, 'a', size, size, data);
     assert_non_empty(p2, 'a', size, size, data);
@@ -743,7 +743,7 @@ TEST(Write_packet, clone) {
     auto size = sv.size();
     ASSERT_EQ(size, 11u);
 
-    Write_packet p1('a', data, static_cast<std::uint16_t>(size));
+    Write_packet p1('a', data, size);
     constexpr auto new_size = 5;
     ASSERT_EQ(p1.resize_payload(new_size),
               Write_packet::Resize_result::resized);
@@ -783,14 +783,13 @@ TEST(Write_packet, resize_payload) {
     auto size = sv.size();
     ASSERT_EQ(size, 11u);
 
-    Write_packet p('a', data, static_cast<std::uint16_t>(size));
+    Write_packet p('a', data, size);
     constexpr auto new_size = 5;
     ASSERT_EQ(p.resize_payload(new_size), Write_packet::Resize_result::resized);
     assert_non_empty(p, 'a', size, new_size, data);
     ASSERT_EQ(p.resize_payload(0), Write_packet::Resize_result::resized);
     assert_non_empty(p, 'a', size, 0);
-    ASSERT_EQ(p.resize_payload(static_cast<std::uint16_t>(size)),
-              Write_packet::Resize_result::resized);
+    ASSERT_EQ(p.resize_payload(size), Write_packet::Resize_result::resized);
     // Spare capacity kept
     assert_non_empty(p, 'a', size, size, data);
   }
@@ -802,7 +801,7 @@ TEST(Write_packet, payload) {
   auto size = sv.size();
   ASSERT_EQ(size, 5u);
 
-  Write_packet p('a', static_cast<std::uint16_t>(size));
+  Write_packet p('a', size);
   std::memcpy(p.payload_data(), data, size);
   assert_non_empty(p, 'a', size, size, data);
 }
