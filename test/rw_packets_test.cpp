@@ -518,8 +518,11 @@ TEST(Write_packet, empty_payload_constructor) {
 
 TEST(Write_packet, allocate_payload_constructor) {
   constexpr auto size = 5;
+  std::array<unsigned char, size> arr = {};
+
   Write_packet p('a', size);
-  assert_non_empty(p, 'a', size, size);
+  // Payload zeroed
+  assert_non_empty(p, 'a', size, size, arr.data());
 }
 
 TEST(Write_packet, write_payload_constructor) {
