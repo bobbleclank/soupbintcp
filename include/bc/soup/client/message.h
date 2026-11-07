@@ -5,7 +5,6 @@
 #include "bc/soup/rw_packets.h"
 
 #include <cstddef>
-#include <cstdint>
 #include <utility>
 
 namespace bc::soup::client {
@@ -16,10 +15,10 @@ public:
 
   Message() = default;
 
-  explicit Message(std::uint16_t payload_size)
+  explicit Message(std::size_t payload_size)
       : packet_(packet_type_, payload_size) {}
 
-  Message(const void* payload_data, std::uint16_t payload_size)
+  Message(const void* payload_data, std::size_t payload_size)
       : packet_(packet_type_, payload_data, payload_size) {}
 
   ~Message() = default;
@@ -32,7 +31,7 @@ public:
 
   Write_packet release_packet() { return std::move(packet_); }
 
-  [[nodiscard]] Resize_result resize_payload(std::uint16_t payload_size) {
+  [[nodiscard]] Resize_result resize_payload(std::size_t payload_size) {
     return packet_.resize_payload(payload_size);
   }
 
