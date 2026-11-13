@@ -6,6 +6,8 @@
 #include <cstddef>
 #include <cstring>
 #include <string_view>
+#include <type_traits>
+#include <utility>
 
 #include <gtest/gtest.h>
 
@@ -14,17 +16,13 @@ using namespace bc::soup;
 namespace {
 
 template <typename Message>
-struct Packet_type;
-
-template <>
-struct Packet_type<client::Message> {
-  static constexpr char value = 'U';
-};
-
-template <>
-struct Packet_type<server::Message> {
-  static constexpr char value = 'S';
-};
+consteval char packet_type() {
+  if (std::is_same_v<Message, client::Message>)
+    return 'U';
+  if (std::is_same_v<Message, server::Message>)
+    return 'S';
+  std::unreachable();
+}
 
 void assert_empty(const Write_packet& p, char) {
   ASSERT_EQ(p.payload_capacity(), 0u);
@@ -52,7 +50,7 @@ template <typename Message>
 void assert_empty(Message& m) {
   ASSERT_EQ(m.payload_capacity(), 0u);
   Write_packet p = m.release_packet();
-  assert_empty(p, Packet_type<Message>::value);
+  assert_empty(p, packet_type<Message>());
 }
 
 template <typename Message>
@@ -61,8 +59,7 @@ void assert_non_empty(Message& m, std::size_t payload_capacity,
   ASSERT_EQ(m.payload_capacity(), payload_capacity);
   ASSERT_EQ(m.payload_size(), payload_size);
   Write_packet p = m.release_packet();
-  assert_non_empty(p, Packet_type<Message>::value, payload_capacity,
-                   payload_size);
+  assert_non_empty(p, packet_type<Message>(), payload_capacity, payload_size);
 }
 
 template <typename Message>
@@ -72,8 +69,8 @@ void assert_non_empty(Message& m, std::size_t payload_capacity,
   ASSERT_EQ(m.payload_size(), payload_size);
   ASSERT_EQ(std::memcmp(m.payload_data(), payload_data, payload_size), 0);
   Write_packet p = m.release_packet();
-  assert_non_empty(p, Packet_type<Message>::value, payload_capacity,
-                   payload_size, payload_data);
+  assert_non_empty(p, packet_type<Message>(), payload_capacity, payload_size,
+                   payload_data);
 }
 
 } // namespace
@@ -116,7 +113,7 @@ TYPED_TEST(Message, release_packet) {
     TypeParam m;
     Write_packet p = m.release_packet();
     assert_empty(m);
-    assert_empty(p, Packet_type<TypeParam>::value);
+    assert_empty(p, packet_type<TypeParam>());
   }
   {
     std::string_view sv = "hello";
@@ -127,7 +124,7 @@ TYPED_TEST(Message, release_packet) {
     TypeParam m(data, size);
     Write_packet p = m.release_packet();
     assert_empty(m);
-    assert_non_empty(p, Packet_type<TypeParam>::value, size, size, data);
+    assert_non_empty(p, packet_type<TypeParam>(), size, size, data);
   }
   {
     std::string_view sv = "hello";
@@ -139,7 +136,7 @@ TYPED_TEST(Message, release_packet) {
     Write_packet p = m.release_packet();
     Write_packet q = m.release_packet();
     (void)p;
-    assert_empty(q, Packet_type<TypeParam>::value);
+    assert_empty(q, packet_type<TypeParam>());
   }
 }
 
