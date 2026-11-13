@@ -1,11 +1,13 @@
 #include "bc/soup/client/message.h"
 #include "bc/soup/server/message.h"
 
+#include "bc/soup/constants.h"
 #include "bc/soup/rw_packets.h"
 
 #include <array>
 #include <cstddef>
 #include <cstring>
+#include <string>
 #include <string_view>
 #include <type_traits>
 #include <utility>
@@ -93,6 +95,11 @@ TYPED_TEST(Message, allocate_payload_constructor) {
     assert_non_empty(m, 0, 0);
   }
   {
+    constexpr auto size = 1;
+    TypeParam m(size);
+    assert_non_empty(m, size, size);
+  }
+  {
     constexpr auto size = 5;
     std::array<unsigned char, size> arr = {};
 
@@ -100,16 +107,47 @@ TYPED_TEST(Message, allocate_payload_constructor) {
     // Payload zeroed
     assert_non_empty(m, size, size, arr.data());
   }
+  {
+    TypeParam m(max_payload_size);
+    assert_non_empty(m, max_payload_size, max_payload_size);
+  }
 }
 
 TYPED_TEST(Message, write_payload_constructor) {
-  std::string_view sv = "hello";
-  const auto* data = sv.data();
-  auto size = sv.size();
-  ASSERT_EQ(size, 5u);
+  {
+    std::string_view sv = "";
+    const auto* data = sv.data();
+    ASSERT_NE(data, nullptr);
 
-  TypeParam m(data, size);
-  assert_non_empty(m, size, size, data);
+    TypeParam m(data, 0);
+    assert_non_empty(m, 0, 0);
+  }
+  {
+    std::string_view sv = "h";
+    const auto* data = sv.data();
+    auto size = sv.size();
+    ASSERT_EQ(size, 1u);
+
+    TypeParam m(data, size);
+    assert_non_empty(m, size, size, data);
+  }
+  {
+    std::string_view sv = "hello";
+    const auto* data = sv.data();
+    auto size = sv.size();
+    ASSERT_EQ(size, 5u);
+
+    TypeParam m(data, size);
+    assert_non_empty(m, size, size, data);
+  }
+  {
+    std::string str(max_payload_size, 'o');
+    const auto* data = str.data();
+    ASSERT_EQ(str.size(), max_payload_size);
+
+    TypeParam m(data, max_payload_size);
+    assert_non_empty(m, max_payload_size, max_payload_size, data);
+  }
 }
 
 TYPED_TEST(Message, release_packet) {
@@ -184,8 +222,14 @@ TYPED_TEST(Message, resize_payload) {
 
     TypeParam m(data, size);
 
+    typename TypeParam::Resize_result result = m.resize_payload(size + 1);
+    ASSERT_EQ(result, TypeParam::Resize_result::no_capacity);
+    ASSERT_EQ(m.payload_capacity(), size);
+    ASSERT_EQ(m.payload_size(), size);
+    ASSERT_EQ(std::memcmp(m.payload_data(), data, size), 0);
+
     constexpr auto new_size = 5;
-    typename TypeParam::Resize_result result = m.resize_payload(new_size);
+    result = m.resize_payload(new_size);
     ASSERT_EQ(result, TypeParam::Resize_result::resized);
     ASSERT_EQ(m.payload_capacity(), 11u);
     ASSERT_EQ(m.payload_size(), 5u);
@@ -199,6 +243,24 @@ TYPED_TEST(Message, resize_payload) {
     result = m.resize_payload(size);
     ASSERT_EQ(result, TypeParam::Resize_result::resized);
     assert_non_empty(m, size, size, data);
+  }
+  {
+    TypeParam m(max_payload_size);
+
+    typename TypeParam::Resize_result result =
+        m.resize_payload(max_payload_size + 1);
+    ASSERT_EQ(result, TypeParam::Resize_result::no_capacity);
+    ASSERT_EQ(m.payload_capacity(), max_payload_size);
+    ASSERT_EQ(m.payload_size(), max_payload_size);
+
+    result = m.resize_payload(0);
+    ASSERT_EQ(result, TypeParam::Resize_result::resized);
+    ASSERT_EQ(m.payload_capacity(), max_payload_size);
+    ASSERT_EQ(m.payload_size(), 0u);
+
+    result = m.resize_payload(max_payload_size);
+    ASSERT_EQ(result, TypeParam::Resize_result::resized);
+    assert_non_empty(m, max_payload_size, max_payload_size);
   }
 }
 
