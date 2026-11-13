@@ -22,6 +22,7 @@ example/                  - example client and server programs
 - `Reconnect_timer` — one-shot per arm, re-armable (delay passed per `start()` rather than fixed at construction). Owns its own `asio::steady_timer`. Handler callbacks: `reconnect_timer_error`, `reconnect_timer_expired`. **No `*_stopped` drain signal** — the holder (`Connection`) isn't destroyed mid-life, so per-class drain coordination isn't needed; pending `async_wait` lambdas drain via the io thread join (per `Io_context_runner`). Each arm bumps `epoch_` and stamps its completion lambda; stale completions from prior arms are filtered before reaching `on_expiry` — protects against cross-arm leakage when `stop()` followed by `start()` races the completion queue.
 - `types.h` — shared enums: `Disconnect_reason`, `Packet_error`, `Write_error`. `Disconnect_reason::none` and similar `none` enumerators serve as sentinels (no value / success), avoiding `std::optional`.
 - `error.h` — `Error`, the project's single `std::error_code`-integrated enumeration (the only error type with a category, `soup_category()`), kept separate from the plain enums in `types.h`. See [Error category](#error-category).
+- `rw_packets.h` — `Buffer`, `Read_packet`, `Write_packet`: the byte storage behind every packet read from or written to the socket. See [Packets](#packets).
 
 ## Error category
 
@@ -32,6 +33,12 @@ example/                  - example client and server programs
 - **Membership.** All `Error` values are configuration errors — raised while configuring or starting a client/server, not during live operation. Three kinds: *validation* (`username_too_long`/`invalid_username` and the password/session equivalents — a malformed value), *collision* (`endpoint_in_use`, `username_in_use` — a well-formed key already in use), and *precondition* (`handler_not_set` — `start()` called before setup is complete).
 - **`default_error_condition` maps to `std::errc` only on a genuine semantic match.** Validation errors → `invalid_argument`; `endpoint_in_use` → `address_in_use`. `username_in_use` and `handler_not_set` have no honest portable equivalent, so they map to themselves in the soup category. Consequence: the catch-all for "any soup configuration error" is `ec.category() == soup_category()`.
 - **Validators.** `validate_username` / `validate_password` / `validate_session` (in `validate.h`) return `std::error_code` carrying `Error` (size → `*_too_long`, character set → `invalid_*`, else `{}`). Size is checked before character set, so an over-long *and* malformed input reports `*_too_long`.
+
+## Packets
+
+`Buffer` owns a heap byte array and its size. `Read_packet` holds an incoming packet as a fixed header array plus a `Buffer` payload sized from that header. `Write_packet` holds an outgoing packet as a single `Buffer` — header and payload together — so the socket writes it in one piece.
+
+- **Write payloads are zero-initialized; read payloads are not.** `Buffer(size)` value-initializes its bytes; `Buffer(size, Buffer::for_overwrite)` skips that. A `Write_packet` payload is filled by the user, so any bytes left unwritten go out as zeros rather than leftover heap contents. A `Read_packet` payload is filled in full by the socket read before the packet is handed to the handler, so zeroing it would be wasted work.
 
 ## Client side
 
