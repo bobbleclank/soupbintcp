@@ -242,6 +242,7 @@ TYPED_TEST(Message, resize_payload) {
 
     result = m.resize_payload(size);
     ASSERT_EQ(result, TypeParam::Resize_result::resized);
+    // Spare capacity kept
     assert_non_empty(m, size, size, data);
   }
   {
