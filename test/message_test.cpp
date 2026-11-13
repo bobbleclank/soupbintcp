@@ -3,6 +3,7 @@
 
 #include "bc/soup/rw_packets.h"
 
+#include <array>
 #include <cstddef>
 #include <cstring>
 #include <string_view>
@@ -93,8 +94,11 @@ TYPED_TEST(Message, allocate_payload_constructor) {
   }
   {
     constexpr auto size = 5;
+    std::array<unsigned char, size> arr = {};
+
     TypeParam m(size);
-    assert_non_empty(m, size, size);
+    // Payload zeroed
+    assert_non_empty(m, size, size, arr.data());
   }
 }
 
