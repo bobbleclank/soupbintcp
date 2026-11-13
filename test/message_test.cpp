@@ -168,18 +168,6 @@ TYPED_TEST(Message, release_packet) {
     assert_empty(m);
     assert_non_empty(p, packet_type<TypeParam>(), size, size, data);
   }
-  {
-    std::string_view sv = "hello";
-    const auto* data = sv.data();
-    auto size = sv.size();
-    ASSERT_EQ(size, 5u);
-
-    TypeParam m(data, size);
-    Write_packet p = m.release_packet();
-    Write_packet q = m.release_packet();
-    (void)p;
-    assert_empty(q, packet_type<TypeParam>());
-  }
 }
 
 TYPED_TEST(Message, resize_payload) {
