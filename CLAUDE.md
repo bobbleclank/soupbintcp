@@ -39,6 +39,7 @@ example/                  - example client and server programs
 `Buffer` owns a heap byte array and its size. `Read_packet` holds an incoming packet as a fixed header array plus a `Buffer` payload sized from that header. `Write_packet` holds an outgoing packet as a single `Buffer` — header and payload together — so the socket writes it in one piece.
 
 - **Write payloads are zero-initialized; read payloads are not.** `Buffer(size)` value-initializes its bytes; `Buffer(size, Buffer::for_overwrite)` skips that. A `Write_packet` payload is filled by the user, so any bytes left unwritten go out as zeros rather than leftover heap contents. A `Read_packet` payload is filled in full by the socket read before the packet is handed to the handler, so zeroing it would be wasted work.
+- **A moved-from packet is left in its default-constructed state** — called *empty* here and in the tests: no storage, and for `Read_packet` a zeroed header. That is distinct from an empty *payload*: `Write_packet(type)` is a complete packet whose payload has size 0. `Buffer`, `Read_packet` and `Write_packet` promise this rather than the standard's valid-but-unspecified state. `Buffer` and `Read_packet` write their moves by hand for this, since a defaulted move copies scalars and arrays rather than resetting them; `Write_packet` holds only a `Buffer`, so its defaulted move inherits the guarantee. Self-move assignment leaves the object unchanged.
 
 ## Client side
 
