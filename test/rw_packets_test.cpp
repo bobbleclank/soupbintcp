@@ -1,9 +1,12 @@
 #include "bc/soup/rw_packets.h"
 
+#include "bc/soup/constants.h"
+
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <string>
 #include <string_view>
 #include <utility>
 
@@ -517,22 +520,64 @@ TEST(Write_packet, empty_payload_constructor) {
 }
 
 TEST(Write_packet, allocate_payload_constructor) {
-  constexpr auto size = 5;
-  std::array<unsigned char, size> arr = {};
+  {
+    Write_packet p('a', 0);
+    assert_non_empty(p, 'a', 0, 0);
+  }
+  {
+    constexpr auto size = 1;
+    Write_packet p('a', size);
+    assert_non_empty(p, 'a', size, size);
+  }
+  {
+    constexpr auto size = 5;
+    std::array<unsigned char, size> arr = {};
 
-  Write_packet p('a', size);
-  // Payload zeroed
-  assert_non_empty(p, 'a', size, size, arr.data());
+    Write_packet p('a', size);
+    // Payload zeroed
+    assert_non_empty(p, 'a', size, size, arr.data());
+  }
+  {
+    Write_packet p('a', max_payload_size);
+    assert_non_empty(p, 'a', max_payload_size, max_payload_size);
+  }
 }
 
 TEST(Write_packet, write_payload_constructor) {
-  std::string_view sv = "hello";
-  const auto* data = sv.data();
-  auto size = sv.size();
-  ASSERT_EQ(size, 5u);
+  {
+    std::string_view sv = "";
+    const auto* data = sv.data();
+    ASSERT_NE(data, nullptr);
 
-  Write_packet p('a', data, size);
-  assert_non_empty(p, 'a', size, size, data);
+    Write_packet p('a', data, 0);
+    assert_non_empty(p, 'a', 0, 0);
+  }
+  {
+    std::string_view sv = "h";
+    const auto* data = sv.data();
+    auto size = sv.size();
+    ASSERT_EQ(size, 1u);
+
+    Write_packet p('a', data, size);
+    assert_non_empty(p, 'a', size, size, data);
+  }
+  {
+    std::string_view sv = "hello";
+    const auto* data = sv.data();
+    auto size = sv.size();
+    ASSERT_EQ(size, 5u);
+
+    Write_packet p('a', data, size);
+    assert_non_empty(p, 'a', size, size, data);
+  }
+  {
+    std::string str(max_payload_size, 'o');
+    const auto* data = str.data();
+    ASSERT_EQ(str.size(), max_payload_size);
+
+    Write_packet p('a', data, max_payload_size);
+    assert_non_empty(p, 'a', max_payload_size, max_payload_size, data);
+  }
 }
 
 TEST(Write_packet, move_constructor) {
@@ -779,6 +824,9 @@ TEST(Write_packet, resize_payload) {
     ASSERT_EQ(size, 11u);
 
     Write_packet p('a', data, size);
+    ASSERT_EQ(p.resize_payload(size + 1),
+              Write_packet::Resize_result::no_capacity);
+    assert_non_empty(p, 'a', size, size, data);
     constexpr auto new_size = 5;
     ASSERT_EQ(p.resize_payload(new_size), Write_packet::Resize_result::resized);
     assert_non_empty(p, 'a', size, new_size, data);
@@ -787,6 +835,17 @@ TEST(Write_packet, resize_payload) {
     ASSERT_EQ(p.resize_payload(size), Write_packet::Resize_result::resized);
     // Spare capacity kept
     assert_non_empty(p, 'a', size, size, data);
+  }
+  {
+    Write_packet p('a', max_payload_size);
+    ASSERT_EQ(p.resize_payload(max_payload_size + 1),
+              Write_packet::Resize_result::no_capacity);
+    assert_non_empty(p, 'a', max_payload_size, max_payload_size);
+    ASSERT_EQ(p.resize_payload(0), Write_packet::Resize_result::resized);
+    assert_non_empty(p, 'a', max_payload_size, 0);
+    ASSERT_EQ(p.resize_payload(max_payload_size),
+              Write_packet::Resize_result::resized);
+    assert_non_empty(p, 'a', max_payload_size, max_payload_size);
   }
 }
 
