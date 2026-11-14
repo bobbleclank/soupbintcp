@@ -2,6 +2,7 @@
 #define INCLUDE_BC_SOUP_CLIENT_CLIENT_H
 
 #include "bc/soup/client/connection.h"
+#include "bc/soup/client/message_fwd.h"
 #include "bc/soup/expected.h"
 #include "bc/soup/types.h"
 
@@ -21,7 +22,6 @@ namespace bc::soup::client {
 
 class Client_handler;
 class Connection_handler;
-class Message;
 
 class Client {
 public:

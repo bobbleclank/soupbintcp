@@ -2,10 +2,12 @@ target_sources(bcsoup
   PUBLIC
     FILE_SET HEADERS
     FILES
+      bc/soup/basic_message.h
       bc/soup/client/client.h
       bc/soup/client/connection.h
       bc/soup/client/handler.h
       bc/soup/client/message.h
+      bc/soup/client/message_fwd.h
       bc/soup/client/tcp_connection.h
       bc/soup/client/types.h
       bc/soup/connection_state.h
@@ -23,6 +25,7 @@ target_sources(bcsoup
       bc/soup/server/handler.h
       bc/soup/server/login_reject.h
       bc/soup/server/message.h
+      bc/soup/server/message_fwd.h
       bc/soup/server/port.h
       bc/soup/server/server.h
       bc/soup/server/tcp_connection.h

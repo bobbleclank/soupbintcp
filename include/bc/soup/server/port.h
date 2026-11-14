@@ -2,6 +2,7 @@
 #define INCLUDE_BC_SOUP_SERVER_PORT_H
 
 #include "bc/soup/expected.h"
+#include "bc/soup/server/message_fwd.h"
 #include "bc/soup/types.h"
 
 #include <cstddef>
@@ -20,7 +21,6 @@ namespace bc::soup::server {
 class Port_handler;
 // NOLINTNEXTLINE(*-virtual-class-destructor): Final class
 class Tcp_connection;
-class Message;
 struct Login_reject;
 
 class Port {

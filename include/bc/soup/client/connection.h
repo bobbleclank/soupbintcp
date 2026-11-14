@@ -1,6 +1,7 @@
 #ifndef INCLUDE_BC_SOUP_CLIENT_CONNECTION_H
 #define INCLUDE_BC_SOUP_CLIENT_CONNECTION_H
 
+#include "bc/soup/client/message_fwd.h"
 #include "bc/soup/client/tcp_connection.h"
 #include "bc/soup/reconnect_timer.h"
 #include "bc/soup/types.h"
@@ -25,7 +26,6 @@ namespace bc::soup::client {
 
 class Client;
 class Connection_handler;
-class Message;
 
 class Connection final : public Reconnect_timer::Handler {
 public:
