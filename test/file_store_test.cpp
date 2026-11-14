@@ -109,6 +109,18 @@ struct Partial_write : Partial_rw<const unsigned char> {
 
 } // namespace
 
+class File_store_f : public ::testing::Test {
+protected:
+  void SetUp() override { remove_files(); }
+  void TearDown() override { remove_files(); }
+
+private:
+  static void remove_files() {
+    unlink(filename.c_str());
+    unlink(filename_2.c_str());
+  }
+};
+
 TEST(File_store, read_partial_handling) {
   {
     const std::initializer_list<ssize_t> in = {10};
@@ -304,9 +316,7 @@ TEST(File_store, write_partial_handling) {
   }
 }
 
-TEST(File_store, add_to_empty_file) {
-  unlink(filename.c_str());
-
+TEST_F(File_store_f, add_to_empty_file) {
   File_store s(filename);
   auto ec = s.open();
   ASSERT_FALSE(ec);
@@ -340,9 +350,7 @@ TEST(File_store, add_to_empty_file) {
   assert_messages(v);
 }
 
-TEST(File_store, open_non_empty_file) {
-  unlink(filename.c_str());
-
+TEST_F(File_store_f, open_non_empty_file) {
   {
     File_store s(filename);
     auto ec = s.open();
@@ -428,8 +436,7 @@ TEST(File_store, open_non_empty_file) {
   }
 }
 
-TEST(File_store, add_to_existing_file) {
-  unlink(filename.c_str());
+TEST_F(File_store_f, add_to_existing_file) {
   {
     File_store s;
     s.set_filename(filename);
@@ -513,9 +520,7 @@ TEST(File_store, add_to_existing_file) {
   }
 }
 
-TEST(File_store, add_oversized_message) {
-  unlink(filename.c_str());
-
+TEST_F(File_store_f, add_oversized_message) {
   File_store s(filename);
   auto ec = s.open();
   ASSERT_FALSE(ec);
@@ -526,10 +531,7 @@ TEST(File_store, add_oversized_message) {
   ASSERT_EQ(s.next_sequence_number(), 1u);
 }
 
-TEST(File_store, move_operations) {
-  unlink(filename.c_str());
-  unlink(filename_2.c_str());
-
+TEST_F(File_store_f, move_operations) {
   File_store s1(filename);
   auto ec = s1.open();
   ASSERT_FALSE(ec);
