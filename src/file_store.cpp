@@ -104,7 +104,7 @@ std::error_code File_store::add(const void* data, std::size_t size) {
   offsets_.push_back(off);
 
   {
-    const std::uint16_t sz = htons(size);
+    const std::uint16_t sz = htons(static_cast<std::uint16_t>(size));
     const auto res = soup::write(fd_, &sz, sizeof(sz));
     if (res.status == detail::Write_status::failure)
       return {errno, std::system_category()};
