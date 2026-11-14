@@ -1,5 +1,7 @@
 #include "bc/soup/file_store.h"
 
+#include "bc/soup/constants.h"
+
 #include <cerrno>
 
 #include <arpa/inet.h>
@@ -98,6 +100,9 @@ std::error_code File_store::close() {
 }
 
 std::error_code File_store::add(const void* data, std::size_t size) {
+  if (size > max_payload_size)
+    return std::make_error_code(std::errc::message_size);
+
   const off_t off = lseek(fd_, 0, SEEK_END);
   if (off == -1)
     return {errno, std::system_category()};

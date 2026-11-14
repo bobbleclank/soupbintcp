@@ -1,5 +1,7 @@
 #include "bc/soup/file_store.h"
 
+#include "bc/soup/constants.h"
+
 #include <array>
 #include <cstddef>
 #include <cstring>
@@ -7,6 +9,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <utility>
 #include <vector>
 
@@ -490,6 +493,19 @@ TEST(File_store, add_to_existing_file) {
     ec = s.close();
     ASSERT_FALSE(ec);
   }
+}
+
+TEST(File_store, add_oversized_message) {
+  unlink(filename.c_str());
+
+  File_store s(filename);
+  auto ec = s.open();
+  ASSERT_FALSE(ec);
+
+  const std::string str(max_payload_size + 1, 'o');
+  ec = add(s, str);
+  ASSERT_EQ(ec, std::errc::message_size);
+  ASSERT_EQ(s.next_sequence_number(), 1u);
 }
 
 TEST(File_store, move_operations) {
