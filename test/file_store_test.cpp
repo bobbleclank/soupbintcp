@@ -28,6 +28,13 @@ auto add(File_store& s, std::string_view sv) {
   return s.add(sv.begin(), sv.end());
 }
 
+auto add(File_store& s, std::initializer_list<std::string_view> svs) {
+  for (const auto sv : svs)
+    if (const auto ec = add(s, sv))
+      return ec;
+  return std::error_code();
+}
+
 void assert_messages(const std::vector<Message>& v) {
   ASSERT_EQ(v.size(), 9u);
   auto i = v.begin();
@@ -334,6 +341,17 @@ TEST(File_store, add_to_empty_file) {
 }
 
 TEST(File_store, open_non_empty_file) {
+  unlink(filename.c_str());
+
+  {
+    File_store s(filename);
+    auto ec = s.open();
+    ASSERT_FALSE(ec);
+    ec = add(s, {"The", "quick", "brown", "fox", "jumps", "over", "the", "lazy",
+                 "dog"});
+    ASSERT_FALSE(ec);
+  }
+
   File_store s(filename);
   auto ec = s.open();
   ASSERT_FALSE(ec);
