@@ -2,10 +2,21 @@
 
 #include "bc/soup/packing.h"
 
+#include <cstdlib>
 #include <cstring>
 #include <utility>
 
 namespace bc::soup {
+
+namespace {
+
+std::size_t checked_payload_size(std::size_t payload_size) {
+  if (payload_size > max_payload_size)
+    std::abort();
+  return payload_size;
+}
+
+} // namespace
 
 Buffer::Buffer(std::size_t size)
     // NOLINTNEXTLINE(*-avoid-c-arrays): Dynamically-allocated array
@@ -62,7 +73,7 @@ Read_packet::Resize_result Read_packet::resize_payload() {
 Write_packet::Write_packet(char packet_type) : Write_packet(packet_type, 0) {}
 
 Write_packet::Write_packet(char packet_type, std::size_t payload_size)
-    : packet_(packet_header_length + payload_size) {
+    : packet_(packet_header_length + checked_payload_size(payload_size)) {
   const auto packet_size =
       static_cast<std::uint16_t>(packet_type_length + payload_size);
   pack(packet_size, packet_.data());

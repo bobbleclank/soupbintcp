@@ -84,6 +84,11 @@ class Message : public ::testing::Test {};
 using Types = ::testing::Types<client::Message, server::Message>;
 TYPED_TEST_SUITE(Message, Types, );
 
+template <typename T>
+using Message_DeathTest = Message<T>;
+
+TYPED_TEST_SUITE(Message_DeathTest, Types, );
+
 TYPED_TEST(Message, default_constructor) {
   TypeParam m;
   assert_empty(m);
@@ -111,6 +116,10 @@ TYPED_TEST(Message, allocate_payload_constructor) {
     TypeParam m(max_payload_size);
     assert_non_empty(m, max_payload_size, max_payload_size);
   }
+}
+
+TYPED_TEST(Message_DeathTest, allocate_payload_constructor) {
+  ASSERT_DEATH(TypeParam m(max_payload_size + 1), "");
 }
 
 TYPED_TEST(Message, write_payload_constructor) {
@@ -148,6 +157,14 @@ TYPED_TEST(Message, write_payload_constructor) {
     TypeParam m(data, max_payload_size);
     assert_non_empty(m, max_payload_size, max_payload_size, data);
   }
+}
+
+TYPED_TEST(Message_DeathTest, write_payload_constructor) {
+  std::string str(max_payload_size + 1, 'o');
+  const auto* data = str.data();
+  ASSERT_EQ(str.size(), max_payload_size + 1);
+
+  ASSERT_DEATH(TypeParam m(data, max_payload_size + 1), "");
 }
 
 TYPED_TEST(Message, release_packet) {

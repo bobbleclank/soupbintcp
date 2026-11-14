@@ -543,6 +543,10 @@ TEST(Write_packet, allocate_payload_constructor) {
   }
 }
 
+TEST(Write_packet_DeathTest, allocate_payload_constructor) {
+  ASSERT_DEATH(Write_packet p('a', max_payload_size + 1), "");
+}
+
 TEST(Write_packet, write_payload_constructor) {
   {
     std::string_view sv = "";
@@ -578,6 +582,14 @@ TEST(Write_packet, write_payload_constructor) {
     Write_packet p('a', data, max_payload_size);
     assert_non_empty(p, 'a', max_payload_size, max_payload_size, data);
   }
+}
+
+TEST(Write_packet_DeathTest, write_payload_constructor) {
+  std::string str(max_payload_size + 1, 'o');
+  const auto* data = str.data();
+  ASSERT_EQ(str.size(), max_payload_size + 1);
+
+  ASSERT_DEATH(Write_packet p('a', data, max_payload_size + 1), "");
 }
 
 TEST(Write_packet, move_constructor) {
