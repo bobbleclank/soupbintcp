@@ -36,8 +36,8 @@ const char* to_string(Write_error error) {
     return "disconnected";
   case Write_error::not_logged_in:
     return "not logged in";
-  case Write_error::buffer_full:
-    return "buffer full";
+  case Write_error::write_buffer_full:
+    return "write buffer full";
   }
   return "?";
 }

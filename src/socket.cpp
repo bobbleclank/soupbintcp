@@ -86,7 +86,7 @@ Write_error Socket::async_write(Write_packet&& packet) {
   // >= not == since async_write_guaranteed can exceed the limit
   if (size >= write_packets_limit_) {
     write_buffer_was_full_ = true;
-    return Write_error::buffer_full;
+    return Write_error::write_buffer_full;
   }
   write_packets_.push_back(std::move(packet));
   if (size == 0)

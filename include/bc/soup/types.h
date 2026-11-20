@@ -22,7 +22,7 @@ enum class Write_error {
   session_ended,
   disconnected,
   not_logged_in,
-  buffer_full
+  write_buffer_full
 };
 
 const char* to_string(Write_error);

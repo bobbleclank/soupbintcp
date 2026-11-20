@@ -139,8 +139,8 @@ template <typename Container>
 Write_error priority_error(const Container& errors) {
   if (std::ranges::contains(errors, Write_error::none))
     return Write_error::none;
-  if (std::ranges::contains(errors, Write_error::buffer_full))
-    return Write_error::buffer_full;
+  if (std::ranges::contains(errors, Write_error::write_buffer_full))
+    return Write_error::write_buffer_full;
   if (std::ranges::contains(errors, Write_error::not_logged_in))
     return Write_error::not_logged_in;
   return Write_error::disconnected;
