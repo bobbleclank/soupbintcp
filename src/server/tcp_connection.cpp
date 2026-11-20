@@ -10,7 +10,6 @@
 #include "bc/soup/server/types.h"
 
 #include <cassert>
-#include <cstdint>
 #include <utility>
 
 namespace bc::soup::server {

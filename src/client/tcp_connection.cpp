@@ -8,7 +8,6 @@
 #include "bc/soup/rw_packets.h"
 
 #include <cassert>
-#include <cstdint>
 #include <utility>
 
 namespace bc::soup::client {
