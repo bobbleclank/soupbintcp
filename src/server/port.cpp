@@ -35,7 +35,7 @@ Write_error Port::send_message(const void* data, std::size_t size) {
   if (!data)
     return Write_error::null_buffer;
   if (size > max_payload_size)
-    return Write_error::buffer_too_big;
+    return Write_error::payload_too_big;
 
   Write_packet packet(Sequenced_data_packet::packet_type, data, size);
   const auto error = send_packet(std::move(packet));
