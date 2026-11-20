@@ -24,10 +24,10 @@ const char* to_string(Write_error error) {
   switch (error) {
   case Write_error::none:
     return "none";
-  case Write_error::empty_payload:
-    return "empty payload";
   case Write_error::null_buffer:
     return "null buffer";
+  case Write_error::empty_payload:
+    return "empty payload";
   case Write_error::payload_too_big:
     return "payload too big";
   case Write_error::session_ended:

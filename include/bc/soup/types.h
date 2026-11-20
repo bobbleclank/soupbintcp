@@ -16,8 +16,8 @@ const char* to_string(Packet_error);
 
 enum class Write_error {
   none = 0,
-  empty_payload,
   null_buffer,
+  empty_payload,
   payload_too_big,
   session_ended,
   disconnected,
