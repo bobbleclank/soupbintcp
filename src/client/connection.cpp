@@ -119,14 +119,13 @@ Write_error Connection::send_message(const void* data, std::size_t size) {
 }
 
 Write_error Connection::send_message(Message&& message) {
-  if (message.payload_size() == 0)
-    return Write_error::empty_buffer;
-  if (!message.payload_data())
-    return Write_error::null_buffer;
-  if (message.payload_size() > max_payload_size)
-    return Write_error::buffer_too_big;
-
   auto packet = std::move(message).release_packet();
+
+  if (!packet.data())
+    return Write_error::null_buffer;
+  if (packet.payload_size() == 0)
+    return Write_error::empty_buffer;
+
   return send_packet(std::move(packet));
 }
 
