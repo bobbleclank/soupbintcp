@@ -97,6 +97,7 @@ Write_packet Write_packet::clone() const {
 }
 
 std::uint16_t Write_packet::packet_size() const {
+  assert(packet_.data());
   std::uint16_t size = 0;
   unpack(size, packet_.data());
   return size;
@@ -104,6 +105,7 @@ std::uint16_t Write_packet::packet_size() const {
 
 Write_packet::Resize_result
 Write_packet::resize_payload(std::size_t payload_size) {
+  assert(packet_.data());
   if (payload_size > payload_capacity())
     return Resize_result::no_capacity;
   const auto packet_size =

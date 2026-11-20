@@ -808,6 +808,22 @@ TEST(Write_packet, clone) {
   }
 }
 
+TEST(Write_packet_DeathTest, packet_size_on_empty) {
+#ifdef NDEBUG
+  GTEST_SKIP() << "asserts disabled";
+#endif
+  Write_packet p;
+  ASSERT_DEATH(p.packet_size(), "Assertion");
+}
+
+TEST(Write_packet_DeathTest, packet_type_on_empty) {
+#ifdef NDEBUG
+  GTEST_SKIP() << "asserts disabled";
+#endif
+  Write_packet p;
+  ASSERT_DEATH(p.packet_type(), "Assertion");
+}
+
 TEST(Write_packet, resize_payload) {
   {
     Write_packet p('a');
@@ -861,6 +877,14 @@ TEST(Write_packet, resize_payload) {
   }
 }
 
+TEST(Write_packet_DeathTest, resize_payload_on_empty) {
+#ifdef NDEBUG
+  GTEST_SKIP() << "asserts disabled";
+#endif
+  Write_packet p;
+  ASSERT_DEATH((void)p.resize_payload(0), "Assertion");
+}
+
 TEST(Write_packet, payload_data) {
   std::string_view sv = "hello";
   const auto* data = sv.data();
@@ -870,4 +894,36 @@ TEST(Write_packet, payload_data) {
   Write_packet p('a', size);
   std::memcpy(p.payload_data(), data, size);
   assert_non_empty(p, 'a', size, size, data);
+}
+
+TEST(Write_packet_DeathTest, payload_data_on_empty) {
+#ifdef NDEBUG
+  GTEST_SKIP() << "asserts disabled";
+#endif
+  Write_packet p;
+  ASSERT_DEATH(p.payload_data(), "Assertion");
+}
+
+TEST(Write_packet_DeathTest, const_payload_data_on_empty) {
+#ifdef NDEBUG
+  GTEST_SKIP() << "asserts disabled";
+#endif
+  const Write_packet p;
+  ASSERT_DEATH(p.payload_data(), "Assertion");
+}
+
+TEST(Write_packet_DeathTest, payload_size_on_empty) {
+#ifdef NDEBUG
+  GTEST_SKIP() << "asserts disabled";
+#endif
+  Write_packet p;
+  ASSERT_DEATH(p.payload_size(), "Assertion");
+}
+
+TEST(Write_packet_DeathTest, size_on_empty) {
+#ifdef NDEBUG
+  GTEST_SKIP() << "asserts disabled";
+#endif
+  Write_packet p;
+  ASSERT_DEATH(p.size(), "Assertion");
 }

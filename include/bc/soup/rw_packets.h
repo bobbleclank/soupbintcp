@@ -4,6 +4,7 @@
 #include "bc/soup/constants.h"
 
 #include <array>
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -115,6 +116,7 @@ public:
   std::uint16_t packet_size() const;
 
   char packet_type() const {
+    assert(packet_.data());
     // Packet type location
     // NOLINTNEXTLINE(*-pro-bounds-avoid-unchecked-container-access)
     return static_cast<char>(packet_[packet_size_length]);
@@ -123,16 +125,19 @@ public:
   [[nodiscard]] Resize_result resize_payload(std::size_t);
 
   void* payload_data() {
+    assert(packet_.data());
     // NOLINTNEXTLINE(*-pro-bounds-pointer-arithmetic): Payload location
     return packet_.data() + packet_header_length;
   }
 
   const void* payload_data() const {
+    assert(packet_.data());
     // NOLINTNEXTLINE(*-pro-bounds-pointer-arithmetic): Payload location
     return packet_.data() + packet_header_length;
   }
 
   std::size_t payload_size() const {
+    assert(packet_.data());
     return packet_size() - packet_type_length;
   }
 
@@ -142,7 +147,10 @@ public:
 
   const void* data() const { return packet_.data(); }
 
-  std::size_t size() const { return packet_size_length + packet_size(); }
+  std::size_t size() const {
+    assert(packet_.data());
+    return packet_size_length + packet_size();
+  }
 
 private:
   Buffer packet_;
