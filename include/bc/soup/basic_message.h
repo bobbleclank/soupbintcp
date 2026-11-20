@@ -29,7 +29,7 @@ public:
   Basic_message(Basic_message&&) = default;
   Basic_message& operator=(Basic_message&&) = default;
 
-  Write_packet release_packet() { return std::move(packet_); }
+  Write_packet release_packet() && { return std::move(packet_); }
 
   [[nodiscard]] Resize_result resize_payload(std::size_t payload_size) {
     return packet_.resize_payload(payload_size);

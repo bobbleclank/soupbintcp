@@ -52,7 +52,7 @@ void assert_non_empty(const Write_packet& p, char packet_type,
 template <typename Message>
 void assert_empty(Message& m) {
   ASSERT_EQ(m.payload_capacity(), 0u);
-  Write_packet p = m.release_packet();
+  Write_packet p = std::move(m).release_packet();
   assert_empty(p, packet_type<Message>());
 }
 
@@ -61,7 +61,7 @@ void assert_non_empty(Message& m, std::size_t payload_capacity,
                       std::size_t payload_size) {
   ASSERT_EQ(m.payload_capacity(), payload_capacity);
   ASSERT_EQ(m.payload_size(), payload_size);
-  Write_packet p = m.release_packet();
+  Write_packet p = std::move(m).release_packet();
   assert_non_empty(p, packet_type<Message>(), payload_capacity, payload_size);
 }
 
@@ -71,7 +71,7 @@ void assert_non_empty(Message& m, std::size_t payload_capacity,
   ASSERT_EQ(m.payload_capacity(), payload_capacity);
   ASSERT_EQ(m.payload_size(), payload_size);
   ASSERT_EQ(std::memcmp(m.payload_data(), payload_data, payload_size), 0);
-  Write_packet p = m.release_packet();
+  Write_packet p = std::move(m).release_packet();
   assert_non_empty(p, packet_type<Message>(), payload_capacity, payload_size,
                    payload_data);
 }
@@ -170,7 +170,7 @@ TYPED_TEST(Message_DeathTest, write_payload_constructor) {
 TYPED_TEST(Message, release_packet) {
   {
     TypeParam m;
-    Write_packet p = m.release_packet();
+    Write_packet p = std::move(m).release_packet();
     assert_empty(m);
     assert_empty(p, packet_type<TypeParam>());
   }
@@ -181,7 +181,7 @@ TYPED_TEST(Message, release_packet) {
     ASSERT_EQ(size, 5u);
 
     TypeParam m(data, size);
-    Write_packet p = m.release_packet();
+    Write_packet p = std::move(m).release_packet();
     assert_empty(m);
     assert_non_empty(p, packet_type<TypeParam>(), size, size, data);
   }

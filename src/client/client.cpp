@@ -87,7 +87,6 @@ Write_error Client::send_message(const void* data, std::size_t size) {
   return send_packet(std::move(packet));
 }
 
-// NOLINTNEXTLINE(*-rvalue-reference-param-not-moved): Moved via release_packet
 Write_error Client::send_message(Message&& message) {
   if (message.payload_size() == 0)
     return Write_error::empty_buffer;
@@ -96,7 +95,7 @@ Write_error Client::send_message(Message&& message) {
   if (message.payload_size() > max_payload_size)
     return Write_error::buffer_too_big;
 
-  auto packet = message.release_packet();
+  auto packet = std::move(message).release_packet();
   return send_packet(std::move(packet));
 }
 
