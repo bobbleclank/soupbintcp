@@ -78,13 +78,14 @@ Hierarchy: `Server` → `Acceptor` → `Port` → `Tcp_connection`
 
 ## Send argument validation
 
-Every send entry point validates its arguments before constructing a packet, in a fixed order: **empty, then null, then too big**. `send_message` runs all three; `send_debug` takes a `std::string_view` and so has no null check.
+Every send entry point validates its input before sending, and the order depends on what arrives. Raw bytes — `send_message(data, size)` and `send_debug` — are checked **empty, then null, then too big**, before the packet is built; `send_debug` takes a `std::string_view` and so has no null check. A `Message` arrives with its packet already built, so `send_message(Message&&)` checks **null, then empty**.
 
-- **Argument validation sits where the packet is constructed.** `Client`/`Connection`/`Port::send_message` and `Tcp_connection::send_debug_packet` each build their own `Write_packet`, and validate before doing so.
+- **Argument validation sits where the packet is constructed.** `Client`/`Connection`/`Port::send_message(data, size)` and `Tcp_connection::send_debug_packet` each build their own `Write_packet`, and validate before doing so.
 - **Zero-length data messages are unsupported.** The protocol sets no minimum Packet Length, but describes a data packet as an *envelope* that "carries a single higher-level protocol message". An empty payload carries no message, so there is nothing to envelop — `send_message` rejects it rather than putting an empty envelope on the wire, which is why `empty_buffer` exists.
 - **The protocol does not define a maximum payload length.** The `max_payload_size` ceiling is structural, not normative: 65534 is simply the largest payload the Two Byte Packet Length can express alongside the Packet Type byte. `buffer_too_big` enforces it at the send boundary, so a caller gets an error code; the `Write_packet` constructor's abort is the backstop for code that builds a packet directly.
-- **`empty_buffer` precedes `null_buffer`** so each name denotes an exact set. A buffer is valid as `(null, 0)`, `(non-null, 0)` or `(non-null, non-0)`; only `(null, non-0)` is malformed. Checking size first makes `empty_buffer` mean "nothing to send" — both spellings — and leaves `null_buffer` for the malformed case alone.
+- **`empty_buffer` precedes `null_buffer`** so each name denotes an exact set. A buffer is valid as `(null, 0)`, `(non-null, 0)` or `(non-null, non-0)`; only `(null, non-0)` is malformed. Checking size first makes `empty_buffer` mean "nothing to send" — both spellings — and leaves `null_buffer` for broken input: the malformed case here, an empty `Message` in the `(Message&&)` form.
 - **`buffer_too_big` goes last, after the null check** — a claim about the buffer, so the pointer must be checked first.
+- **`send_message(Message&&)` checks null, then empty.** The size limit was enforced when the `Message` was constructed, so there is no too-big check. The `Message` releases its packet first, and the checks run on the packet: an empty `Message` (default-constructed, moved-from or already sent) has no buffer, so `null_buffer` comes first, before anything reads the header; a complete `Message` with a zero-length payload gets `empty_buffer`, as in the `(data, size)` form. Releasing first loses nothing, since neither case holds a payload.
 
 ## Send logout request (client)
 
