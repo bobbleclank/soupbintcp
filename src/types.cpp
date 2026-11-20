@@ -24,8 +24,8 @@ const char* to_string(Write_error error) {
   switch (error) {
   case Write_error::none:
     return "none";
-  case Write_error::empty_buffer:
-    return "empty buffer";
+  case Write_error::empty_payload:
+    return "empty payload";
   case Write_error::null_buffer:
     return "null buffer";
   case Write_error::buffer_too_big:

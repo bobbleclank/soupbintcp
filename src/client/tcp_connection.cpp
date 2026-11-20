@@ -310,7 +310,7 @@ Write_error Tcp_connection::send_packet(Write_packet&& packet) {
 
 Write_error Tcp_connection::send_debug_packet(std::string_view text) {
   if (text.empty())
-    return Write_error::empty_buffer;
+    return Write_error::empty_payload;
   if (text.size() > max_payload_size)
     return Write_error::buffer_too_big;
 

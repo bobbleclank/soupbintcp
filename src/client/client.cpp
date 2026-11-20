@@ -77,7 +77,7 @@ void Client::stop() {
 
 Write_error Client::send_message(const void* data, std::size_t size) {
   if (size == 0)
-    return Write_error::empty_buffer;
+    return Write_error::empty_payload;
   if (!data)
     return Write_error::null_buffer;
   if (size > max_payload_size)
@@ -93,7 +93,7 @@ Write_error Client::send_message(Message&& message) {
   if (!packet.data())
     return Write_error::null_buffer;
   if (packet.payload_size() == 0)
-    return Write_error::empty_buffer;
+    return Write_error::empty_payload;
 
   return send_packet(std::move(packet));
 }
