@@ -69,7 +69,8 @@ Write_error Port::send_packet(Write_packet&& packet) {
     return Write_error::session_ended;
   if (!connection_)
     return Write_error::disconnected;
-  return connection_->send_packet(std::move(packet));
+  const auto [error, _] = connection_->send_packet(std::move(packet));
+  return error;
 }
 
 bool Port::is_handler_set() const {

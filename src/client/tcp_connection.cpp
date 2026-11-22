@@ -296,15 +296,15 @@ Write_error Tcp_connection::send_logout_request_packet() {
   return error;
 }
 
-Write_error Tcp_connection::send_packet(Write_packet&& packet) {
+Write_result Tcp_connection::send_packet(Write_packet&& packet) {
   if (state_.state() != State::logged_in)
-    return Write_error::not_logged_in;
+    return {Write_error::not_logged_in, std::move(packet)};
   const auto packet_type = packet.packet_type();
-  const auto [error, _] = socket_.async_write(std::move(packet));
+  auto result = socket_.async_write(std::move(packet));
   if (packet_type == Unsequenced_data_packet::packet_type &&
-      error == Write_error::none)
+      result.error == Write_error::none)
     heartbeat_timer_.increment_send_count();
-  return error;
+  return result;
 }
 
 Write_error Tcp_connection::send_debug_packet(std::string_view text) {

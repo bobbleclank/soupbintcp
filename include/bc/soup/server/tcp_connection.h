@@ -15,6 +15,7 @@
 namespace bc::soup {
 class Read_packet;
 class Write_packet;
+struct Write_result;
 } // namespace bc::soup
 
 namespace bc::soup::server {
@@ -96,7 +97,7 @@ private:
 
   // Called by Port
   friend class Port;
-  [[nodiscard]] Write_error send_packet(Write_packet&&);
+  Write_result send_packet(Write_packet&&);
   [[nodiscard]] Write_error send_debug_packet(std::string_view);
   void supersede();
 };

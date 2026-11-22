@@ -155,7 +155,8 @@ void Connection::schedule_reconnect() {
 Write_error Connection::send_packet(Write_packet&& packet) {
   if (!connection_)
     return Write_error::disconnected;
-  return connection_->send_packet(std::move(packet));
+  const auto [error, _] = connection_->send_packet(std::move(packet));
+  return error;
 }
 
 bool Connection::is_handler_set() const {
