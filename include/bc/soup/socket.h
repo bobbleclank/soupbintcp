@@ -65,8 +65,8 @@ public:
   void async_connect(const asio::ip::tcp::endpoint&);
 
   void async_read();
-  Write_error async_write(Write_packet&&);
-  Write_error async_write_guaranteed(Write_packet&&);
+  [[nodiscard]] Write_error async_write(Write_packet&&);
+  [[nodiscard]] Write_error async_write_guaranteed(Write_packet&&);
 
   asio::ip::tcp::endpoint local_endpoint(asio::error_code* = nullptr) const;
   asio::ip::tcp::endpoint remote_endpoint(asio::error_code* = nullptr) const;
