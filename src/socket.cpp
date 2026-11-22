@@ -79,19 +79,19 @@ void Socket::async_read() {
   read_header();
 }
 
-Write_error Socket::async_write(Write_packet&& packet) {
+Write_result Socket::async_write(Write_packet&& packet) {
   if (closing_)
-    return Write_error::disconnected;
+    return {Write_error::disconnected, std::move(packet)};
   const auto size = write_packets_.size();
   // >= not == since async_write_guaranteed can exceed the limit
   if (size >= write_packets_limit_) {
     write_buffer_was_full_ = true;
-    return Write_error::write_buffer_full;
+    return {Write_error::write_buffer_full, std::move(packet)};
   }
   write_packets_.push_back(std::move(packet));
   if (size == 0)
     write_packet();
-  return Write_error::none;
+  return {};
 }
 
 Write_error Socket::async_write_guaranteed(Write_packet&& packet) {

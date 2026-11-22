@@ -300,7 +300,7 @@ Write_error Tcp_connection::send_packet(Write_packet&& packet) {
   if (state_.state() != State::logged_in)
     return Write_error::not_logged_in;
   const auto packet_type = packet.packet_type();
-  const auto error = socket_.async_write(std::move(packet));
+  const auto [error, _] = socket_.async_write(std::move(packet));
   if (packet_type == Unsequenced_data_packet::packet_type &&
       error == Write_error::none)
     heartbeat_timer_.increment_send_count();
@@ -315,8 +315,9 @@ Write_error Tcp_connection::send_debug_packet(std::string_view text) {
 
   if (state_.state() == State::connecting || state_.is_closing())
     return Write_error::disconnected;
-  return socket_.async_write(
+  const auto [error, _] = socket_.async_write(
       Write_packet(Debug_packet::packet_type, text.data(), text.size()));
+  return error;
 }
 
 void Tcp_connection::close() {

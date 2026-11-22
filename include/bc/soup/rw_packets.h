@@ -2,6 +2,7 @@
 #define INCLUDE_BC_SOUP_RW_PACKETS_H
 
 #include "bc/soup/constants.h"
+#include "bc/soup/types.h"
 
 #include <array>
 #include <cassert>
@@ -154,6 +155,11 @@ public:
 
 private:
   Buffer packet_;
+};
+
+struct [[nodiscard]] Write_result {
+  Write_error error = Write_error::none;
+  Write_packet packet;
 };
 
 } // namespace bc::soup
